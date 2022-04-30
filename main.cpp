@@ -43,11 +43,11 @@ int main(){
 
     //Winner Takes All
     u32* disparityMap = allocate_mem(u32,imageWidth*imageHeight);
-    costEstimator->smDisparityEstimate<u32,u32>(refinedCostMatrix,disparityMap,imageWidth,imageHeight,disparityRange);
+    costEstimator->smDisparityEstimateSubpixelRefine<u32,u32>(refinedCostMatrix,disparityMap,imageWidth,imageHeight,disparityRange);
     cout<<"Disparity Estimate"<<endl;
 
     //Save PPM
-    Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-ca.ppm",disparityMap,imageWidth,imageHeight,disparityRange);
+    Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb.ppm",disparityMap,imageWidth,imageHeight,disparityRange);
     cout<<"PPM Saved"<<endl;
     return 0;
 }
