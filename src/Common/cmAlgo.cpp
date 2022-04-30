@@ -12,7 +12,7 @@ namespace Common{
     }
     u32 Algorithm::cmSaveAsPPM(std::string file_path, u8* imageData,u32 imageWidth,u32 imageHeight,u8 maxValue){
         std::ofstream imagePPMOutput(file_path);
-        imagePPMOutput<<"P3"<<std::endl<<imageWidth<<" "<<imageHeight<<std::endl<<maxValue<<std::endl;
+        imagePPMOutput<<"P3"<<std::endl<<imageWidth<<" "<<imageHeight<<std::endl<<(u32)maxValue<<std::endl;
         for(u32 j=0;j<imageHeight;j++){ //Rows
             for(u32 i=0;i<imageWidth;i++){ //Cols
                 imagePPMOutput<<(i32)get_pixel(imageData,i,j,imageWidth,imageHeight)<<" "<<(i32)get_pixel(imageData,i,j,imageWidth,imageHeight)<<" "<<(i32)get_pixel(imageData,i,j,imageWidth,imageHeight)<<" ";

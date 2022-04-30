@@ -8,12 +8,8 @@ namespace StereoMapping{
         u32* rightImageCensus = allocate_mem(u32,imageWidth*imageHeight);
         smCensusCalculate(leftImage,imageWidth,imageHeight,leftImageCensus);
         smCensusCalculate(rightImage,imageWidth,imageHeight,rightImageCensus);
-        Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-lc.ppm",leftImageCensus,imageWidth,imageHeight);
-        Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-rc.ppm",rightImageCensus,imageWidth,imageHeight);
-        std::cout<<"Census Calc"<<std::endl;
         //Calculate the cost
         smCostCalculateImpl(leftImageCensus,rightImageCensus,imageWidth,imageHeight,disparityRange,costOutput);
-        std::cout<<"Cost Calc Impl"<<std::endl;
         //Free Objects
         free_mem(leftImageCensus);
         free_mem(rightImageCensus);

@@ -11,3 +11,6 @@ CTestTestfile.cmake
 _deps
 target/*
 *.ppm
+out/*
+.vs/*
+enc_temp_folder/*

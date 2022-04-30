@@ -16,7 +16,7 @@ namespace StereoMapping{
                 i32 minDisparity = I32_MAX;
                 i32 minDisparityIndex = 0;
                 for(u32 k=0;k<disparityRange;k++){
-                    if(get_pixel3(costMatrix,i,j,k,imageWidth,imageHeight,disparityRange)<minDisparity){
+                    if(get_pixel3(costMatrix,i,j,k,imageWidth,imageHeight,disparityRange)<(u32)minDisparity){
                         minDisparity = get_pixel3(costMatrix,i,j,k,imageWidth,imageHeight,disparityRange);
                         minDisparityIndex = k;
                     }

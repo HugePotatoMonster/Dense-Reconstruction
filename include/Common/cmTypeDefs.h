@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #define i8 char
 #define i16 short
 #define i32 int
@@ -22,8 +24,10 @@
 
 #define Max(a,b) ((a)>(b)?(a):(b))
 #define Min(a,b) ((a)<(b)?(a):(b))
+#define Abs(x) ((x)<0?(-(x)):(x))
 
 #define get_pixel(im,x,y,w,h) ((im)[(y)*(w)+(x)])
 #define get_pixel3(im,x,y,z,w,h,d) ((im)[(y)*(w)*(d)+(x)*(d)+(z)])
 #define allocate_mem(tp,size) (new tp[size])
 #define free_mem(obj) (delete[] obj)
+#define set_zero(x,l) (memset(x,0,l))
