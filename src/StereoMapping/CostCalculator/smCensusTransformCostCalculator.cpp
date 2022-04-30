@@ -1,23 +1,23 @@
 #include "../../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
 #include "../../../include/Common/cmAlgo.h"
+#include <iostream>
 namespace StereoMapping{
-    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight, u32 disparityRange,u8* &costOutput){
+    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight, u32 disparityRange,u8* costOutput){
         //Calculate the census values for two images
         u32* leftImageCensus = allocate_mem(u32,imageWidth*imageHeight);
         u32* rightImageCensus = allocate_mem(u32,imageWidth*imageHeight);
         smCensusCalculate(leftImage,imageWidth,imageHeight,leftImageCensus);
         smCensusCalculate(rightImage,imageWidth,imageHeight,rightImageCensus);
-
+        Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-lc.ppm",leftImageCensus,imageWidth,imageHeight);
+        Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-rc.ppm",rightImageCensus,imageWidth,imageHeight);
+        std::cout<<"Census Calc"<<std::endl;
         //Calculate the cost
-        u8* disparityCostMat = allocate_mem(u8,imageWidth*imageHeight*disparityRange);
-        smCostCalculateImpl(leftImageCensus,rightImageCensus,imageWidth,imageHeight,disparityRange,disparityCostMat);
-
+        smCostCalculateImpl(leftImageCensus,rightImageCensus,imageWidth,imageHeight,disparityRange,costOutput);
+        std::cout<<"Cost Calc Impl"<<std::endl;
         //Free Objects
         free_mem(leftImageCensus);
         free_mem(rightImageCensus);
 
-        //Return
-        costOutput = disparityCostMat;
         return 0;
     }
     void CensusTransformCostCalculator::smCensusCalculate(u8* image, u32 imageWidth, u32 imageHeight, u32* censusOutput){
@@ -25,10 +25,10 @@ namespace StereoMapping{
             for(u32 j=censusWindowH;j<imageHeight-censusWindowH;j++){
                 //The center pixel is now (i,j)
                 u32 censusValue = 0;
-                for(u32 dx=-censusWindowW;dx<=censusWindowW;dx++){
-                    for(u32 dy=-censusWindowH;dy>=censusWindowH;dy++){
+                for(i32 dx=-(i32)censusWindowW;dx<=(i32)censusWindowW;dx++){
+                    for(i32 dy=-(i32)censusWindowH;dy<=(i32)censusWindowH;dy++){
                         //The ref pixel is now (i+dx,j+dy)
-                        censusValue |= (get_pixel(image,i,j,imageWidth,imageHeight) > get_pixel(image,i+dx,j+dy,imageWidth,imageHeight));
+                        censusValue |= (get_pixel(image,i,j,imageWidth,imageHeight) > get_pixel(image,(i32)(i)+dx,(i32)(j)+dy,imageWidth,imageHeight));
                         censusValue <<= 1;
                     }
                 }
@@ -42,7 +42,7 @@ namespace StereoMapping{
                 //Left pixel is (i,j)
                 for(u32 k=0;k<disparityRange;k++){
                     //Right pixel is (i-k,j)
-                    if(i-k<0){
+                    if(i<k){
                         get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = U8_MAX;
                     }else{
                         get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = Common::Algorithm::cmHammingDistance(

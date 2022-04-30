@@ -1,3 +1,4 @@
+#pragma once
 #include "../../../include/StereoMapping/CostCalculator/smCostAggregator.h"
 namespace StereoMapping {
     class FourPathCostAggregator:public CostAggregator{
@@ -7,5 +8,6 @@ namespace StereoMapping {
     public:
         void smCostAggregate(u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix) override;
         void smCostAggregateLR(u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
+        void smCostAggregateUD(u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
     };
 }
