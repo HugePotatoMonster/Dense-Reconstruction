@@ -9,6 +9,8 @@
 #include "./include/StereoMapping/CostOptimizer/smCostOptimizer.h"
 #include "./include/StereoMapping/Helper/smCostHelper.h"
 #include "./include/StereoMapping/DepthEstimator/smDepthConverter.h"
+#include "./include/DenseReconstruction/Voxel/drPlainVoxelStore.h"
+#include "./include/DenseReconstruction/TSDF/drTSDF.h"
 
 #define CE_TYPE u32
 
@@ -21,6 +23,7 @@ int main() {
 	StereoMapping::CostHelper helper = StereoMapping::CostHelper();
 	StereoMapping::CostOptimizer optimizer = StereoMapping::CostOptimizer();
 	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
+	DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 
 	//Load Images
 	cout << "Loading Image" << endl;
@@ -35,7 +38,7 @@ int main() {
 	u32 imageWidth = imageLeft.size[1];
 	u32 imageHeight = imageLeft.size[0];
 	u32 disparityRange = 64;
-	
+	cout << "IW=" << imageWidth << ", IH=" << imageHeight << endl;
 
 	//Disparity Estimate
 	cout << "Estimating Disparity" << endl;
@@ -76,6 +79,10 @@ int main() {
 	depthConverter.smDepthDiscretization(depthMap, depthMapTrunc, &depthMapTruncMax, imageWidth, imageHeight);
 
 	//=========== End of Depth Calculation ==================
+
+	cout << "Creating Voxels" << endl;
+	DenseReconstruction::VoxelStore* voxelStore = new DenseReconstruction::PlainVoxelStore();
+
 
 	//Save PPM
 	cout << "Saving PPM" << endl;

@@ -1,3 +1,4 @@
+#pragma once
 #include "../../Common/cmTypeDefs.h"
 #include "../../DenseReconstruction/Voxel/drVoxelStore.h"
 

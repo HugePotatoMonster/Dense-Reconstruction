@@ -1,3 +1,4 @@
+#pragma once
 #include "../../Common/cmTypeDefs.h"
 
 #define VOXEL_BLOCK_W 8
