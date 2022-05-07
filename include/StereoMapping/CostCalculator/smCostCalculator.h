@@ -7,7 +7,7 @@ namespace StereoMapping {
 		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, u32 disparityRange, u8* costOutput) = 0;
 		void smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* costOutput);
 		template<class T, class S> void smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
-		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
+		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
 	};
 
 	template<class T, class S> void CostCalculator::smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange) {
@@ -26,7 +26,7 @@ namespace StereoMapping {
 			}
 		}
 	}
-	template<class T, class S> void CostCalculator::smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange) {
+	template<class T, class S> void CostCalculator::smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange) {
 		// Winner takes all
 		// 
 		// Subpixel Estimate:
@@ -44,12 +44,22 @@ namespace StereoMapping {
 			for (u32 j = 0; j < imageHeight; j++) {
 				i32 minDisparity = I32_MAX;
 				i32 minDisparityIndex = 0;
+				i32 sMinDisparity = I32_MAX;
+				i32 sMinDisparityIndex = 0;
+
 				for (u32 k = 0; k < disparityRange; k++) {
 					if (get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange) < (u32)minDisparity) {
 						minDisparity = get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange);
 						minDisparityIndex = k;
 					}
 				}
+				for (u32 k = 0; k < disparityRange; k++) {
+					if (get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange) < (u32)sMinDisparity && k!=minDisparity) {
+						sMinDisparity = get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange);
+						sMinDisparityIndex = k;
+					}
+				}
+				//Subpixel Estimate
 				if (minDisparityIndex != 0 && minDisparityIndex != disparityRange - 1) {
 					f64 dA = get_pixel3(costMatrix, i, j, minDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
 					f64 dB = get_pixel3(costMatrix, i, j, minDisparityIndex + 1, imageWidth, imageHeight, disparityRange);
@@ -59,8 +69,21 @@ namespace StereoMapping {
 				else {
 					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex;
 				}
+
+				//Subpixel Estimate - secondary
+				if (sMinDisparityIndex != 0 && sMinDisparityIndex != disparityRange - 1) {
+					f64 dA = get_pixel3(costMatrix, i, j, sMinDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
+					f64 dB = get_pixel3(costMatrix, i, j, sMinDisparityIndex + 1, imageWidth, imageHeight, disparityRange);
+					f64 dC = get_pixel3(costMatrix, i, j, sMinDisparityIndex, imageWidth, imageHeight, disparityRange);
+					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC, 1.0)) / 2.0;
+				}
+				else {
+					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex;
+				}
 			}
 		}
 	}
+
+
 };
 

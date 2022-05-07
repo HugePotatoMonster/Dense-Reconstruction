@@ -38,23 +38,36 @@ int main() {
 	//Disparity Estimate
 	cout << "Estimating Disparity" << endl;
 	f64* leftDisparityMap = allocate_mem(f64, imageWidth * imageHeight);
-	helper.calculateCostInternalF(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap);
+	f64* leftDisparityMapS = allocate_mem(f64, imageWidth * imageHeight);
+	u32* occlusionList = allocate_mem(u32, imageWidth * imageHeight);
+	u32* mismatchList = allocate_mem(u32, imageWidth * imageHeight);
+	u32 occlusionListLen = 0, mismatchListLen = 0;
+	helper.calculateCostInternalF(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap, leftDisparityMapS, occlusionList, &occlusionListLen, mismatchList, &mismatchListLen);
 
 	//Connected Block Check
 	cout << "Connected Block Check" << endl;
 	f64* leftDisparityMapCbc = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 6.0, 10.0);
+	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 6.0, 10);
 
+	//Median Filter
+	cout << "Median Filter" << endl;
+	f64* leftDisparityMapMf = allocate_mem(f64, imageWidth * imageHeight);
+	optimizer.smMedianFilter(leftDisparityMapCbc, leftDisparityMapMf, imageWidth, imageHeight, 5);
+
+	//Disparity Fill
+	cout << "Disparity Fill" << endl;
+	f64* leftDisparityMapFl = allocate_mem(f64, imageWidth * imageHeight);
+	optimizer.smDisparityFill(leftDisparityMapMf, leftDisparityMapFl, imageWidth, imageHeight, occlusionList, &occlusionListLen, mismatchList, &mismatchListLen);
 
 	//Discretization
 	cout << "Discretization" << endl;
 	u32* leftDispMapOut = allocate_mem(u32, imageWidth * imageHeight);
-	optimizer.smDisparityMapDiscretization(leftDisparityMapCbc, leftDispMapOut, imageWidth, imageHeight, disparityRange);
+	optimizer.smDisparityMapDiscretization(leftDisparityMapFl, leftDispMapOut, imageWidth, imageHeight, disparityRange);
 
 
 	//Save PPM
 	cout << "Saving PPM" << endl;
-	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-ld.ppm", leftDispMapOut, imageWidth, imageHeight, disparityRange);
+	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-lf.ppm", leftDispMapOut, imageWidth, imageHeight, disparityRange);
 
 	return 0;
 }
