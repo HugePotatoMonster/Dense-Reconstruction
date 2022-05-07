@@ -75,7 +75,7 @@ int main() {
 	u32 depthMapTruncMax = 0;
 	depthConverter.smDepthDiscretization(depthMap, depthMapTrunc, &depthMapTruncMax, imageWidth, imageHeight);
 
-
+	//=========== End of Depth Calculation ==================
 
 	//Save PPM
 	cout << "Saving PPM" << endl;

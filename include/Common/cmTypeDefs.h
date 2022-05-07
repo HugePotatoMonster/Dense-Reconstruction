@@ -45,3 +45,14 @@
 #define free_mem(obj) (delete[] obj)
 #define set_zero(x,l) (memset(x,0,l))
 
+namespace Common {
+	struct MonocularCameraIntrinsic {
+		f64 fx, fy;  //Focal Length
+		f64 cx, cy;  //Pixel Translation
+		f64 dx, dy;  //Inverse of Pixel Shape
+	};
+	struct MonocularCameraExtrinsic {
+		f64 tx, ty, tz;
+		f64 rx, ry, rz;
+	};
+}
