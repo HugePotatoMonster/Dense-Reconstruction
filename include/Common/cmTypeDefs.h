@@ -27,7 +27,19 @@
 #define Abs(x) ((x)<0?(-(x)):(x))
 
 #define get_pixel(im,x,y,w,h) ((im)[(y)*(w)+(x)])
+#define get_pixel_hf(im,x,y,w,h)  get_pixel(im,((w)-1)-(x),y,w,h)
 #define get_pixel3(im,x,y,z,w,h,d) ((im)[(y)*(w)*(d)+(x)*(d)+(z)])
+#define coord2idx(x,y,w,h) ((y)*(w)+(x))
+#define idx2ycoord(idx,w,h) ((i32)(idx)/(w))
+#define idx2xcoord(idx,w,h) ((i32)(idx)%(w))
+
+#define is_queue_empty(fr,ta,len) ((fr)==(ta))
+#define is_queue_full(fr,ta,len) (((ta)+1)%(len)==((fr))%(len))
+#define queue_push(q,el,fr,ta,len) (q)[((ta)++)%(len)]=(el);(ta)%=(len);
+#define queue_front(q,fr,ta,len) ((q)[((fr))%(len)])
+#define queue_pop(q,fr,ta,len) ((q)[((fr)++)%(len)]);(fr)%=(len);
+
 #define allocate_mem(tp,size) (new tp[size])
 #define free_mem(obj) (delete[] obj)
 #define set_zero(x,l) (memset(x,0,l))
+

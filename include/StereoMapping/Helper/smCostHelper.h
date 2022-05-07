@@ -1,0 +1,11 @@
+#include "../../Common/cmTypeDefs.h"
+
+namespace StereoMapping {
+	class CostHelper {
+	public:
+		void calculateCost(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange,u32* leftDisparityMap);
+		void calculateCostInternal(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* leftDisparityMap);
+		void calculateCostInternalF(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, f64* leftDisparityMap);
+
+	};
+}

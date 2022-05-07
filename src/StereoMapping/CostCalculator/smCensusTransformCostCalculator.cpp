@@ -24,8 +24,9 @@ namespace StereoMapping{
                 for(i32 dx=-(i32)censusWindowW;dx<=(i32)censusWindowW;dx++){
                     for(i32 dy=-(i32)censusWindowH;dy<=(i32)censusWindowH;dy++){
                         //The ref pixel is now (i+dx,j+dy)
-                        censusValue |= (get_pixel(image,i,j,imageWidth,imageHeight) > get_pixel(image,(i32)(i)+dx,(i32)(j)+dy,imageWidth,imageHeight));
                         censusValue <<= 1;
+                        censusValue |= (get_pixel(image,i,j,imageWidth,imageHeight) > get_pixel(image,(i32)(i)+dx,(i32)(j)+dy,imageWidth,imageHeight));
+                        
                     }
                 }
                 get_pixel(censusOutput,i,j,imageWidth,imageHeight) = censusValue;
@@ -39,7 +40,7 @@ namespace StereoMapping{
                 for(u32 k=0;k<disparityRange;k++){
                     //Right pixel is (i-k,j)
                     if(i<k){
-                        get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = U8_MAX;
+                        get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = I8_MAX;
                     }else{
                         get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = Common::Algorithm::cmHammingDistance(
                             get_pixel(leftCensus,i,j,imageWidth,imageHeight),

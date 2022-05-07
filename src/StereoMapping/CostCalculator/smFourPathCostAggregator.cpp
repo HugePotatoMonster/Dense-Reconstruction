@@ -15,6 +15,7 @@ namespace StereoMapping {
 		u32* optCost = allocate_mem(u32, disparityRange * 2);
 
 		for (u32 j = 0; j < imageHeight; j++) {
+			lastMin = U32_MAX;
 			//Current pixel is (?,j)
 			i32 startCoord = direction ? imageWidth - 1 : 0;
 			i32 stopCoord = direction ? -1 : imageWidth;
@@ -31,8 +32,7 @@ namespace StereoMapping {
 			//Status Updating
 			for (i32 k = startCoord + deltaCoord; k != stopCoord; k += deltaCoord) {
 				//Updating f[k,j,d] from f[k',j,d']
-				//cout << "Hello" << endl;
-				i32 newMin = U32_MAX;
+				i32 newMin = I32_MAX;
 				for (u32 d = 0; d < disparityRange; d++) {
 					get_pixel(optCost, d, k & 1, disparityRange, 2) = get_pixel3(costMatrix, k, j, d, imageWidth, imageHeight, disparityRange);
 					i32 addedValue = get_pixel(optCost, d, (k + 1) & 1, disparityRange, 2);
@@ -59,6 +59,7 @@ namespace StereoMapping {
 				lastMin = newMin;
 			}
 		}
+		free_mem(optCost);
 
 	}
 	void FourPathCostAggregator::smCostAggregateUD(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix, u8 direction) {
@@ -68,6 +69,7 @@ namespace StereoMapping {
 		u32* optCost = allocate_mem(u32, disparityRange * 2);
 
 		for (u32 i = 0; i < imageWidth; i++) {
+			lastMin = U32_MAX;
 			//Current pixel is (?,j)
 			i32 startCoord = direction ? imageHeight - 1 : 0;
 			i32 stopCoord = direction ? -1 : imageHeight;
@@ -83,7 +85,7 @@ namespace StereoMapping {
 			//Status Updating
 			for (i32 k = startCoord + deltaCoord; k != stopCoord; k += deltaCoord) {
 				//Updating f[k,j,d] from f[k',j,d']
-				i32 newMin = U32_MAX;
+				i32 newMin = I32_MAX;
 				for (u32 d = 0; d < disparityRange; d++) {
 					get_pixel(optCost, d, k & 1, disparityRange, 2) = get_pixel3(costMatrix, i, k, d, imageWidth, imageHeight, disparityRange);
 					i32 addedValue = get_pixel(optCost, d, (k + 1) & 1, disparityRange, 2);
@@ -103,7 +105,7 @@ namespace StereoMapping {
 				lastMin = newMin;
 			}
 		}
-
+		free_mem(optCost);
 	}
 
 }

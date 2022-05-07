@@ -1,12 +1,11 @@
 #pragma once
 #include "../../../include/Common/cmTypeDefs.h"
-#include "../../../src/StereoMapping/CostCalculator/smCostCalculator.cpp"
 
 namespace StereoMapping {
 	class CostCalculator {
 	public:
 		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, u32 disparityRange, u8* costOutput) = 0;
-		void smGetAnotherCost(u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u8* costOutput);
+		void smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* costOutput);
 		template<class T, class S> void smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
 		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
 	};
@@ -55,7 +54,7 @@ namespace StereoMapping {
 					f64 dA = get_pixel3(costMatrix, i, j, minDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
 					f64 dB = get_pixel3(costMatrix, i, j, minDisparityIndex + 1, imageWidth, imageHeight, disparityRange);
 					f64 dC = get_pixel3(costMatrix, i, j, minDisparityIndex, imageWidth, imageHeight, disparityRange);
-					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex + (dB - dA) / (dA + dB - 2.0 * dC) / 2.0;
+					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC,1.0)) / 2.0;
 				}
 				else {
 					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex;

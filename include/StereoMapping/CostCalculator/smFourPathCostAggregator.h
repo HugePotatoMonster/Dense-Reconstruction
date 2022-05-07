@@ -7,7 +7,7 @@ namespace StereoMapping {
         u32 p2 = 150; //Penalty coefficient for cost difference larger than 1
     public:
         void smCostAggregate(u8* imageData,u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix) override;
-        void smCostAggregateLR(u8* imageData,u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
-        void smCostAggregateUD(u8* imageData,u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
+        virtual void smCostAggregateLR(u8* imageData,u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
+        virtual void smCostAggregateUD(u8* imageData,u8* costMatrix,u32 imageWidth,u32 imageHeight,u32 disparityRange, u32* refinedMatrix,u8 direction);
     };
 }
