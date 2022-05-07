@@ -1,10 +1,11 @@
 #include "../../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
 #include <algorithm>
+#include <iostream>
 
 namespace StereoMapping {
 	void CostOptimizer::smInternalConsistencyCheckF(f64* leftDisparityMap, f64* rightDisparityMap, f64* outputDisparityMap, u32 imageWidth, u32 imageHeight, u32* occuList, u32* occuLen, u32* misList, u32* misLen, f64 consistencyThreshold, f64 invalidPlaceholder) {
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 j = 0; j < imageHeight; j++) {
+			for (i32 i = 0; i < imageWidth; i++) {
 				f64 leftDisp = get_pixel(leftDisparityMap, i, j, imageWidth, imageHeight);
 				i32 rightDispEpi = (i32)(i - leftDisp + 0.5);
 				f64 rightDisp = 0;
@@ -157,7 +158,8 @@ namespace StereoMapping {
 	}
 	void CostOptimizer::smDisparityFill(f64* disparityMap, f64* outMap, u32 imageWidth, u32 imageHeight, u32* occuList, u32* occuLen, u32* misList, u32* misLen) {
 		const i32 dirs = 8;
-		i32 chkDirections[dirs][2] = { {0,1},{0,-1},{1,0},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1} };
+		const f64 invIdx = 2.0;
+		i32 chkDirections[dirs][2] = { {1,1},{1,-1},{-1,1},{-1,-1},{0,1},{0,-1},{1,0},{-1,0} };
 		u32* processItems[2][2] = { {occuList,occuLen},{misList,misLen} };
 		u32* validNeighbours = allocate_mem(u32, dirs);
 		i32 validNeighboursLen = 0;
@@ -175,45 +177,58 @@ namespace StereoMapping {
 					u32 ty = idx2ycoord(idx, imageWidth, imageHeight);
 					for (i32 j = 0; j < dirs; j++) {
 						for (i32 dx = tx, dy = ty; (dx < imageWidth && dx >= 0) && (dy < imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
-							if (get_pixel(disparityMap, dx, dy, imageWidth, imageHeight) > eps) {
+							if (get_pixel(outMap, dx, dy, imageWidth, imageHeight) > invIdx) {
 								validNeighbours[validNeighboursLen++] = coord2idx(dx, dy, imageWidth, imageHeight);
 								break;
 							}
 						}
 					}
 					std::sort(validNeighbours, validNeighbours + validNeighboursLen);
-					//occlusion: Replace with second one
-					if (T == 0) {
-						if (validNeighboursLen == 1) {
-							outMap[idx] = disparityMap[validNeighbours[0]];
+					if (validNeighboursLen != 0) {
+						//occlusion: Replace with second one
+						if (T == 0) {
+							if (validNeighboursLen == 1) {
+								outMap[idx] = outMap[validNeighbours[0]];
+							}
+							else {
+								outMap[idx] = outMap[validNeighbours[1]];
+							}
 						}
+						//mismatch: Replace with the median
 						else {
-							outMap[idx] = disparityMap[validNeighbours[1]];
+							outMap[idx] = outMap[validNeighbours[validNeighboursLen / 2]];
 						}
 					}
-					//mismatch: Replace with the median
-					else {
-						outMap[idx] = disparityMap[validNeighbours[validNeighboursLen / 2]];
-					}
+					
 				}
 			}
 			else {
 				//Process the remaining
-				for (i32 tx = 0; tx < imageWidth; tx++) {
-					for (i32 ty = 0; ty < imageHeight; ty++) {
+				for (i32 ty = 0; ty < imageHeight; ty++) {
+					for (i32 tx = 0; tx < imageWidth; tx++) {
 						//Cur pos is (tx,ty)
 						validNeighboursLen = 0;
-						if (get_pixel(outMap, tx, ty, imageWidth, imageHeight) < eps) {
+						if (get_pixel(outMap, tx, ty, imageWidth, imageHeight) < invIdx) {
+							//std::cout << "Filling" << tx << "," << ty << std::endl;
 							for (i32 j = 0; j < dirs; j++) {
 								for (i32 dx = tx, dy = ty; (dx < imageWidth && dx >= 0) && (dy < imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
-									if (get_pixel(disparityMap, dx, dy, imageWidth, imageHeight) > eps) {
+									if (get_pixel(outMap, dx, dy, imageWidth, imageHeight) > invIdx) {
 										validNeighbours[validNeighboursLen++] = coord2idx(dx, dy, imageWidth, imageHeight);
 										break;
 									}
 								}
 							}
 							std::sort(validNeighbours, validNeighbours + validNeighboursLen);
-							get_pixel(outMap,tx,ty,imageWidth,imageHeight) = disparityMap[validNeighbours[validNeighboursLen / 2]];
+							if (validNeighboursLen != 0) {
+								get_pixel(outMap, tx, ty, imageWidth, imageHeight) = outMap[validNeighbours[validNeighboursLen / 2]];
+								
+							}
+							else {
+								std::cout << "Warning:" << tx << "," << ty << std::endl;
+							}
+						}
+						if (get_pixel(outMap, tx, ty, imageWidth, imageHeight) < invIdx) {
+							std::cout << "Warning:" << tx << "," << ty << std::endl;
 						}
 					}
 				}

@@ -59,6 +59,11 @@ namespace StereoMapping {
 						sMinDisparityIndex = k;
 					}
 				}
+
+				if (minDisparity != 0 && (minDisparity - sMinDisparity) / minDisparity < (i32)((f64)minDisparity * (1.0-0.99))) {
+					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = 0;
+					continue;
+				}
 				//Subpixel Estimate
 				if (minDisparityIndex != 0 && minDisparityIndex != disparityRange - 1) {
 					f64 dA = get_pixel3(costMatrix, i, j, minDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
