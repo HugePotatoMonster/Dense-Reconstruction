@@ -8,9 +8,9 @@ namespace DenseReconstruction {
 		Voxel* store = nullptr;
 		
 	public:
-		void drInitialize(u32 width, u32 height, u32 depth, i32 ox, i32 oy, i32 oz, f64 scale) override;
-		void drSetVoxel(u32 x, u32 y, u32 z, Voxel* value) override;
-		void drGetVoxel(u32 x, u32 y, u32 z, Voxel** value) override;
+		void drInitialize(i32 width, i32 height, i32 depth, i32 ox, i32 oy, i32 oz, f64 scale) override;
+		void drSetVoxel(i32 x, i32 y, i32 z, Voxel* value) override;
+		void drGetVoxel(i32 x, i32 y, i32 z, Voxel** value) override;
 		~PlainVoxelStore();
 	};
 }

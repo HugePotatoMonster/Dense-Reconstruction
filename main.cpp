@@ -11,6 +11,7 @@
 #include "./include/StereoMapping/DepthEstimator/smDepthConverter.h"
 #include "./include/DenseReconstruction/Voxel/drPlainVoxelStore.h"
 #include "./include/DenseReconstruction/TSDF/drTSDF.h"
+#include "./include/Common/Utility/cmVisExt.h"
 
 #define CE_TYPE u32
 
@@ -24,6 +25,7 @@ int main() {
 	StereoMapping::CostOptimizer optimizer = StereoMapping::CostOptimizer();
 	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
 	DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
+	Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
 
 	//Load Images
 	cout << "Loading Image" << endl;
@@ -80,13 +82,33 @@ int main() {
 
 	//=========== End of Depth Calculation ==================
 
+	cout << "Initializing Camera Intrinsic" << endl;
+	Common::MonocularCameraIntrinsic* cameraIntrinsic = new Common::MonocularCameraIntrinsic();
+	cameraIntrinsic->fx = 450.0;
+	cameraIntrinsic->fy = 375.0;
+	cameraIntrinsic->cx = 450.0 / 2.0;
+	cameraIntrinsic->cy = 375.0 / 2.0;
+	cameraIntrinsic->dx = 1.0;
+	cameraIntrinsic->dy = 1.0;
+
 	cout << "Creating Voxels" << endl;
 	DenseReconstruction::VoxelStore* voxelStore = new DenseReconstruction::PlainVoxelStore();
+	voxelStore->drInitialize(128, 128, 128, -64, -64, -64, 1.0);
+	DenseReconstruction::VoxelStore* voxelStoreTemp = new DenseReconstruction::PlainVoxelStore();
+	voxelStoreTemp->drInitialize(128, 128, 128, -64, -64, -64, 1.0);
 
+	cout << "Calculating Truncated Signed Distance Field" << endl;
+	tsdfCalc.drIdealFirstTsdfEstimate(depthMap, imageWidth, imageHeight, cameraIntrinsic, voxelStore, 10.0);
+
+	cout << "Converting TSDF" << endl;
+	visExt.cmuTsdfBinarization(voxelStore, voxelStoreTemp);
+
+	cout << "Saving As OBJ" << endl;
+	visExt.cmuExportVoxelToObj("C:/WR/Sayu/samples/3d-3c.obj", voxelStoreTemp);
 
 	//Save PPM
 	cout << "Saving PPM" << endl;
-	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-3a.ppm", depthMapTrunc, imageWidth, imageHeight, depthMapTruncMax);
+	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-3b.ppm", depthMapTrunc, imageWidth, imageHeight, depthMapTruncMax);
 
 	return 0;
 }

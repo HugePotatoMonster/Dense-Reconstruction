@@ -34,6 +34,7 @@
 #define coord2idx(x,y,w,h) ((y)*(w)+(x))
 #define idx2ycoord(idx,w,h) ((i32)(idx)/(w))
 #define idx2xcoord(idx,w,h) ((i32)(idx)%(w))
+#define coord2idx3(x,y,z,w,h,d) ((y)*(w)*(d)+(x)*(d)+(z))
 
 #define is_queue_empty(fr,ta,len) ((fr)==(ta))
 #define is_queue_full(fr,ta,len) (((ta)+1)%(len)==((fr))%(len))
