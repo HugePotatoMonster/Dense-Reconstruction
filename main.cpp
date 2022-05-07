@@ -8,6 +8,7 @@
 #include "./include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
 #include "./include/StereoMapping/CostOptimizer/smCostOptimizer.h"
 #include "./include/StereoMapping/Helper/smCostHelper.h"
+#include "./include/StereoMapping/DepthEstimator/smDepthConverter.h"
 
 #define CE_TYPE u32
 
@@ -19,16 +20,17 @@ int main() {
 	//Create Objects
 	StereoMapping::CostHelper helper = StereoMapping::CostHelper();
 	StereoMapping::CostOptimizer optimizer = StereoMapping::CostOptimizer();
+	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
 
 	//Load Images
 	cout << "Loading Image" << endl;
 	cv::Mat imageLeft = cv::imread("C:/WR/Sayu/samples/vl.png", 0);
 	cv::Mat imageRight = cv::imread("C:/WR/Sayu/samples/vr.png", 0);
-	
+	/*
 	cv::Mat imageLeftFlip = imageLeft.clone();
 	cv::Mat imageRightFlip = imageRight.clone();
 	cv::flip(imageLeft, imageLeftFlip, 1);
-	cv::flip(imageRight, imageRightFlip, 1);
+	cv::flip(imageRight, imageRightFlip, 1);*/
 
 	u32 imageWidth = imageLeft.size[1];
 	u32 imageHeight = imageLeft.size[0];
@@ -61,15 +63,23 @@ int main() {
 	optimizer.smMedianFilter(leftDisparityMapFl, leftDisparityMapMf, imageWidth, imageHeight, 5);
 
 
+	//=========== End of Disparity Estimation ==================
+	cout << "Depth Estimation" << endl;
+	f64* depthMap = allocate_mem(f64, imageWidth * imageHeight);
+	depthConverter.smIdealBinocularDisparityToDepth(leftDisparityMapMf, depthMap, imageWidth, imageHeight, 20.0, 60.0);
+
+
 	//Discretization
 	cout << "Discretization" << endl;
-	u32* leftDispMapOut = allocate_mem(u32, imageWidth * imageHeight);
-	optimizer.smDisparityMapDiscretization(leftDisparityMapMf, leftDispMapOut, imageWidth, imageHeight, disparityRange);
+	u32* depthMapTrunc = allocate_mem(u32, imageWidth * imageHeight);
+	u32 depthMapTruncMax = 0;
+	depthConverter.smDepthDiscretization(depthMap, depthMapTrunc, &depthMapTruncMax, imageWidth, imageHeight);
+
 
 
 	//Save PPM
 	cout << "Saving PPM" << endl;
-	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-2c.ppm", leftDispMapOut, imageWidth, imageHeight, disparityRange);
+	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-3a.ppm", depthMapTrunc, imageWidth, imageHeight, depthMapTruncMax);
 
 	return 0;
 }

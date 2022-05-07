@@ -19,6 +19,8 @@
 #define I8_MAX (0x7f)
 #define I32_MAX (0x7fffffff)
 
+#define F64_INF (1e40)
+
 #define eps (1e-6)
 #define pi (3.1415926)
 
