@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <vector>
 
 #define i8 char
 #define i16 short
@@ -56,4 +57,17 @@ namespace Common {
 		f64 tx, ty, tz;
 		f64 rx, ry, rz;
 	};
+	namespace Mesh {
+		struct Vertex {
+			f64 x, y, z;
+		};
+		struct IndexedTriangularFace {
+			i32 a, b, c;
+		};
+		struct SimpleMesh {
+			std::vector<Vertex> v;
+			std::vector<IndexedTriangularFace> f;
+		};
+	}
+	
 }

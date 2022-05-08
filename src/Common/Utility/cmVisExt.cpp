@@ -1,4 +1,5 @@
 #include "../../../include/Common/Utility/cmVisExt.h"
+#include "../../../include/Common/Utility/cmMarchingCubesDef.h"
 #include <fstream>
 #include <iostream>
 
@@ -87,6 +88,73 @@ namespace Common {
 					}
 				}
 			}
+		}
+
+		void VisualizationExt::cmuVoxelMarchingCubes(DenseReconstruction::VoxelStore* inStore, Common::Mesh::SimpleMesh* outMesh) {
+			//Traverse the voxel store and generate a mesh with vertices and faces
+			using namespace Common::Util::Constant;
+
+			for (i32 i = 0; i < inStore->width; i++) {
+				for (i32 j = 0; j < inStore->height; j++) {
+					for (i32 k = 0; k < inStore->depth; k++) {
+						i32 tx = i + inStore->ox;
+						i32 ty = j + inStore->oy;
+						i32 tz = k + inStore->oz;
+						//Find Vertices Index
+						i32 vIdx = 0;
+						for (i32 p = 0; p < 8; p++) {
+							DenseReconstruction::Voxel* temp;
+							inStore->drGetVoxel(tx + cmuMarchingCubesVertices[p][0], ty + cmuMarchingCubesVertices[p][1], tz + cmuMarchingCubesVertices[p][2], &temp);
+							if (temp->tsdf > 0.5) {
+								vIdx |= (1 << p);
+							}
+						}
+						
+						//Generate Mesh Vertices
+						i32 edges = cmuMarchingCubesEdgeFlags[vIdx];
+						i32 edgeIdxInMesh[12] = { 0 };
+						i32 edgeStart, edgeEnd;
+						for (i32 p = 0; p < 12; p++) {
+							if ((edges | (1 << p))) {
+								Common::Mesh::Vertex q;
+								edgeIdxInMesh[p] = outMesh->v.size();
+								edgeStart = cmuMarchingCubesConnection[p][0];
+								edgeEnd = cmuMarchingCubesConnection[p][1];
+								q.x = (f64)tx + cmuMarchingCubesVertices[edgeStart][0] + cmuMarchingCubesEdges[edgeStart][0] * 0.5;
+								q.y = (f64)ty + cmuMarchingCubesVertices[edgeStart][1] + cmuMarchingCubesEdges[edgeStart][1] * 0.5;
+								q.z = (f64)tz + cmuMarchingCubesVertices[edgeStart][2] + cmuMarchingCubesEdges[edgeStart][2] * 0.5;
+								outMesh->v.push_back(q);
+							}
+						}
+						//Generate Mesh Faces
+						for (i32 p = 0; p < 15; p+=3) {
+							if (cmuMarchingCubesTriangleTable[vIdx][p] == -1) {
+								continue;
+							}
+							Common::Mesh::IndexedTriangularFace face;
+							face.a = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p]];
+							face.b = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p + 1]];
+							face.c = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p + 2]];
+							outMesh->f.push_back(face);
+						}
+					}
+				}
+			}
+		}
+		void VisualizationExt::cmuExportMeshToObj(std::string fileName, Common::Mesh::SimpleMesh* mesh) {
+			std::ofstream fs;
+			fs.open(fileName);
+			i32 meshFaceLen = mesh->f.size();
+			i32 meshVertexLen = mesh->v.size();
+			std::cout << "Saving Vertices" << std::endl;
+			for (i32 i = 0; i < meshVertexLen; i++) {
+				fs << "v " << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << std::endl;
+			}
+			std::cout << "Saving Faces" << std::endl;
+			for (i32 i = 0; i < meshFaceLen; i++) {
+				fs << "f " << mesh->f[i].a << " " << mesh->f[i].b << " " << mesh->f[i].c << std::endl;
+			}
+			fs.close();
 		}
 	}
 }
