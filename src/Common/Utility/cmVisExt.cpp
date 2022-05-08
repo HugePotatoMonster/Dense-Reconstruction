@@ -121,9 +121,9 @@ namespace Common {
 								Common::Mesh::Vertex q;
 								edgeStart = cmuMarchingCubesConnection[p][0];
 								edgeEnd = cmuMarchingCubesConnection[p][1];
-								q.x = (f64)tx + cmuMarchingCubesVertices[edgeStart][0] + cmuMarchingCubesEdges[edgeStart][0] * 0.5;
-								q.y = (f64)ty + cmuMarchingCubesVertices[edgeStart][1] + cmuMarchingCubesEdges[edgeStart][1] * 0.5;
-								q.z = (f64)tz + cmuMarchingCubesVertices[edgeStart][2] + cmuMarchingCubesEdges[edgeStart][2] * 0.5;
+								q.x = -((f64)tx + cmuMarchingCubesVertices[edgeStart][0] + (cmuMarchingCubesVertices[edgeEnd][0] - cmuMarchingCubesVertices[edgeStart][0]) * 0.5);
+								q.y = -((f64)ty + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
+								q.z = (f64)tz + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
 								outMesh->v.push_back(q);
 								edgeIdxInMesh[p] = outMesh->v.size();
 							}
