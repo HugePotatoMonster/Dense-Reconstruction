@@ -103,12 +103,18 @@ int main() {
 	cout << "Converting TSDF" << endl;
 	visExt.cmuTsdfBinarization(voxelStore, voxelStoreTemp);
 
+	cout << "Converting to Mesh" << endl;
+	Common::Mesh::SimpleMesh* mesh = new Common::Mesh::SimpleMesh();
+	visExt.cmuVoxelMarchingCubes(voxelStore, mesh);
+
+
+	cout << "F=" << mesh->f.size() << ", V=" << mesh->v.size() << endl;
 	cout << "Saving As OBJ" << endl;
-	visExt.cmuExportVoxelToObj("C:/WR/Sayu/samples/3d-3c.obj", voxelStoreTemp);
+	visExt.cmuExportMeshToObj("C:/WR/Sayu/samples/3d-3c.obj", mesh);
 
 	//Save PPM
 	cout << "Saving PPM" << endl;
-	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-3b.ppm", depthMapTrunc, imageWidth, imageHeight, depthMapTruncMax);
+	Common::Algorithm::cmSaveAsPPM32("C:/WR/Sayu/samples/vs1-cb-3c.ppm", depthMapTrunc, imageWidth, imageHeight, depthMapTruncMax);
 
 	return 0;
 }

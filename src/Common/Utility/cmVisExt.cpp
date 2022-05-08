@@ -94,9 +94,9 @@ namespace Common {
 			//Traverse the voxel store and generate a mesh with vertices and faces
 			using namespace Common::Util::Constant;
 
-			for (i32 i = 0; i < inStore->width; i++) {
-				for (i32 j = 0; j < inStore->height; j++) {
-					for (i32 k = 0; k < inStore->depth; k++) {
+			for (i32 i = 0; i < inStore->width - 1; i++) {
+				for (i32 j = 0; j < inStore->height - 1; j++) {
+					for (i32 k = 0; k < inStore->depth - 1; k++) {
 						i32 tx = i + inStore->ox;
 						i32 ty = j + inStore->oy;
 						i32 tz = k + inStore->oz;
@@ -104,9 +104,11 @@ namespace Common {
 						i32 vIdx = 0;
 						for (i32 p = 0; p < 8; p++) {
 							DenseReconstruction::Voxel* temp;
-							inStore->drGetVoxel(tx + cmuMarchingCubesVertices[p][0], ty + cmuMarchingCubesVertices[p][1], tz + cmuMarchingCubesVertices[p][2], &temp);
-							if (temp->tsdf > 0.5) {
-								vIdx |= (1 << p);
+							if (i + cmuMarchingCubesVertices[p][0] < inStore->width && j + cmuMarchingCubesVertices[p][1] < inStore->height && k + cmuMarchingCubesVertices[p][2] < inStore->depth) {
+								inStore->drGetVoxel(tx + cmuMarchingCubesVertices[p][0], ty + cmuMarchingCubesVertices[p][1], tz + cmuMarchingCubesVertices[p][2], &temp);
+								if (temp->tsdf > 0.5) {
+									vIdx |= (1 << p);
+								}
 							}
 						}
 						
@@ -115,15 +117,15 @@ namespace Common {
 						i32 edgeIdxInMesh[12] = { 0 };
 						i32 edgeStart, edgeEnd;
 						for (i32 p = 0; p < 12; p++) {
-							if ((edges | (1 << p))) {
+							if ((edges & (1 << p))) {
 								Common::Mesh::Vertex q;
-								edgeIdxInMesh[p] = outMesh->v.size();
 								edgeStart = cmuMarchingCubesConnection[p][0];
 								edgeEnd = cmuMarchingCubesConnection[p][1];
 								q.x = (f64)tx + cmuMarchingCubesVertices[edgeStart][0] + cmuMarchingCubesEdges[edgeStart][0] * 0.5;
 								q.y = (f64)ty + cmuMarchingCubesVertices[edgeStart][1] + cmuMarchingCubesEdges[edgeStart][1] * 0.5;
 								q.z = (f64)tz + cmuMarchingCubesVertices[edgeStart][2] + cmuMarchingCubesEdges[edgeStart][2] * 0.5;
 								outMesh->v.push_back(q);
+								edgeIdxInMesh[p] = outMesh->v.size();
 							}
 						}
 						//Generate Mesh Faces
@@ -146,12 +148,18 @@ namespace Common {
 			fs.open(fileName);
 			i32 meshFaceLen = mesh->f.size();
 			i32 meshVertexLen = mesh->v.size();
-			std::cout << "Saving Vertices" << std::endl;
+			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
 			for (i32 i = 0; i < meshVertexLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshVertexLen << std::endl;
+				}
 				fs << "v " << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << std::endl;
 			}
-			std::cout << "Saving Faces" << std::endl;
+			std::cout << "Saving Faces" << meshFaceLen << std::endl;
 			for (i32 i = 0; i < meshFaceLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshFaceLen << std::endl;
+				}
 				fs << "f " << mesh->f[i].a << " " << mesh->f[i].b << " " << mesh->f[i].c << std::endl;
 			}
 			fs.close();
