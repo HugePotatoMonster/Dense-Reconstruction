@@ -49,7 +49,7 @@ namespace StereoMapping {
 		costEstimator->smDisparityEstimateSubpixelRefine<u32, f64>(refinedCostMatrix, disparityMapLeft, leftDisparitymapS, imageWidth, imageHeight, disparityRange);
 		costEstimator->smDisparityEstimateSubpixelRefine<u32, f64>(refinedCostMatrixRight, disparityMapRight, disparityMapRightS, imageWidth, imageHeight, disparityRange);
 
-		costOptimizer->smInternalConsistencyCheckF(disparityMapLeft, disparityMapRight, leftDisparityMap, imageWidth, imageHeight, occuList, occuLen, misList, misLen, 1.0, 0.0);
+		costOptimizer->smInternalConsistencyCheckF(disparityMapLeft, disparityMapRight, leftDisparityMap, imageWidth, imageHeight, occuList, occuLen, misList, misLen, 1.0, SGM_INVALID_DISPARITY_F);
 
 		free_mem(disparityMapRight);
 		free_mem(disparityMapRightS);

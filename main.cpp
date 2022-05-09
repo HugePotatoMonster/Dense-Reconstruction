@@ -51,7 +51,7 @@ int main() {
 	//Peak Check
 	cout << "Peak Check" << endl;
 	f64* leftDisparityMapCbc = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 1.1, 20);
+	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 1.1, 10);
 
 	//Disparity Fill
 	cout << "Disparity Fill" << endl;

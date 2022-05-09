@@ -22,6 +22,9 @@
 
 #define F64_INF (1e40)
 
+#define SGM_INVALID_DISPARITY_F (-1e-3)
+#define SGM_INVALID_DISPARITY_I (0)
+
 #define eps (1e-6)
 #define pi (3.1415926)
 
