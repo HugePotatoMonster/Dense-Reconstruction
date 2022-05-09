@@ -27,7 +27,7 @@ namespace StereoMapping {
 			for (u32 k = 0; k < disparityRange; k++) {
 				get_pixel(optCost, k, startCoord & 1, disparityRange, 2) = get_pixel3(costMatrix, startCoord, j, k, imageWidth, imageHeight, disparityRange);
 				lastMin = Min(lastMin, get_pixel(optCost, k, startCoord & 1, disparityRange, 2));
-				get_pixel3(refinedMatrix, startCoord, j, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, startCoord, j, k, imageWidth, imageHeight, disparityRange);
+				get_pixel3(refinedMatrix, startCoord, j, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, startCoord, j, k, imageWidth, imageHeight, disparityRange) / div;
 			}
 			//Status Updating
 			for (i32 k = startCoord + deltaCoord; k != stopCoord; k += deltaCoord) {
@@ -54,7 +54,7 @@ namespace StereoMapping {
 
 					get_pixel(optCost, d, k & 1, disparityRange, 2) += (addedValue - lastMin);
 					newMin = Min(newMin, (i32)get_pixel(optCost, d, k & 1, disparityRange, 2));
-					get_pixel3(refinedMatrix, k, j, d, imageWidth, imageHeight, disparityRange) += get_pixel(optCost, d, k & 1, disparityRange, 2);
+					get_pixel3(refinedMatrix, k, j, d, imageWidth, imageHeight, disparityRange) += get_pixel(optCost, d, k & 1, disparityRange, 2) / div;
 				}
 				lastMin = newMin;
 			}
@@ -80,7 +80,7 @@ namespace StereoMapping {
 			//Init Cond for Dynamic Programming
 			for (u32 k = 0; k < disparityRange; k++) {
 				lastMin = Min(lastMin, get_pixel(optCost, k, startCoord & 1, disparityRange, 2) = get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange));
-				get_pixel3(refinedMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange);
+				get_pixel3(refinedMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) / div;
 			}
 			//Status Updating
 			for (i32 k = startCoord + deltaCoord; k != stopCoord; k += deltaCoord) {
@@ -100,7 +100,7 @@ namespace StereoMapping {
 					addedValue = Min(addedValue, (i32)(lastMin + p2Coef));
 					get_pixel(optCost, d, k & 1, disparityRange, 2) += (addedValue - lastMin);
 					newMin = Min(newMin, (i32)get_pixel(optCost, d, k & 1, disparityRange, 2));
-					get_pixel3(refinedMatrix, i, k, d, imageWidth, imageHeight, disparityRange) += get_pixel(optCost, d, k & 1, disparityRange, 2);
+					get_pixel3(refinedMatrix, i, k, d, imageWidth, imageHeight, disparityRange) += get_pixel(optCost, d, k & 1, disparityRange, 2) / div;
 				}
 				lastMin = newMin;
 			}

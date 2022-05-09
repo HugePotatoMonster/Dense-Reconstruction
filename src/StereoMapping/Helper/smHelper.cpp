@@ -1,6 +1,8 @@
 #include "../../../include/StereoMapping/Helper/smCostHelper.h"
 #include "../../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
 #include "../../../include/StereoMapping/CostCalculator/smFourPathCostAggregator.h"
+#include "../../../include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
+#include "../../../include/StereoMapping/CostCalculator/smNullPathCostAggregator.h"
 #include "../../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
 
 namespace StereoMapping {
@@ -28,7 +30,7 @@ namespace StereoMapping {
 
 	void CostHelper::calculateCostInternalF(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, f64* leftDisparityMap, f64* leftDisparitymapS, u32* occuList, u32* occuLen, u32* misList, u32* misLen) {
 		StereoMapping::CostCalculator* costEstimator = new StereoMapping::CensusTransformCostCalculator();
-		StereoMapping::CostAggregator* costAggregator = new StereoMapping::FourPathCostAggregator();
+		StereoMapping::CostAggregator* costAggregator = new StereoMapping::EightPathCostAggregator();
 		StereoMapping::CostOptimizer* costOptimizer = new StereoMapping::CostOptimizer();
 
 		u8* costMatrix = allocate_mem(u8, imageWidth * imageHeight * disparityRange);
