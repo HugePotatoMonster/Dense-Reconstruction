@@ -65,7 +65,7 @@ int main() {
 
 	cout << "Desc" << endl;
 	u32* leftDisparityMapMfds = allocate_mem(u32, imageWidth * imageHeight);
-	optimizer.smDisparityMapDiscretization(leftDisparityMapMf, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 0.0);
+	optimizer.smDisparityMapDiscretization(leftDisparityMapCbc, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 999.0);
 
 	cout << "Saving PPM" << endl;
 	Common::Algorithm::cmSaveAsPPM32("C:/WR/Dense-Reconstruction/samples/vs1-cb-3da.ppm", leftDisparityMapMfds, imageWidth, imageHeight, disparityRange);

@@ -60,8 +60,8 @@ namespace StereoMapping {
 					}
 				}
 
-				if (minDisparity != 0 && (minDisparity - sMinDisparity) / minDisparity < (i32)((f64)minDisparity * (1.0-0.99))) {
-					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = 0;
+				if (minDisparity != 0 && (sMinDisparity - minDisparity) < (i32)((f64)minDisparity * (1.0-0.99))) {
+					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = (S)SGM_INVALID_DISPARITY_F;
 					continue;
 				}
 				//Subpixel Estimate
@@ -72,7 +72,7 @@ namespace StereoMapping {
 					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC,1.0)) / 2.0;
 				}
 				else {
-					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex;
+					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = (S)SGM_INVALID_DISPARITY_F;
 				}
 
 				//Subpixel Estimate - secondary
@@ -83,7 +83,7 @@ namespace StereoMapping {
 					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC, 1.0)) / 2.0;
 				}
 				else {
-					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex;
+					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = SGM_INVALID_DISPARITY_F;
 				}
 			}
 		}
