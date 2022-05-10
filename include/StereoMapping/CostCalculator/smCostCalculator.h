@@ -1,6 +1,6 @@
 #pragma once
 #include "../../../include/Common/cmTypeDefs.h"
-
+#include <iostream>
 namespace StereoMapping {
 	class CostCalculator {
 	public:
@@ -40,8 +40,9 @@ namespace StereoMapping {
 		// 2ad+b+a=B-C => a=(A-C)+(B-C)/2 => b=(B-A)/2-(A+B-2C)d
 		// Best = -b/(A+B-2C) = d+(B-A)/2(A+B-2C)
 		//
-		for (u32 i = 0; i < imageWidth; i++) {
-			for (u32 j = 0; j < imageHeight; j++) {
+		
+		for (u32 j = 0; j < imageHeight; j++) {
+			for (u32 i = 0; i < imageWidth; i++) {
 				i32 minDisparity = I32_MAX;
 				i32 minDisparityIndex = 0;
 				i32 sMinDisparity = I32_MAX;

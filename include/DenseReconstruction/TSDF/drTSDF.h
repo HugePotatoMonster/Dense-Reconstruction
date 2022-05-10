@@ -5,7 +5,7 @@
 namespace DenseReconstruction {
 	class TruncatedSDF {
 	public:
-		void drIdealFirstTsdfEstimate(f64* depthMap, u32 imageWidth, u32 imageHeight, Common::MonocularCameraIntrinsic* cameraInt, VoxelStore* outStore, f64 truncationValue);
+		void drIdealFirstTsdfEstimate(f64* depthMap, u32 imageWidth, u32 imageHeight, Common::Camera::MonocularCameraIntrinsic* cameraInt, VoxelStore* outStore, f64 truncationValue);
 		void drIdealTsdfEstimate(f64* depthMap, u32 imageWidth, u32 imageHeight);
 	};
 }

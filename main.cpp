@@ -30,8 +30,8 @@ int main() {
 
 	//Load Images
 	cout << "Loading Image" << endl;
-	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vl.png", 0);
-	cv::Mat imageRight = cv::imread("C:/WR/Dense-Reconstruction/samples/vr.png", 0);
+	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vlb.png", 0);
+	cv::Mat imageRight = cv::imread("C:/WR/Dense-Reconstruction/samples/vrb.png", 0);
 
 
 	u32 imageWidth = imageLeft.size[1];
@@ -51,7 +51,7 @@ int main() {
 	//Peak Check
 	cout << "Peak Check" << endl;
 	f64* leftDisparityMapCbc = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 1.1, 10);
+	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 1.0, 50);
 
 	//Disparity Fill
 	cout << "Disparity Fill" << endl;
@@ -65,7 +65,7 @@ int main() {
 
 	cout << "Desc" << endl;
 	u32* leftDisparityMapMfds = allocate_mem(u32, imageWidth * imageHeight);
-	optimizer.smDisparityMapDiscretization(leftDisparityMapCbc, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 999.0);
+	optimizer.smDisparityMapDiscretization(leftDisparityMapFl, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 0);
 
 	cout << "Saving PPM" << endl;
 	Common::Algorithm::cmSaveAsPPM32("C:/WR/Dense-Reconstruction/samples/vs1-cb-3da.ppm", leftDisparityMapMfds, imageWidth, imageHeight, disparityRange);
@@ -86,7 +86,7 @@ int main() {
 		//=========== End of Depth Calculation ==================
 
 		cout << "Initializing Camera Intrinsic" << endl;
-		Common::MonocularCameraIntrinsic* cameraIntrinsic = new Common::MonocularCameraIntrinsic();
+		Common::Camera::MonocularCameraIntrinsic* cameraIntrinsic = new Common::Camera::MonocularCameraIntrinsic();
 		cameraIntrinsic->fx = 450.0;
 		cameraIntrinsic->fy = 375.0;
 		cameraIntrinsic->cx = 450.0 / 2.0;

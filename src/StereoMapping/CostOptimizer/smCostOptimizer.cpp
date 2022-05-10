@@ -92,37 +92,36 @@ namespace StereoMapping {
 						queue_pop(bfsQueue, bfsQueueFront, bfsQueueRear, bfsQueueLen);
 						i32 tx = idx2xcoord(top, imageWidth, imageHeight);
 						i32 ty = idx2ycoord(top, imageWidth, imageHeight);
-						
 						if (tx > 0) {
-							if (Abs(get_pixel(disparityMap, tx - 1, ty, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
+							if (Fabs(get_pixel(disparityMap, tx - 1, ty, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx - 1, ty, imageWidth, imageHeight)) {
 									get_pixel(visState, tx - 1, ty, imageWidth, imageHeight) = 1;
-									queue_push(bfsQueue, coord2idx(tx - 1, ty, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen)
+									queue_push(bfsQueue, coord2idx(tx - 1, ty, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen);
 								}
 							}
 						}
 						if (ty > 0 && tx >= 0 && tx < imageWidth && ty < imageHeight) {
-							if (Abs(get_pixel(disparityMap, tx, ty - 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
+							if (Fabs(get_pixel(disparityMap, tx, ty - 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx, ty - 1, imageWidth, imageHeight)) {
 									get_pixel(visState, tx, ty - 1, imageWidth, imageHeight) = 1;
-									queue_push(bfsQueue, coord2idx(tx, ty - 1, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen)
+									queue_push(bfsQueue, coord2idx(tx, ty - 1, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen);
 								}
 							}
 						}
 						if (tx < imageWidth - 1 && ty < imageHeight) {
-							if (Abs(get_pixel(disparityMap, tx + 1, ty, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
+							if (Fabs(get_pixel(disparityMap, tx + 1, ty, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx + 1, ty, imageWidth, imageHeight)) {
 									get_pixel(visState, tx + 1, ty, imageWidth, imageHeight) = 1;
-									queue_push(bfsQueue, coord2idx(tx + 1, ty, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen)
+									queue_push(bfsQueue, coord2idx(tx + 1, ty, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen);
 								}
 							}
 						}
 
 						if (tx < imageWidth && ty < imageHeight - 1) {
-							if (Abs(get_pixel(disparityMap, tx, ty + 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
+							if (Fabs(get_pixel(disparityMap, tx, ty + 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx, ty + 1, imageWidth, imageHeight)) {
 									get_pixel(visState, tx, ty + 1, imageWidth, imageHeight) = 1;
-									queue_push(bfsQueue, coord2idx(tx, ty + 1, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen)
+									queue_push(bfsQueue, coord2idx(tx, ty + 1, imageWidth, imageHeight), bfsQueueFront, bfsQueueRear, bfsQueueLen);
 								}
 							}
 						}
@@ -210,8 +209,8 @@ namespace StereoMapping {
 			}
 			else {
 				//Process the remaining
-				for (i32 ty = 0; ty < imageHeight; ty++) {
-					for (i32 tx = 0; tx < imageWidth; tx++) {
+				for (i32 tx = 0; tx < imageWidth; tx++) {
+					for (i32 ty = 0; ty < imageHeight; ty++) {
 						//Cur pos is (tx,ty)
 						validNeighboursLen = 0;
 						if (get_pixel(outMap, tx, ty, imageWidth, imageHeight) < invIdx) {

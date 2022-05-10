@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace DenseReconstruction {
-	void TruncatedSDF::drIdealFirstTsdfEstimate(f64* depthMap, u32 imageWidth, u32 imageHeight, Common::MonocularCameraIntrinsic* cameraInt, VoxelStore* outStore, f64 truncationValue) {
+	void TruncatedSDF::drIdealFirstTsdfEstimate(f64* depthMap, u32 imageWidth, u32 imageHeight, Common::Camera::MonocularCameraIntrinsic* cameraInt, VoxelStore* outStore, f64 truncationValue) {
 		//This assumes "World Coordinate System" equals to "Camera Coordinate System". That is, the Camera Extrinsic is the identity matrix
 		//This assumes the camera has no distortion
 		for (i32 x = outStore->ox ; x < (i32)(outStore->width) + outStore->ox; x++) {
