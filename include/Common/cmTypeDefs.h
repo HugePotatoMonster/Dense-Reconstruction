@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstring>
 #include <vector>
 
@@ -13,6 +14,8 @@
 #define u64 unsigned long long
 #define f32 float
 #define f64 double
+
+#define usize size_t
 
 #define U8_MAX (0xff)
 #define U32_MAX (0xffffffff)
@@ -63,8 +66,8 @@ namespace Common {
 			f64 dx, dy;  //Inverse of Pixel Shape
 		};
 		struct MonocularCameraExtrinsic {
-			f64 tx, ty, tz;
-			f64 rx, ry, rz;
+			f64 t[3]; //Translation
+			f64 r[3][3]; //Rotation
 		};
 	}
 	

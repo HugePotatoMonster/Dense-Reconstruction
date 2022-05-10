@@ -13,6 +13,8 @@
 #include "./include/DenseReconstruction/TSDF/drTSDF.h"
 #include "./include/Common/Utility/cmVisExt.h"
 
+#include "./include/StereoMapping/Helper/smDisparityHelper.h"
+
 #define CE_TYPE u32
 #define SGM_ONLY true
 
@@ -22,16 +24,16 @@ using namespace cv;
 int main() {
 	cout << "Starting" << endl;
 	//Create Objects
-	StereoMapping::CostHelper helper = StereoMapping::CostHelper();
-	StereoMapping::CostOptimizer optimizer = StereoMapping::CostOptimizer();
+	StereoMapping::DisparityHelper* disparityHelper = new StereoMapping::DisparityHelper();
+	StereoMapping::CostOptimizer* discretizator = new StereoMapping::CostOptimizer();
 	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
 	DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 	Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
 
 	//Load Images
 	cout << "Loading Image" << endl;
-	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vlb.png", 0);
-	cv::Mat imageRight = cv::imread("C:/WR/Dense-Reconstruction/samples/vrb.png", 0);
+	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vl.png", 0);
+	cv::Mat imageRight = cv::imread("C:/WR/Dense-Reconstruction/samples/vr.png", 0);
 
 
 	u32 imageWidth = imageLeft.size[1];
@@ -41,45 +43,27 @@ int main() {
 
 	//Disparity Estimate
 	cout << "Estimating Disparity" << endl;
-	f64* leftDisparityMap = allocate_mem(f64, imageWidth * imageHeight);
-	f64* leftDisparityMapS = allocate_mem(f64, imageWidth * imageHeight);
-	u32* occlusionList = allocate_mem(u32, imageWidth * imageHeight);
-	u32* mismatchList = allocate_mem(u32, imageWidth * imageHeight);
-	u32 occlusionListLen = 0, mismatchListLen = 0;
-	helper.calculateCostInternalF(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap, leftDisparityMapS, occlusionList, &occlusionListLen, mismatchList, &mismatchListLen);
+	f64* leftDisparityMap = allocate_mem(f64, (usize)imageWidth * imageHeight);
+	disparityHelper->smIdealBinocularDisparity(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap);
 
-	//Peak Check
-	cout << "Peak Check" << endl;
-	f64* leftDisparityMapCbc = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smConnectedBlockFiltering(leftDisparityMap, leftDisparityMapCbc, imageWidth, imageHeight, 1.0, 50);
-
-	//Disparity Fill
-	cout << "Disparity Fill" << endl;
-	f64* leftDisparityMapFl = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smDisparityFill(leftDisparityMapCbc, leftDisparityMapFl, imageWidth, imageHeight, occlusionList, &occlusionListLen, mismatchList, &mismatchListLen);
-
-	//Median Filter
-	cout << "Median Filter" << endl;
-	f64* leftDisparityMapMf = allocate_mem(f64, imageWidth * imageHeight);
-	optimizer.smMedianFilter(leftDisparityMapFl, leftDisparityMapMf, imageWidth, imageHeight, 3);
-
-	cout << "Desc" << endl;
-	u32* leftDisparityMapMfds = allocate_mem(u32, imageWidth * imageHeight);
-	optimizer.smDisparityMapDiscretization(leftDisparityMapFl, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 0);
+	cout << "Discretization" << endl;
+	u32* leftDisparityMapMfds = allocate_mem(u32, (usize)imageWidth * imageHeight);
+	discretizator->smDisparityMapDiscretization(leftDisparityMap, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 0);
 
 	cout << "Saving PPM" << endl;
 	Common::Algorithm::cmSaveAsPPM32("C:/WR/Dense-Reconstruction/samples/vs1-cb-3da.ppm", leftDisparityMapMfds, imageWidth, imageHeight, disparityRange);
 
-	if (!SGM_ONLY) {
-		//=========== End of Disparity Estimation ==================
+	//=========== End of Disparity Estimation ==================
+
+	if (!SGM_ONLY) {	
 		cout << "Depth Estimation" << endl;
-		f64* depthMap = allocate_mem(f64, imageWidth * imageHeight);
-		depthConverter.smIdealBinocularDisparityToDepth(leftDisparityMapMf, depthMap, imageWidth, imageHeight, 20.0, 60.0);
+		f64* depthMap = allocate_mem(f64, (usize)imageWidth * imageHeight);
+		depthConverter.smIdealBinocularDisparityToDepth(leftDisparityMap, depthMap, imageWidth, imageHeight, 20.0, 60.0);
 
 
 		//Discretization
 		cout << "Discretization" << endl;
-		u32* depthMapTrunc = allocate_mem(u32, imageWidth * imageHeight);
+		u32* depthMapTrunc = allocate_mem(u32, (usize)imageWidth * imageHeight);
 		u32 depthMapTruncMax = 0;
 		depthConverter.smDepthDiscretization(depthMap, depthMapTrunc, &depthMapTruncMax, imageWidth, imageHeight);
 
