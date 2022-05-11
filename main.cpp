@@ -12,9 +12,9 @@
 #include "./include/DenseReconstruction/Voxel/drPlainVoxelStore.h"
 #include "./include/DenseReconstruction/TSDF/drTSDF.h"
 #include "./include/Common/Utility/cmVisExt.h"
-
 #include "./include/StereoMapping/Helper/smDisparityHelper.h"
 
+#include "./include/Misc/msAuxiliaryUtils.h"
 #define CE_TYPE u32
 #define SGM_ONLY true
 
@@ -23,13 +23,31 @@ using namespace cv;
 
 int main() {
 	cout << "Starting" << endl;
+	
+
 	//Create Objects
 	StereoMapping::DisparityHelper* disparityHelper = new StereoMapping::DisparityHelper();
 	StereoMapping::CostOptimizer* discretizator = new StereoMapping::CostOptimizer();
 	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
 	DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 	Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
-
+	//Test CamInt
+	Common::Camera::MonocularCameraIntrinsic camIntb;
+	Common::Camera::MonocularCameraExtrinsic camExtb;
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0209.txt",&camIntb);
+	cout<<"Fx="<<camIntb.fx<<",Fy="<<camIntb.fy<<endl;
+	cout<<"Cx="<<camIntb.cx<<",Cy="<<camIntb.cy<<endl;
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0209.txt",&camExtb);
+	for(i32 i=0;i<3;i++){
+		cout<<"T="<<camExtb.t[i]<<" ";
+	}
+	cout<<endl;
+	for(i32 i=0;i<3;i++){
+		for(i32 j=0;j<3;j++){
+			cout<<"R="<<camExtb.r[i][j];
+		}
+		cout<<endl;
+	}
 	//Load Images
 	cout << "Loading Image" << endl;
 	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vl.png", 0);

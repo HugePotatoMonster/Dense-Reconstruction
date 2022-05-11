@@ -29,9 +29,10 @@ namespace StereoMapping {
 		}
 	}
 
-	// Disparity Estimation for Binocular Camera
-	// Camera distortion is ignored
+	
 	void DisparityHelper::smIdealBinocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 baselineLength, OUT_ARG f64* outputDisparityMap){
+		// Disparity Estimation for Binocular Camera
+		// Camera distortion is ignored
 		CostCalculator* costEstimator;
 		CostAggregator* costAggregator;
 		CostOptimizer* costOptimizer = new CostOptimizer();
@@ -91,5 +92,22 @@ namespace StereoMapping {
 		delete costEstimator;
 		delete costAggregator;
 		delete costOptimizer;
+	}
+	void DisparityHelper::smIdealRandomMonocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, Common::Camera::MonocularCameraExtrinsic* leftPose, Common::Camera::MonocularCameraExtrinsic* rightPose, Common::Camera::MonocularCameraIntrinsic* camInt, OUT_ARG f64* outputDisparityMap) {
+		// Disparity Estimation for Monocular Camera
+		// Camera distortion is ignored
+		// Pictures should be taken from different views
+
+		// The pixel P=(u,v,1) on the left image corresponds to inv(I)P on the normalized camera CS
+		// Then the coordinate on the camera plane is $z*inv(I)P$
+		// Consider $z*inv(I)P=(R1)W+(t1)$, then the world coordinate W=inv(R1)[z*inv(I)P-(t1)]
+		// 
+		// L: inv(R1)[z*inv(I)P-(t1)]=0 is the spatial line, consider its projection related to the other camera
+		// Camera coordinate C'=(R2)W+(t2) = (R2)inv(R1)[z*inv(I)P-(t1)]+(t2)
+		// Homogeneous pixel coordiate P'=(F(z)U(z),F(z)V(z),F(z))=I(R2)inv(R1)[z*inv(I)P-(t1)]+I(t2)
+		// 
+		// Then, the line projected on the other camera is P'=(U(z),V(z))
+		//
+
 	}
 }

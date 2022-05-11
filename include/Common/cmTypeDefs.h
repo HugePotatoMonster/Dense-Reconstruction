@@ -3,6 +3,12 @@
 #include <cstddef>
 #include <cstring>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <cstdlib>
+#include <sstream>
+#include <cmath>
 
 #define i8 char
 #define i16 short
@@ -58,6 +64,9 @@
 #define OUT_ARG //output arguments
 #define IN_ARG  //input arguments
 
+#define det2(a11,a12,a21,a22) ((a11)*(a22)-(a21)*(a12))
+#define len_vec3(x,y,z) (sqrt((x)*(x)+(y)*(y)+(z)*(z)))
+#define norm_vec3(x,len) ((x)=(x)/(len))
 namespace Common {
 	namespace Camera {
 		struct MonocularCameraIntrinsic {
@@ -70,7 +79,7 @@ namespace Common {
 			f64 r[3][3]; //Rotation
 		};
 	}
-	
+
 	namespace Mesh {
 		struct Vertex {
 			f64 x, y, z;
@@ -81,6 +90,24 @@ namespace Common {
 		struct SimpleMesh {
 			std::vector<Vertex> v;
 			std::vector<IndexedTriangularFace> f;
+		};
+	}
+
+	namespace Math {
+		struct Mat3 {
+			f64 a[9];
+		};
+		struct Vec3 {
+			f64 a[3];
+			void normalize() {
+				f64 len = len_vec3(a[0], a[1], a[2]);
+				a[0] /= len;
+				a[1] /= len;
+				a[2] /= len;
+			}
+			void dist(OUT_ARG f64* out) {
+				*out = len_vec3(a[0], a[1], a[2]);
+			}
 		};
 	}
 	

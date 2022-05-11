@@ -24,6 +24,6 @@ namespace StereoMapping {
 		void smSetDisparityFill(i32 enable);
 		//Function
 		void smIdealBinocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 baselineLength, OUT_ARG f64* outputDisparityMap);
-		void smIdealRandomMonocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, Common::Camera::MonocularCameraExtrinsic* leftPose, Common::Camera::MonocularCameraExtrinsic* rightPose, OUT_ARG f64* outputDisparityMap);
+		void smIdealRandomMonocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, Common::Camera::MonocularCameraExtrinsic* leftPose, Common::Camera::MonocularCameraExtrinsic* rightPose, Common::Camera::MonocularCameraIntrinsic* camInt , OUT_ARG f64* outputDisparityMap);
 	};
 }
