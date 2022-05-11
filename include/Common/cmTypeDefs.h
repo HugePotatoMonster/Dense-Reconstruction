@@ -10,6 +10,9 @@
 #include <sstream>
 #include <cmath>
 
+#include <opencv2/opencv.hpp>
+
+//Basic
 #define i8 char
 #define i16 short
 #define i32 int
@@ -31,18 +34,22 @@
 
 #define F64_INF (1e40)
 
+//SGM
 #define SGM_INVALID_DISPARITY_F (-1e3)
 #define SGM_INVALID_DISPARITY_F_THRESH (-1e2)
 #define SGM_INVALID_DISPARITY_I (0)
 
+//Math Constants
 #define eps (1e-6)
 #define pi (3.1415926)
 
+//Fundamental
 #define Max(a,b) ((a)>(b)?(a):(b))
 #define Min(a,b) ((a)<(b)?(a):(b))
 #define Abs(x) ((x)<0?(-(x)):(x))
 #define Fabs(x) ((x)<eps?(-(x)):(x))
 
+//Coordinates
 #define get_pixel(im,x,y,w,h) ((im)[(y)*(w)+(x)])
 #define get_pixel_hf(im,x,y,w,h)  get_pixel(im,((w)-1)-(x),y,w,h)
 #define get_pixel3(im,x,y,z,w,h,d) ((im)[(y)*(w)*(d)+(x)*(d)+(z)])
@@ -51,22 +58,32 @@
 #define idx2xcoord(idx,w,h) ((i32)(idx)%(w))
 #define coord2idx3(x,y,z,w,h,d) ((y)*(w)*(d)+(x)*(d)+(z))
 
+//Data Structure
 #define is_queue_empty(fr,ta,len) ((fr)==(ta))
 #define is_queue_full(fr,ta,len) (((ta)+1)%(len)==((fr))%(len))
 #define queue_push(q,el,fr,ta,len) (q)[((ta)++)%(len)]=(el);(ta)%=(len);
 #define queue_front(q,fr,ta,len) ((q)[((fr))%(len)])
 #define queue_pop(q,fr,ta,len) ((q)[((fr)++)%(len)]);(fr)%=(len);
 
+//Memory
 #define allocate_mem(tp,size) (new tp[size])
 #define free_mem(obj) (delete[] obj)
 #define set_zero(x,l) (memset(x,0,l))
 
+//Aux Tags
 #define OUT_ARG //output arguments
 #define IN_ARG  //input arguments
 
+//Linear Algebra
 #define det2(a11,a12,a21,a22) ((a11)*(a22)-(a21)*(a12))
 #define len_vec3(x,y,z) (sqrt((x)*(x)+(y)*(y)+(z)*(z)))
 #define norm_vec3(x,len) ((x)=(x)/(len))
+
+//OpenCV
+#define OCV_IDEAL_DISTORTION ((cv::Mat)(cv::Mat_<f64>(4 , 1) << 0,0, 0, 0));
+#define OCV_IDENTITY_3 ((cv::Mat)(cv::Mat_<f64>(3 , 3) << 1,0,0,  0,1,0, 0,0,1));
+
+
 namespace Common {
 	namespace Camera {
 		struct MonocularCameraIntrinsic {

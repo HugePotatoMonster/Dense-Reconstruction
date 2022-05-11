@@ -65,6 +65,7 @@ namespace Misc {
                 iss.ignore(1, ',');
                 f64 len = len_vec3(posvector[0], posvector[1], posvector[2]);
                 for (i32 i = 0; i < 3; i++) {
+                    posvector[i] = posvector[i];
                     camEx->t[i] = posvector[i];
                     norm_vec3(posvector[i], len);
                 }
@@ -157,7 +158,7 @@ namespace Misc {
         camIn->dx = 1;
         camIn->dx = 1;
         camIn->fx = 1.0 / psx;
-        camIn->fy = - 1.0 / psy;
+        camIn->fy = 1.0 / psy;
         camIn->cx = (width + 0.0) / 2.0;
         camIn->cy = (height + 0.0) / 2.0;
     }

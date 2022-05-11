@@ -31,23 +31,20 @@ int main() {
 	StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
 	DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 	Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
+
 	//Test CamInt
-	Common::Camera::MonocularCameraIntrinsic camIntb;
-	Common::Camera::MonocularCameraExtrinsic camExtb;
-	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0209.txt",&camIntb);
-	cout<<"Fx="<<camIntb.fx<<",Fy="<<camIntb.fy<<endl;
-	cout<<"Cx="<<camIntb.cx<<",Cy="<<camIntb.cy<<endl;
-	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0209.txt",&camExtb);
-	for(i32 i=0;i<3;i++){
-		cout<<"T="<<camExtb.t[i]<<" ";
-	}
-	cout<<endl;
-	for(i32 i=0;i<3;i++){
-		for(i32 j=0;j<3;j++){
-			cout<<"R="<<camExtb.r[i][j];
-		}
-		cout<<endl;
-	}
+	cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_01_0205.png", 0);
+	cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_01_0206.png", 0);
+	Common::Camera::MonocularCameraIntrinsic camIntb,camIntc;
+	Common::Camera::MonocularCameraExtrinsic camExtb,camExtc;
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0205.txt",&camIntc);
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0205.txt",&camExtc);
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0206.txt",&camIntb);
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0206.txt",&camExtb);
+	cv::Mat LeftRI,LeftRE,RightRI,RightRE,Ddep;
+	Common::AlgorithmCV::cmIdealStereoRectify(camItl,camItr,&camIntb,&camIntc,&camExtb,&camExtc,&LeftRI,&RightRI,&LeftRE,&RightRE,&Ddep);
+
+	return 0;
 	//Load Images
 	cout << "Loading Image" << endl;
 	cv::Mat imageLeft = cv::imread("C:/WR/Dense-Reconstruction/samples/vl.png", 0);
