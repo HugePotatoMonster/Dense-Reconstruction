@@ -10,7 +10,7 @@ namespace Common{
         
     };
 
-    struct float4{
-        float x,y,z,w;
+    struct double4{
+        double x,y,z,w;
     };
 };

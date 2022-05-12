@@ -11,4 +11,6 @@ namespace Common{
     const char dataPath[] = "D:/PM/Dataset/DenseReconstruction";
     const char gtSubfolder[] = "60fps_GT_archieve";
     const char imgSubfolder[] = "60fps_images_archieve";
+
+    const char dataPath_test[] = "D:/Code/tsdf-fusion-python-master/data";
 };
