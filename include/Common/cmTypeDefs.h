@@ -82,6 +82,8 @@
 //OpenCV
 #define OCV_IDEAL_DISTORTION ((cv::Mat)(cv::Mat_<f64>(4 , 1) << 0,0, 0, 0));
 #define OCV_IDENTITY_3 ((cv::Mat)(cv::Mat_<f64>(3 , 3) << 1,0,0,  0,1,0, 0,0,1));
+#define get_cvmat(mat,i,j) ((mat).at<f64>((i),(j)))
+#define get_cvmatp(mat,i,j) ((mat)->at<f64>((i),(j)))
 
 
 namespace Common {

@@ -1,5 +1,5 @@
 #include "../../include/Misc/msAuxiliaryUtils.h"
-
+#include "../../include/Common/cmMath.h"
 namespace Misc {
 	void AuxiliaryUtils::msParseExtrinsic(std::string file, OUT_ARG Common::Camera::MonocularCameraExtrinsic* camEx) {
 		// Ported from Official Implementation
@@ -64,8 +64,9 @@ namespace Misc {
                 iss >> posvector[2];
                 iss.ignore(1, ',');
                 f64 len = len_vec3(posvector[0], posvector[1], posvector[2]);
+                //posvector[1] = -posvector[1];
                 for (i32 i = 0; i < 3; i++) {
-                    posvector[i] = posvector[i];
+                    posvector[i] = -posvector[i];
                     camEx->t[i] = posvector[i];
                     norm_vec3(posvector[i], len);
                 }
@@ -82,12 +83,19 @@ namespace Misc {
         y.a[1] = z.a[2] * x.a[0] - z.a[0] * x.a[2];
         y.a[2] = z.a[0] * x.a[1] - z.a[1] * x.a[0];
         y.normalize();
-        for (i32 i = 0; i < 3; i++) {
-            camEx->r[i][0] = x.a[i];
-            camEx->r[i][1] = y.a[i];
-            camEx->r[i][2] = z.a[i];
-        }
         
+        cv::Mat camExR1 = cv::Mat_<f64>(3,3);
+        for (i32 i = 0; i < 3; i++) {
+            get_cvmat(camExR1,i,0) = x.a[i];
+            get_cvmat(camExR1,i,1) = y.a[i];
+            get_cvmat(camExR1,i,2) = z.a[i];
+        }
+        camExR1 = camExR1.inv();
+        for (i32 i = 0; i < 3; i++) {
+            for(i32 j=0;j<3;j++){
+                camEx->r[i][j] = get_cvmat(camExR1,i,j);
+            }
+        }
 	}
     void AuxiliaryUtils::msParseIntrinsic(std::string file, OUT_ARG Common::Camera::MonocularCameraIntrinsic* camIn) {
         // Ported from Official Implementation
@@ -158,7 +166,7 @@ namespace Misc {
         camIn->dx = 1;
         camIn->dx = 1;
         camIn->fx = 1.0 / psx;
-        camIn->fy = 1.0 / psy;
+        camIn->fy = -1.0 / psy;
         camIn->cx = (width + 0.0) / 2.0;
         camIn->cy = (height + 0.0) / 2.0;
     }

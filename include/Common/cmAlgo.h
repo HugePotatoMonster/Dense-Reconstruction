@@ -20,5 +20,11 @@ namespace Common{
                                         OUT_ARG cv::Mat* imLeftRI, OUT_ARG cv::Mat* imRightRI,
                                         OUT_ARG cv::Mat* imLeftRE, OUT_ARG cv::Mat* imRightRE,
                                         OUT_ARG cv::Mat* ddepMat);
+        static void cmIdealEpipolarEquation(Common::Camera::MonocularCameraIntrinsic* imLeftCI,Common::Camera::MonocularCameraIntrinsic* imRightCI,
+                                            Common::Camera::MonocularCameraExtrinsic* imLeftCE,Common::Camera::MonocularCameraExtrinsic* imRightCE,
+                                            Common::Math::Vec3* imLeftPixel, OUT_ARG cv::Mat* epiB, OUT_ARG cv::Mat* epiK);
+        static void cmIdealEpipolarEquationByFundamentalMatrix(Common::Camera::MonocularCameraIntrinsic* imCI,
+                                                               Common::Camera::MonocularCameraExtrinsic* imLeftCE,Common::Camera::MonocularCameraExtrinsic* imRightCE,
+                                                               Common::Math::Vec3* imLeftPixel, OUT_ARG cv::Mat* epiB, OUT_ARG cv::Mat* epiK);
     };
 };

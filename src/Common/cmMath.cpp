@@ -32,5 +32,20 @@ namespace Common {
 		void MathUtil::cmGetExtrinsicMatT(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat) {
 			*outMat = (cv::Mat_<f64>(3,1)<<camExt->t[0],camExt->t[1],camExt->t[2]);
 		}
+		void MathUtil::cmGetIntrinsicMat(Common::Camera::MonocularCameraIntrinsic* camExt, OUT_ARG cv::Mat* outMat) {
+			*outMat = (cv::Mat_<f64>(3,3)<<camExt->fx,0,camExt->cx,
+										   0,camExt->fy,camExt->cy,
+										   0,0,1); 
+		}
+		void MathUtil::cmGetIntrinsicMatYFlip(Common::Camera::MonocularCameraIntrinsic* camExt,f64 h, OUT_ARG cv::Mat* outMat) {
+			*outMat = (cv::Mat_<f64>(3,3)<<camExt->fx,0,camExt->cx,
+										   0,-camExt->fy,-camExt->cy+h,
+										   0,0,1); 
+		}
+		void MathUtil::cmGetVectorProductSkewSymMatrix(cv::Mat* inMat,OUT_ARG cv::Mat* outMat){
+			*outMat = (cv::Mat_<f64>(3,3)<<0,-inMat->at<f64>(2,0),inMat->at<f64>(1,0),
+											inMat->at<f64>(2,0),0,-inMat->at<f64>(0,0),
+											-inMat->at<f64>(1,0),inMat->at<f64>(0,0),0);
+		}
 	}
 }

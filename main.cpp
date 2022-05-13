@@ -17,6 +17,7 @@
 #include "./include/Misc/msAuxiliaryUtils.h"
 #define CE_TYPE u32
 #define SGM_ONLY true
+#define PROJ_CALC false
 
 using namespace std;
 using namespace cv;
@@ -33,14 +34,54 @@ int main() {
 	Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
 
 	//Test CamInt
-	cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_01_0205.png", 0);
-	cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_01_0206.png", 0);
+	cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+	cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0000.png", 0);
 	Common::Camera::MonocularCameraIntrinsic camIntb,camIntc;
 	Common::Camera::MonocularCameraExtrinsic camExtb,camExtc;
-	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0205.txt",&camIntc);
-	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0205.txt",&camExtc);
-	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_01_0206.txt",&camIntb);
-	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_01_0206.txt",&camExtb);
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntc);
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtc);
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0000.txt",&camIntb);
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0000.txt",&camExtb);
+	
+	//Projection Calc
+	if(PROJ_CALC){
+		cv::Mat epiB = (cv::Mat_<f64>(3,1)<<0,0,0);
+		cv::Mat epiK = (cv::Mat_<f64>(3,1)<<0,0,0);
+		Common::Math::Vec3 vec = {{368,265,1}};
+		Common::AlgorithmCV::cmIdealEpipolarEquationByFundamentalMatrix(&camIntb,&camExtb,&camExtc,&vec,&epiB,&epiK);
+		cout<<endl<<"B:";
+		for(i32 i=0;i<3;i++){
+			epiB.at<f64>(i,0) /= epiB.at<f64>(2,0);
+			cout<<epiB.at<f64>(i,0)<<",";
+		}
+		cout<<endl<<"K:";
+		for(i32 i=0;i<3;i++){
+			epiK.at<f64>(i,0) /= epiK.at<f64>(2,0);
+			cout<<epiK.at<f64>(i,0)<<",";
+		}
+		f64 dist = sqrt(epiK.at<f64>(0,0)*epiK.at<f64>(0,0)+epiK.at<f64>(1,0)*epiK.at<f64>(1,0));
+		epiK.at<f64>(0,0) /= dist;
+		epiK.at<f64>(1,0) /= dist;
+		cout<<endl;
+		for(i32 i=0;i<50;i++){
+			cv::Mat pta = epiB+epiK*i*20;
+			cv::Mat ptb = epiB-epiK*i*20;
+			cout<<"draw"<<pta.at<f64>(0,0)<<","<<pta.at<f64>(1,0)<<"|"<<ptb.at<f64>(0,0)<<","<<ptb.at<f64>(1,0)<<endl;
+			if(pta.at<f64>(0,0)<camItr.cols && pta.at<f64>(0,0)>0 && pta.at<f64>(1,0)<camItr.rows && pta.at<f64>(1,0)>0){
+				cv::circle(camItr,cv::Point(pta.at<f64>(0,0),pta.at<f64>(1,0)),3,cv::Scalar(255,0,0));
+			}
+			if(ptb.at<f64>(0,0)<camItr.cols && ptb.at<f64>(0,0)>0 && ptb.at<f64>(1,0)<camItr.rows && ptb.at<f64>(1,0)>0){
+				cv::circle(camItr,cv::Point(ptb.at<f64>(0,0),ptb.at<f64>(1,0)),3,cv::Scalar(255,0,0));
+			}
+		}
+		cv::circle(camItl,cv::Point(vec.a[0],vec.a[1]),3,cv::Scalar(255,0,0),-1);
+		cv::imshow("ITL",camItl);
+		cv::imshow("ITR",camItr);
+		cv::waitKey(0);
+
+		return 0;
+	}
+	//Stereo Rectify Test
 	cv::Mat LeftRI,LeftRE,RightRI,RightRE,Ddep;
 	Common::AlgorithmCV::cmIdealStereoRectify(camItl,camItr,&camIntb,&camIntc,&camExtb,&camExtc,&LeftRI,&RightRI,&LeftRE,&RightRE,&Ddep);
 
