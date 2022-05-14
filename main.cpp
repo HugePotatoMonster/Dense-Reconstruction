@@ -64,8 +64,37 @@ int main() {
     bound.at<double>(1,1) = 2.601461414461538;
     bound.at<double>(2,0) = 0;
     bound.at<double>(2,1) = 5.76272371304359;
-    Utility::logMat(bound,"bound");
+    // Utility::logMat(bound,"bound");
 
     TSDF::TSDFVolume tsdf(bound,0.02);
 
+    for (int imgNo=0; imgNo<1000; imgNo++){
+
+        cv::Mat img = reader->readinImg_test(imgNo);
+
+        // Utility::logMat(img,"img");
+        // img.convertTo(img,CV_64FC3);
+
+        // Utility::logMat(img,"img");
+
+        // cout << "0,0 R: " << img.at<double>(0,0,0) << endl;
+        // cout << "0,0 G: " << img.at<double>(0,0,1) << endl;
+        // cout << "0,0 B: " << img.at<double>(0,0,2) << endl;
+
+        cv::Mat depth = reader->readinDepth_test(imgNo);
+        depth.convertTo(depth,CV_64FC1);
+        depth /= 1000;
+        for (int i=0; i<IMG_H; i++){
+            double* ptr = depth.ptr<double>(i);
+            for (int j=0; j<IMG_W; j++){
+                if(ptr[j]==65.535){
+                    ptr[j]=0;
+                }
+            }
+        }
+
+        cv::Mat extr = reader->readinPose_test(imgNo);
+
+        tsdf.integrate(img, depth, intr, extr);
+    }
 }

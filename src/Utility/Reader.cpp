@@ -242,6 +242,10 @@ namespace Utility{
 
         cout << "img_file_name = " << img_file_name << endl;
 
-        return cv::imread(img_file_name);
+        cv::Mat img = cv::imread(img_file_name);
+
+        cv::cvtColor(img,img,cv::COLOR_BGR2RGB);
+
+        return img;
     };
 }
