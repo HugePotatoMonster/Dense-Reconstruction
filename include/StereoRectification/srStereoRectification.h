@@ -5,7 +5,10 @@
 
 namespace StereoRectification{
     class StereoRectification:public AbstractStereoRectification{
-        public:
+    private:
+        i32 useOpenCV = true;
+    public:
+        void assembleReprojectionMatrix(cv::Mat* intrinsic, cv::Mat* camReproj, cv::Mat* extrinsic, cv::Mat* output);
         virtual void stereoRectify(cv::Mat* imLeft, cv::Mat* imRight,
                                    Common::Camera::MonocularCameraIntrinsic* leftInt, Common::Camera::MonocularCameraIntrinsic* rightInt,
                                    Common::Camera::MonocularCameraExtrinsic* leftExt, Common::Camera::MonocularCameraExtrinsic* rightExt,
@@ -14,6 +17,6 @@ namespace StereoRectification{
                                    OUT_ARG cv::Mat* homographLeft, OUT_ARG cv::Mat* homographRight,
                                    OUT_ARG cv::Mat* camCsRemapLeft, OUT_ARG cv::Mat* camCsRemapRight,
                                    OUT_ARG cv::Mat* intCsRemapLeft, OUT_ARG cv::Mat* intCsRemapRight,
-                                   OUT_ARG cv::Mat* disDepthMap);
+                                   OUT_ARG cv::Mat* disDepthMap) override;
     };
 }

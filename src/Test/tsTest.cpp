@@ -21,8 +21,8 @@ namespace Test{
         stereoRectify->stereoRectify(&camItl,&camItr,&camIntb,&camIntc,&camExtb,&camExtc,&rectImL,&rectImR,&rectImLM,&rectImRM,&HL,&HR,&RL,&RR,&HL,&HR,&DD);
 
         //View
-        cv::imshow("Left",rectImL);
-        cv::imshow("Right",rectImR);
+        cv::imshow("Left", rectImL);
+        cv::imshow("Right", rectImR);
         cv::waitKey(0);
     }
 }
