@@ -2,14 +2,14 @@
 #include "../../../include/Common/cmAlgo.h"
 #include <iostream>
 namespace SemiGlobalMatching{
-    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight, u32 disparityRange,u8* costOutput){
+    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight,i32 minDisparity, u32 disparityRange,u8* costOutput){
         //Calculate the census values for two images
-        u32* leftImageCensus = allocate_mem(u32,imageWidth*imageHeight);
-        u32* rightImageCensus = allocate_mem(u32,imageWidth*imageHeight);
+        u32* leftImageCensus = allocate_mem(u32,(usize)imageWidth*imageHeight);
+        u32* rightImageCensus = allocate_mem(u32,(usize)imageWidth*imageHeight);
         smCensusCalculate(leftImage,imageWidth,imageHeight,leftImageCensus);
         smCensusCalculate(rightImage,imageWidth,imageHeight,rightImageCensus);
         //Calculate the cost
-        smCostCalculateImpl(leftImageCensus,rightImageCensus,imageWidth,imageHeight,disparityRange,costOutput);
+        smCostCalculateImpl(leftImageCensus,rightImageCensus,imageWidth,imageHeight,minDisparity,disparityRange,costOutput);
         //Free Objects
         free_mem(leftImageCensus);
         free_mem(rightImageCensus);
@@ -33,16 +33,16 @@ namespace SemiGlobalMatching{
             }
         }
     }
-    void CensusTransformCostCalculator::smCostCalculateImpl(u32* leftCensus, u32* rightCensus, u32 imageWidth,u32 imageHeight, u32 disparityRange, u8* costOutput){
+    void CensusTransformCostCalculator::smCostCalculateImpl(u32* leftCensus, u32* rightCensus, u32 imageWidth,u32 imageHeight, i32 minDisparity, u32 disparityRange, u8* costOutput){
         for(u32 i = 0;i<imageWidth;i++){
             for(u32 j=0;j<imageHeight;j++){
                 //Left pixel is (i,j)
-                for(u32 k=0;k<disparityRange;k++){
+                for(i32 k= minDisparity;k< minDisparity+(i32)disparityRange;k++){
                     //Right pixel is (i-k,j)
-                    if(i<k){
+                    if((i32)i<k){
                         get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = I8_MAX;
                     }else{
-                        get_pixel3(costOutput,i,j,k,imageWidth,imageHeight,disparityRange) = Common::Algorithm::cmHammingDistance(
+                        get_pixel3(costOutput,i,j,k-minDisparity,imageWidth,imageHeight,disparityRange) = Common::Algorithm::cmHammingDistance(
                             get_pixel(leftCensus,i,j,imageWidth,imageHeight),
                             get_pixel(rightCensus,i-k,j,imageWidth,imageHeight)
                         );

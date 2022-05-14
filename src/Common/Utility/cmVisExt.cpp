@@ -125,7 +125,7 @@ namespace Common {
 								q.y = -((f64)ty + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
 								q.z = (f64)tz + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
 								outMesh->v.push_back(q);
-								edgeIdxInMesh[p] = outMesh->v.size();
+								edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());
 							}
 						}
 						//Generate Mesh Faces
@@ -146,8 +146,8 @@ namespace Common {
 		void VisualizationExt::cmuExportMeshToObj(std::string fileName, Common::Mesh::SimpleMesh* mesh) {
 			std::ofstream fs;
 			fs.open(fileName);
-			i32 meshFaceLen = mesh->f.size();
-			i32 meshVertexLen = mesh->v.size();
+			i32 meshFaceLen = static_cast<i32>(mesh->f.size());
+			i32 meshVertexLen = static_cast<i32>(mesh->v.size());
 			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
 			for (i32 i = 0; i < meshVertexLen; i++) {
 				if (i % 50000 == 0) {

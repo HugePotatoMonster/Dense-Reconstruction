@@ -4,12 +4,12 @@
 
 namespace SemiGlobalMatching {
 	void CostOptimizer::smInternalConsistencyCheckF(f64* leftDisparityMap, f64* rightDisparityMap, f64* outputDisparityMap, u32 imageWidth, u32 imageHeight, u32* occuList, u32* occuLen, u32* misList, u32* misLen, f64 consistencyThreshold, f64 invalidPlaceholder) {
-		for (i32 j = 0; j < imageHeight; j++) {
-			for (i32 i = 0; i < imageWidth; i++) {
+		for (i32 j = 0; j < (i32)imageHeight; j++) {
+			for (i32 i = 0; i < (i32)imageWidth; i++) {
 				f64 leftDisp = get_pixel(leftDisparityMap, i, j, imageWidth, imageHeight);
 				i32 rightDispEpi = (i32)(i - leftDisp + 0.5);
 				f64 rightDisp = 0;
-				if (rightDispEpi < imageWidth && rightDispEpi >= 0) {
+				if (rightDispEpi < (i32)imageWidth && rightDispEpi >= 0) {
 					rightDisp = get_pixel(rightDisparityMap, rightDispEpi, j, imageWidth, imageHeight);
 					f64 criteria = Abs(leftDisp - rightDisp);
 					if (criteria <= consistencyThreshold) {
@@ -17,8 +17,8 @@ namespace SemiGlobalMatching {
 					}
 					else {
 						get_pixel(outputDisparityMap, i, j, imageWidth, imageHeight) = invalidPlaceholder;
-						i32 leftDispRi = (rightDispEpi + rightDisp + 0.5);
-						if (leftDispRi >= 0 && leftDispRi < imageWidth) {
+						i32 leftDispRi = (i32)(rightDispEpi + rightDisp + 0.5);
+						if (leftDispRi >= 0 && leftDispRi < (i32)imageWidth) {
 							f64 leftDispR = get_pixel(leftDisparityMap, leftDispRi, j, imageWidth, imageHeight);
 							if (leftDispR > leftDisp) {
 								occuList[(*occuLen)++] = coord2idx(i, j, imageWidth, imageHeight);
@@ -40,9 +40,10 @@ namespace SemiGlobalMatching {
 		}
 	}
 	void CostOptimizer::smDisparityMapDiscretization(f64* disparityMap, u32* outputMap, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32 invalidPlaceholder) {
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
-				get_pixel(outputMap, i, j, imageWidth, imageHeight) = get_pixel(disparityMap, i, j, imageWidth, imageHeight);
+		//TODO: minDisparity
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
+				get_pixel(outputMap, i, j, imageWidth, imageHeight) = (u32)get_pixel(disparityMap, i, j, imageWidth, imageHeight);
 				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > (f64)disparityRange || get_pixel(disparityMap, i, j, imageWidth, imageHeight) < SGM_INVALID_DISPARITY_F + eps) {
 					get_pixel(outputMap, i, j, imageWidth, imageHeight) = invalidPlaceholder;
 				}
@@ -50,11 +51,11 @@ namespace SemiGlobalMatching {
 		}
 	}
 	void CostOptimizer::smExternalConsistencyCheckI(u32* leftDisparityMap, u32* rightDisparityMap, u32* outputDisparityMap, u32 imageWidth, u32 imageHeight, u32 consistencyThreshold, u32 invalidPlaceholder) {
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				u32 leftDisp = get_pixel(leftDisparityMap, i, j, imageWidth, imageHeight);
 				u32 rightDisp = get_pixel_hf(rightDisparityMap, i, j, imageWidth, imageHeight);
-				u32 criteria = Abs(leftDisp - rightDisp);
+				u32 criteria = (u32)Abs((i32)leftDisp - (i32)rightDisp);
 				if (criteria <= consistencyThreshold) {
 					get_pixel(outputDisparityMap, i, j, imageWidth, imageHeight) = get_pixel(leftDisparityMap, i, j, imageWidth, imageHeight);
 				}
@@ -65,21 +66,21 @@ namespace SemiGlobalMatching {
 		}
 	}
 	void CostOptimizer::smConnectedBlockFiltering(f64* disparityMap,f64* outputMap, u32 imageWidth, u32 imageHeight, f64 discriminationThreshold, u32 retainThreshold) {
-		u8* visState = allocate_mem(u8, imageWidth * imageHeight);
-		u32* bfsQueue = allocate_mem(u32, imageWidth * imageHeight);
+		u8* visState = allocate_mem(u8, (usize)imageWidth * imageHeight);
+		u32* bfsQueue = allocate_mem(u32, (usize)imageWidth * imageHeight);
 		i32 bfsQueueRear = 0;
 		i32 bfsQueueFront = 0;
 		f64 curPixel = 0;
 		const i32 bfsQueueLen = imageWidth * imageHeight;
 		set_zero(visState, sizeof(u8) * imageWidth * imageHeight);
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				get_pixel(outputMap, i, j, imageWidth, imageHeight) = get_pixel(disparityMap, i, j, imageWidth, imageHeight);
 			}
 		}
 
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				if (!get_pixel(visState, i, j, imageWidth, imageHeight)) {
 					//Start BFS here
 					//Re-init queue ptr
@@ -100,7 +101,7 @@ namespace SemiGlobalMatching {
 								}
 							}
 						}
-						if (ty > 0 && tx >= 0 && tx < imageWidth && ty < imageHeight) {
+						if (ty > 0 && tx >= 0 && tx < (i32)imageWidth && ty < (i32)imageHeight) {
 							if (Fabs(get_pixel(disparityMap, tx, ty - 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx, ty - 1, imageWidth, imageHeight)) {
 									get_pixel(visState, tx, ty - 1, imageWidth, imageHeight) = 1;
@@ -108,7 +109,7 @@ namespace SemiGlobalMatching {
 								}
 							}
 						}
-						if (tx < imageWidth - 1 && ty < imageHeight) {
+						if (tx < (i32)imageWidth - 1 && ty < (i32)imageHeight) {
 							if (Fabs(get_pixel(disparityMap, tx + 1, ty, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx + 1, ty, imageWidth, imageHeight)) {
 									get_pixel(visState, tx + 1, ty, imageWidth, imageHeight) = 1;
@@ -117,7 +118,7 @@ namespace SemiGlobalMatching {
 							}
 						}
 
-						if (tx < imageWidth && ty < imageHeight - 1) {
+						if (tx < (i32)imageWidth && ty < (i32)imageHeight - 1) {
 							if (Fabs(get_pixel(disparityMap, tx, ty + 1, imageWidth, imageHeight) - curPixel) < discriminationThreshold) {
 								if (!get_pixel(visState, tx, ty + 1, imageWidth, imageHeight)) {
 									get_pixel(visState, tx, ty + 1, imageWidth, imageHeight) = 1;
@@ -126,7 +127,7 @@ namespace SemiGlobalMatching {
 							}
 						}
 					}
-					if (bfsQueueRear < retainThreshold) {
+					if (bfsQueueRear < (i32)retainThreshold) {
 						for (i32 i = 0; i < bfsQueueRear; i++) {
 							outputMap[bfsQueue[i]] = SGM_INVALID_DISPARITY_F;
 						}
@@ -139,16 +140,16 @@ namespace SemiGlobalMatching {
 		free_mem(bfsQueue);
 	}
 	void CostOptimizer::smMedianFilter(f64* inputMap, f64* outputMap, u32 imageWidth, u32 imageHeight, u32 kSize) {
-		f64* medianList = allocate_mem(f64, kSize * kSize);
+		f64* medianList = allocate_mem(f64, (usize)kSize * kSize);
 		i32 medianListLen = 0;
 		i32 radius = ((i32)(kSize - 1)) / 2;
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				medianListLen = 0;
 				for (i32 dx = -radius; dx < radius; dx++) {
 					for (i32 dy = -radius; dy < radius; dy++) {
-						if ((dx + i) >= 0 && (dx + i) < imageWidth) {
-							if ((dy + j) >= 0 && (dy + j) < imageHeight) {
+						if ((dx + i) >= 0 && (dx + i) < (i32)imageWidth) {
+							if ((dy + j) >= 0 && (dy + j) < (i32)imageHeight) {
 								medianList[medianListLen++] = get_pixel(inputMap, dx + i, dy + j, imageWidth, imageHeight);
 							}
 						}
@@ -168,8 +169,8 @@ namespace SemiGlobalMatching {
 		u32* processItems[2][2] = { {occuList,occuLen},{misList,misLen} };
 		u32* validNeighbours = allocate_mem(u32, dirs);
 		i32 validNeighboursLen = 0;
-		for (i32 i = 0; i < imageWidth; i++) {
-			for (i32 j = 0; j < imageHeight; j++) {
+		for (i32 i = 0; i < (i32)imageWidth; i++) {
+			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				get_pixel(outMap, i, j, imageWidth, imageHeight) = get_pixel(disparityMap, i, j, imageWidth, imageHeight);
 			}
 		}
@@ -181,7 +182,7 @@ namespace SemiGlobalMatching {
 					u32 tx = idx2xcoord(idx, imageWidth, imageHeight);
 					u32 ty = idx2ycoord(idx, imageWidth, imageHeight);
 					for (i32 j = 0; j < dirs; j++) {
-						for (i32 dx = tx, dy = ty; (dx < imageWidth && dx >= 0) && (dy < imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
+						for (i32 dx = tx, dy = ty; (dx < (i32)imageWidth && dx >= 0) && (dy < (i32)imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
 							if (get_pixel(outMap, dx, dy, imageWidth, imageHeight) > invIdx) {
 								validNeighbours[validNeighboursLen++] = coord2idx(dx, dy, imageWidth, imageHeight);
 								break;
@@ -209,14 +210,14 @@ namespace SemiGlobalMatching {
 			}
 			else {
 				//Process the remaining
-				for (i32 tx = 0; tx < imageWidth; tx++) {
-					for (i32 ty = 0; ty < imageHeight; ty++) {
+				for (i32 tx = 0; tx < (i32)imageWidth; tx++) {
+					for (i32 ty = 0; ty < (i32)imageHeight; ty++) {
 						//Cur pos is (tx,ty)
 						validNeighboursLen = 0;
 						if (get_pixel(outMap, tx, ty, imageWidth, imageHeight) < invIdx) {
 							//std::cout << "Filling" << tx << "," << ty << std::endl;
 							for (i32 j = 0; j < dirs; j++) {
-								for (i32 dx = tx, dy = ty; (dx < imageWidth && dx >= 0) && (dy < imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
+								for (i32 dx = tx, dy = ty; (dx < (i32)imageWidth && dx >= 0) && (dy < (i32)imageHeight && dy >= 0); dx += chkDirections[j][0], dy += chkDirections[j][1]) {
 									if (get_pixel(outMap, dx, dy, imageWidth, imageHeight) > invIdx) {
 										validNeighbours[validNeighboursLen++] = coord2idx(dx, dy, imageWidth, imageHeight);
 										break;

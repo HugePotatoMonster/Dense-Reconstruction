@@ -68,6 +68,7 @@ namespace Common{
     void AlgorithmCV::cmIdealEpipolarEquation(Common::Camera::MonocularCameraIntrinsic* imLeftCI,Common::Camera::MonocularCameraIntrinsic* imRightCI,
                                             Common::Camera::MonocularCameraExtrinsic* imLeftCE,Common::Camera::MonocularCameraExtrinsic* imRightCE,
                                             Common::Math::Vec3* imLeftPixel, OUT_ARG cv::Mat* epiB, OUT_ARG cv::Mat* epiK){
+        pr_deprecate();
         cv::Mat camIntL;
         cv::Mat camIntR;
         Common::Math::MathUtil::cmGetIntrinsicMat(imLeftCI,&camIntL);
@@ -109,6 +110,7 @@ namespace Common{
                                         OUT_ARG cv::Mat* imLeftRI, OUT_ARG cv::Mat* imRightRI,
                                         OUT_ARG cv::Mat* imLeftRE, OUT_ARG cv::Mat* imRightRE,
                                         OUT_ARG cv::Mat* ddepMat){
+        pr_deprecate();
         cv::Mat camIntL;
         cv::Mat camIntR;
         Common::Math::MathUtil::cmGetIntrinsicMat(imLeftCI,&camIntL);

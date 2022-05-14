@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <cmath>
-
+#include <cassert>
 #include <opencv2/opencv.hpp>
 
 //Basic
@@ -90,6 +90,10 @@
 #define get_cvmat(mat,i,j) ((mat).at<f64>((i),(j)))
 #define get_cvmatp(mat,i,j) ((mat)->at<f64>((i),(j)))
 #define dbg_printcvmap(mat,i,j) dbg_trace(for(i32 _i=0;_i<i;_i++){for(i32 _j=0;_j<j;_j++)dbg_output<<get_cvmat(mat,_i,_j)<<",";dbg_output<<std::endl;}dbg_output<<std::endl;)
+
+//Assertions
+#define pr_assert(x) assert(x)
+#define pr_deprecate() std::cout<<"Function deprecated"<<std::endl;assert(true);
 
 
 namespace Common {

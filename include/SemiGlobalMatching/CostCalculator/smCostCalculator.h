@@ -4,14 +4,15 @@
 namespace SemiGlobalMatching {
 	class CostCalculator {
 	public:
-		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, u32 disparityRange, u8* costOutput) = 0;
-		void smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* costOutput);
+		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u8* costOutput) = 0;
+		void smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* costOutput);
 		template<class T, class S> void smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
-		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
+		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight,i32 lowerDisparity, u32 disparityRange);
 	};
 
 	template<class T, class S> void CostCalculator::smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange) {
 		// Winner takes all
+		pr_deprecate();
 		for (u32 i = 0; i < imageWidth; i++) {
 			for (u32 j = 0; j < imageHeight; j++) {
 				i32 minDisparity = I32_MAX;
@@ -26,7 +27,7 @@ namespace SemiGlobalMatching {
 			}
 		}
 	}
-	template<class T, class S> void CostCalculator::smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange) {
+	template<class T, class S> void CostCalculator::smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight, i32 lowerDisparity, u32 disparityRange) {
 		// Winner takes all
 		// 
 		// Subpixel Estimate:
@@ -70,7 +71,7 @@ namespace SemiGlobalMatching {
 					f64 dA = get_pixel3(costMatrix, i, j, minDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
 					f64 dB = get_pixel3(costMatrix, i, j, minDisparityIndex + 1, imageWidth, imageHeight, disparityRange);
 					f64 dC = get_pixel3(costMatrix, i, j, minDisparityIndex, imageWidth, imageHeight, disparityRange);
-					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC,1.0)) / 2.0;
+					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = minDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC, 1.0)) / 2.0 - (f64)lowerDisparity;
 				}
 				else {
 					get_pixel(outputMatrix, i, j, imageWidth, imageHeight) = (S)SGM_INVALID_DISPARITY_F;
@@ -81,7 +82,7 @@ namespace SemiGlobalMatching {
 					f64 dA = get_pixel3(costMatrix, i, j, sMinDisparityIndex - 1, imageWidth, imageHeight, disparityRange);
 					f64 dB = get_pixel3(costMatrix, i, j, sMinDisparityIndex + 1, imageWidth, imageHeight, disparityRange);
 					f64 dC = get_pixel3(costMatrix, i, j, sMinDisparityIndex, imageWidth, imageHeight, disparityRange);
-					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC, 1.0)) / 2.0;
+					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = sMinDisparityIndex + (dA - dB) / (Max(dA + dB - 2.0 * dC, 1.0)) / 2.0 - (f64)lowerDisparity;
 				}
 				else {
 					get_pixel(secondOutputMatrix, i, j, imageWidth, imageHeight) = SGM_INVALID_DISPARITY_F;

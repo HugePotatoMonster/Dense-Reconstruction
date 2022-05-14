@@ -1,21 +1,21 @@
 #include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
 #include <iostream>
 namespace SemiGlobalMatching {
-	void EightPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix) {
+	void EightPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix) {
 		this->div = 8;
-		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from left to right
-		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 1); //from right to left
-		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from top to bottom
-		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 1); //from bottom to top
-		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from top to bottom
-		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 1); //from bottom to top
-		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from top to bottom
-		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 1); //from bottom to top
+		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from left to right
+		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from right to left
+		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
+		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
+		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
+		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
+		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
+		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
 	}
-	void EightPathCostAggregator::smCostAggregatePD(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void EightPathCostAggregator::smCostAggregatePD(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Left Top -> Right Bottom
 		i32 lastMin = I32_MAX;
-		u32* optCost = allocate_mem(u32, disparityRange * 2);
+		u32* optCost = allocate_mem(u32, (usize)disparityRange * 2);
 		for (u32 i = 0; i < imageWidth ; i++) {
 			lastMin = U32_MAX;
 			//Current pixel is (?,j)
@@ -28,7 +28,7 @@ namespace SemiGlobalMatching {
 			//Init Cond for Dynamic Programming
 			for (u32 k = 0; k < disparityRange; k++) {
 				get_pixel(optCost, k, startCoord & 1, disparityRange, 2) = get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange);
-				lastMin = Min(lastMin, get_pixel(optCost, k, startCoord & 1, disparityRange, 2));
+				lastMin = Min(lastMin, (i32)get_pixel(optCost, k, startCoord & 1, disparityRange, 2));
 				get_pixel3(refinedMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) / div;
 			}
 			//Status Updating
@@ -60,10 +60,10 @@ namespace SemiGlobalMatching {
 		}
 		free_mem(optCost);
 	}
-	void EightPathCostAggregator::smCostAggregateND(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void EightPathCostAggregator::smCostAggregateND(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Left Top -> Right Bottom
 		i32 lastMin = I32_MAX;
-		u32* optCost = allocate_mem(u32, disparityRange * 2);
+		u32* optCost = allocate_mem(u32, (usize)disparityRange * 2);
 		for (u32 i = 0; i < imageWidth; i++) {
 			lastMin = U32_MAX;
 			//Current pixel is (?,j)
@@ -75,7 +75,7 @@ namespace SemiGlobalMatching {
 			}
 			//Init Cond for Dynamic Programming
 			for (u32 k = 0; k < disparityRange; k++) {
-				lastMin = Min(lastMin, get_pixel(optCost, k, startCoord & 1, disparityRange, 2) = get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange));
+				lastMin = Min(lastMin, (i32)(get_pixel(optCost, k, startCoord & 1, disparityRange, 2) = get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange)));
 				get_pixel3(refinedMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) += get_pixel3(costMatrix, i, startCoord, k, imageWidth, imageHeight, disparityRange) / div;
 			}
 			//Status Updating

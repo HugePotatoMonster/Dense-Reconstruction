@@ -111,7 +111,7 @@ namespace Test{
 		//Disparity Estimate
 		cout << "Estimating Disparity" << endl;
 		f64* leftDisparityMap = allocate_mem(f64, (usize)imageWidth * imageHeight);
-		disparityHelper->smIdealBinocularDisparity(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap);
+		disparityHelper->smIdealBinocularDisparity(imageLeft.data, imageRight.data, imageWidth, imageHeight,0, disparityRange, leftDisparityMap);
 
 		cout << "Discretization" << endl;
 		u32* leftDisparityMapMfds = allocate_mem(u32, (usize)imageWidth * imageHeight);
@@ -145,7 +145,7 @@ namespace Test{
 		//Disparity Estimate
 		cout << "Estimating Disparity" << endl;
 		f64* leftDisparityMap = allocate_mem(f64, (usize)imageWidth * imageHeight);
-		disparityHelper->smIdealBinocularDisparity(imageLeft.data, imageRight.data, imageWidth, imageHeight, disparityRange, leftDisparityMap);
+		disparityHelper->smIdealBinocularDisparity(imageLeft.data, imageRight.data, imageWidth, imageHeight,0, disparityRange, leftDisparityMap);
 
 		cout << "Discretization" << endl;
 		u32* leftDisparityMapMfds = allocate_mem(u32, (usize)imageWidth * imageHeight);

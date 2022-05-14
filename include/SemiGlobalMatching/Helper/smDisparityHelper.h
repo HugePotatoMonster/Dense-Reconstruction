@@ -23,7 +23,6 @@ namespace SemiGlobalMatching {
 		void smAlgorithmConfigure(Constant::CostAggregationOption aggrOption, Constant::CostCalculationOption costOption);
 		void smSetDisparityFill(i32 enable);
 		//Function
-		void smIdealBinocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 baselineLength, OUT_ARG f64* outputDisparityMap);
-		void smIdealRandomMonocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, Common::Camera::MonocularCameraExtrinsic* leftPose, Common::Camera::MonocularCameraExtrinsic* rightPose, Common::Camera::MonocularCameraIntrinsic* camInt , OUT_ARG f64* outputDisparityMap);
+		void smIdealBinocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight,i32 minDisparity, u32 baselineLength, OUT_ARG f64* outputDisparityMap);
 	};
 }

@@ -14,10 +14,10 @@ namespace DenseReconstruction {
 					// (cU/dx)   ( fx  0  cx ) (x/z) 
 					// (cV/dy) = ( 0   fy cy ) (y/z)
 					// (c    )   ( 0   0  1  ) (1  )
-					i32 u = (((f64)x / z) * cameraInt->fx + cameraInt->cx) * cameraInt->dx + 0.5;
-					i32 v = (((f64)y / z) * cameraInt->fy + cameraInt->cy) * cameraInt->dy + 0.5;
+					i32 u = (i32)((((f64)x / z) * cameraInt->fx + cameraInt->cx) * cameraInt->dx + 0.5);
+					i32 v = (i32)((((f64)y / z) * cameraInt->fy + cameraInt->cy) * cameraInt->dy + 0.5);
 					//std::cout << u << "," << v << std::endl;
-					if (u<0 || u>=imageWidth || v<0 || v>=imageHeight) {
+					if (u<0 || u>=(i32)imageWidth || v<0 || v>=(i32)imageHeight) {
 						Voxel* temp;
 						outStore->drGetVoxel(x, y, z, &temp);
 						temp->tsdf = 1.0;
