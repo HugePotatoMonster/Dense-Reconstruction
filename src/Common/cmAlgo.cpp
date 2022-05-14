@@ -1,5 +1,6 @@
 #include "../../include/Common/cmAlgo.h"
 #include "../../include/Common/cmMath.h"
+#include "../../include/Common/cmTypeDefs.h"
 namespace Common{
     u32 Algorithm::cmBitCount(u32 x){
         u32 ret = 0;
@@ -67,21 +68,27 @@ namespace Common{
     void AlgorithmCV::cmIdealEpipolarEquation(Common::Camera::MonocularCameraIntrinsic* imLeftCI,Common::Camera::MonocularCameraIntrinsic* imRightCI,
                                             Common::Camera::MonocularCameraExtrinsic* imLeftCE,Common::Camera::MonocularCameraExtrinsic* imRightCE,
                                             Common::Math::Vec3* imLeftPixel, OUT_ARG cv::Mat* epiB, OUT_ARG cv::Mat* epiK){
-        cv::Mat camIntL = (cv::Mat_<f64>(3,3)<<imLeftCI->fx, 0 , imLeftCI->cx,
-                                                0,imLeftCI->fy,imLeftCI->cy,
-                                                0,0,1);
-        cv::Mat camIntR = (cv::Mat_<f64>(3,3)<<imRightCI->fx, 0 , imRightCI->cx,
-                                                0,imRightCI->fy,imRightCI->cy,
-                                                0,0,1);
+        cv::Mat camIntL;
+        cv::Mat camIntR;
+        Common::Math::MathUtil::cmGetIntrinsicMat(imLeftCI,&camIntL);
+        Common::Math::MathUtil::cmGetIntrinsicMat(imRightCI,&camIntR);
         cv::Mat camExtRL,camExtRR,camExtTL,camExtTR;
         Common::Math::MathUtil::cmGetExtrinsicMatR(imLeftCE,&camExtRL);
         Common::Math::MathUtil::cmGetExtrinsicMatR(imRightCE,&camExtRR);
         Common::Math::MathUtil::cmGetExtrinsicMatT(imLeftCE,&camExtTL);
         Common::Math::MathUtil::cmGetExtrinsicMatT(imRightCE,&camExtTR);
         cv::Mat imLP = (cv::Mat_<f64>(3,1)<<imLeftPixel->a[0],imLeftPixel->a[1],imLeftPixel->a[2]);
-        cv::Mat k = -(camIntR*camExtRR*camExtRL.inv()*camIntL.inv())*imLP;
-        cv::Mat kp = -(camIntR*camExtRR*camExtRL.inv()*camIntL.inv());
-        cv::Mat b = camIntR*(camExtTR-camExtTL);
+        cv::Mat k = (camIntR*camExtRR*camExtRL.t()*camIntL.inv())*imLP;
+        cv::Mat kp = (camIntR*camExtRR*camExtRL.t()*camIntL.inv());
+        cv::Mat b = camIntR*(camExtTL-camExtTR);
+
+        std::cout<<"CAMINT"<<std::endl;
+        dbg_printcvmap(camIntR,3,3);
+
+
+        std::cout<<"CAM_SHIFT"<<std::endl;
+        dbg_printcvmap((cv::Mat)(camExtTL-camExtTR),3,1);
+
         std::cout<<"ML"<<std::endl;
         for(i32 i=0;i<3;i++){
             for(i32 j=0;j<3;j++){
@@ -112,7 +119,7 @@ namespace Common{
         Common::Math::MathUtil::cmGetExtrinsicMatT(imLeftCE,&camExtTL);
         Common::Math::MathUtil::cmGetExtrinsicMatT(imRightCE,&camExtTR);
         cv::Mat camRelR = (camExtRR * camExtRL.inv());
-        cv::Mat camRelT = -(camExtTR - camExtTL);
+        cv::Mat camRelT = (camExtTR - camExtTL);
         std::cout<<"R:"<<std::endl;
         for(i32 i=0;i<9;i++){
             std::cout<<camRelR.at<f64>(i/3,i%3)<<",";

@@ -13,19 +13,23 @@
 #include "./include/DenseReconstruction/TSDF/drTSDF.h"
 #include "./include/Common/Utility/cmVisExt.h"
 #include "./include/StereoMapping/Helper/smDisparityHelper.h"
-
+#include "./include/StereoRectification/srStereoRectification.h"
 #include "./include/Misc/msAuxiliaryUtils.h"
+#include "./include/Test/tsTest.h"
 #define CE_TYPE u32
 #define SGM_ONLY true
-#define PROJ_CALC false
+#define PROJ_CALC true
 
 using namespace std;
 using namespace cv;
 
 int main() {
+	//Test
+	Test::Test* tests = new Test::Test();
+	tests->stereoRectify();
+	return 0;
 	cout << "Starting" << endl;
-	
-
+	StereoRectification::StereoRectification* srect = new StereoRectification::StereoRectification();
 	//Create Objects
 	StereoMapping::DisparityHelper* disparityHelper = new StereoMapping::DisparityHelper();
 	StereoMapping::CostOptimizer* discretizator = new StereoMapping::CostOptimizer();
@@ -35,20 +39,21 @@ int main() {
 
 	//Test CamInt
 	cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
-	cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0000.png", 0);
+	cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
 	Common::Camera::MonocularCameraIntrinsic camIntb,camIntc;
 	Common::Camera::MonocularCameraExtrinsic camExtb,camExtc;
 	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntc);
 	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtc);
-	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0000.txt",&camIntb);
-	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0000.txt",&camExtb);
+	Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camIntb);
+	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camExtb);
 	
 	//Projection Calc
 	if(PROJ_CALC){
 		cv::Mat epiB = (cv::Mat_<f64>(3,1)<<0,0,0);
 		cv::Mat epiK = (cv::Mat_<f64>(3,1)<<0,0,0);
 		Common::Math::Vec3 vec = {{368,265,1}};
-		Common::AlgorithmCV::cmIdealEpipolarEquationByFundamentalMatrix(&camIntb,&camExtb,&camExtc,&vec,&epiB,&epiK);
+		//Common::AlgorithmCV::cmIdealEpipolarEquationByFundamentalMatrix(&camIntb,&camExtb,&camExtc,&vec,&epiB,&epiK);
+		Common::AlgorithmCV::cmIdealEpipolarEquation(&camIntb,&camIntc,&camExtb,&camExtc,&vec,&epiB,&epiK);
 		cout<<endl<<"B:";
 		for(i32 i=0;i<3;i++){
 			epiB.at<f64>(i,0) /= epiB.at<f64>(2,0);

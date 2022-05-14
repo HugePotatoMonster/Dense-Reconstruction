@@ -166,7 +166,7 @@ namespace Misc {
         camIn->dx = 1;
         camIn->dx = 1;
         camIn->fx = 1.0 / psx;
-        camIn->fy = -1.0 / psy;
+        camIn->fy = 1.0 / psy;
         camIn->cx = (width + 0.0) / 2.0;
         camIn->cy = (height + 0.0) / 2.0;
     }

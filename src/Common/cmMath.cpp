@@ -47,5 +47,24 @@ namespace Common {
 											inMat->at<f64>(2,0),0,-inMat->at<f64>(0,0),
 											-inMat->at<f64>(1,0),inMat->at<f64>(0,0),0);
 		}
+		void MathUtil::cmGetRelativeExtrinsic(Common::Camera::MonocularCameraExtrinsic* camLeft, Common::Camera::MonocularCameraExtrinsic* camRight, Common::Camera::MonocularCameraExtrinsic* camRel){
+			//Returns the relative transformation from left extrinsic to right extrinsic
+			//Namely, the right extrinsic in the left camera CS
+			cv::Mat leftR,leftT,rightR,rightT;
+			cmGetExtrinsicMatR(camLeft,&leftR);
+			cmGetExtrinsicMatR(camRight,&rightR);
+			cmGetExtrinsicMatT(camLeft,&leftT);
+			cmGetExtrinsicMatT(camRight,&rightT);
+			cv::Mat relR,relT;
+			//This can be obtained from homogeneous extrinsic (4x4) matrix 
+			relR = rightR*leftR.t();
+			relT = leftR * (rightT-leftT);
+			for(i32 i=0;i<3;i++){
+				for(i32 j=0;j<3;j++){
+					camRel->r[i][j] = get_cvmat(relR,i,j);
+				}
+				camRel->t[i] = get_cvmat(relT,i,0);
+			}
+		}
 	}
 }

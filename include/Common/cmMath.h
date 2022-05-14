@@ -13,6 +13,7 @@ namespace Common {
 			static void cmGetIntrinsicMat(Common::Camera::MonocularCameraIntrinsic* camInt, OUT_ARG cv::Mat* outMat);
 			static void cmGetIntrinsicMatYFlip(Common::Camera::MonocularCameraIntrinsic* camInt,f64 h, OUT_ARG cv::Mat* outMat);
 			static void cmGetVectorProductSkewSymMatrix(cv::Mat* inMat,OUT_ARG cv::Mat* outMat);
+			static void cmGetRelativeExtrinsic(Common::Camera::MonocularCameraExtrinsic* camLeft, Common::Camera::MonocularCameraExtrinsic* camRight, Common::Camera::MonocularCameraExtrinsic* camRel);
 		};
 	}
 

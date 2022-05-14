@@ -70,6 +70,11 @@
 #define free_mem(obj) (delete[] obj)
 #define set_zero(x,l) (memset(x,0,l))
 
+//Debug
+#define DEBUG_MODE true
+#define dbg_trace(x) if(DEBUG_MODE){x}
+#define dbg_output std::cout
+
 //Aux Tags
 #define OUT_ARG //output arguments
 #define IN_ARG  //input arguments
@@ -84,6 +89,7 @@
 #define OCV_IDENTITY_3 ((cv::Mat)(cv::Mat_<f64>(3 , 3) << 1,0,0,  0,1,0, 0,0,1));
 #define get_cvmat(mat,i,j) ((mat).at<f64>((i),(j)))
 #define get_cvmatp(mat,i,j) ((mat)->at<f64>((i),(j)))
+#define dbg_printcvmap(mat,i,j) dbg_trace(for(i32 _i=0;_i<i;_i++){for(i32 _j=0;_j<j;_j++)dbg_output<<get_cvmat(mat,_i,_j)<<",";dbg_output<<std::endl;}dbg_output<<std::endl;)
 
 
 namespace Common {
