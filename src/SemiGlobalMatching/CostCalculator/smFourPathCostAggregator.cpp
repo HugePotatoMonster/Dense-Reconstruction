@@ -1,7 +1,7 @@
-#include "../../../include/StereoMapping/CostCalculator/smFourPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregator.h"
 #include <iostream>
 using namespace std;
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	void FourPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix) {
 		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from left to right
 		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 1); //from right to left

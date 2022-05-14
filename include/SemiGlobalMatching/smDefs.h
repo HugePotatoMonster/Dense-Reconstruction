@@ -1,5 +1,5 @@
 #pragma once
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	namespace Constant {
 		enum class CostAggregationOption : i32 {
 			SMC_NONE = 0,

@@ -1,6 +1,6 @@
-#include "../../../include/StereoMapping/DepthEstimator/smDepthConverter.h"
+#include "../../../include/SemiGlobalMatching/DepthEstimator/smDepthConverter.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	void DepthConverter::smIdealBinocularDisparityToDepth(f64* disparityMap, f64* depthMap, u32 imageWidth, u32 imageHeight, f64 cameraBaseline, f64 cameraFocalLength) {
 		f64 ct = cameraBaseline * cameraFocalLength;
 		for (i32 i = 0; i < imageWidth; i++) {

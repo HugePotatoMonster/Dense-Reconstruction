@@ -1,13 +1,13 @@
 #include "../../Common/cmTypeDefs.h"
-#include "../../StereoMapping/smDefs.h"
-#include "../../../include/StereoMapping/Helper/smCostHelper.h"
-#include "../../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
-#include "../../../include/StereoMapping/CostCalculator/smFourPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostCalculator/smNullPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
+#include "../../SemiGlobalMatching/smDefs.h"
+#include "../../../include/SemiGlobalMatching/Helper/smCostHelper.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCensusTransformCostCalculator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smNullPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostOptimizer/smCostOptimizer.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	class DisparityHelper {
 	private:
 		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH;

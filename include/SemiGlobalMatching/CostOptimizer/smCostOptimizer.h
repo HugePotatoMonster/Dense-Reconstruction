@@ -1,7 +1,7 @@
 #pragma once
 #include "../../Common/cmTypeDefs.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	class CostOptimizer {
 	public:
 		void smInternalConsistencyCheckF(f64* leftDisparityMap, f64* rightDisparityMap,f64* outputDisparityMap, u32 imageWidth, u32 imageHeight,u32* occuList,u32* occuLen,u32* misList,u32* misLen, f64 consistencyThreshold = 1.0, f64 invalidPlaceholder = SGM_INVALID_DISPARITY_F);

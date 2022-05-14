@@ -1,6 +1,6 @@
-#include "../../../include/StereoMapping/CostCalculator/smCostCalculator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCostCalculator.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
     void CostCalculator::smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* costOutput) {
         //Left Cost (i,j,k) => Right(i+k,j,k)
         for (i32 i = 0; i < imageWidth; i++) {

@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../include/StereoMapping/CostCalculator/smCostAggregator.h"
-namespace StereoMapping {
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCostAggregator.h"
+namespace SemiGlobalMatching {
     class NullPathCostAggregator :public CostAggregator {
     public:
 

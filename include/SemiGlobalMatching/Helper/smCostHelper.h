@@ -1,7 +1,7 @@
 #pragma once
 #include "../../Common/cmTypeDefs.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	class CostHelper {
 	public:
 		//Test Interfaces

@@ -1,15 +1,15 @@
-#include "../../../include/StereoMapping/Helper/smCostHelper.h"
-#include "../../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
-#include "../../../include/StereoMapping/CostCalculator/smFourPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostCalculator/smNullPathCostAggregator.h"
-#include "../../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
+#include "../../../include/SemiGlobalMatching/Helper/smCostHelper.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCensusTransformCostCalculator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smNullPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostOptimizer/smCostOptimizer.h"
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	void CostHelper::calculateCost(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* leftDisparityMap) {
-		StereoMapping::CostCalculator* costEstimator = new StereoMapping::CensusTransformCostCalculator();
-		StereoMapping::CostAggregator* costAggregator = new StereoMapping::FourPathCostAggregator();
-		StereoMapping::CostOptimizer* costOptimizer = new StereoMapping::CostOptimizer();
+		SemiGlobalMatching::CostCalculator* costEstimator = new SemiGlobalMatching::CensusTransformCostCalculator();
+		SemiGlobalMatching::CostAggregator* costAggregator = new SemiGlobalMatching::FourPathCostAggregator();
+		SemiGlobalMatching::CostOptimizer* costOptimizer = new SemiGlobalMatching::CostOptimizer();
 
 		u8* costMatrix = allocate_mem(u8, imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imageLeft, imageRight, imageWidth, imageHeight, disparityRange, costMatrix);
@@ -29,9 +29,9 @@ namespace StereoMapping {
 	}
 
 	void CostHelper::calculateCostInternalF(u8* imageLeft, u8* imageRight, u32 imageWidth, u32 imageHeight, u32 disparityRange, f64* leftDisparityMap, f64* leftDisparitymapS, u32* occuList, u32* occuLen, u32* misList, u32* misLen) {
-		StereoMapping::CostCalculator* costEstimator = new StereoMapping::CensusTransformCostCalculator();
-		StereoMapping::CostAggregator* costAggregator = new StereoMapping::EightPathCostAggregator();
-		StereoMapping::CostOptimizer* costOptimizer = new StereoMapping::CostOptimizer();
+		SemiGlobalMatching::CostCalculator* costEstimator = new SemiGlobalMatching::CensusTransformCostCalculator();
+		SemiGlobalMatching::CostAggregator* costAggregator = new SemiGlobalMatching::EightPathCostAggregator();
+		SemiGlobalMatching::CostOptimizer* costOptimizer = new SemiGlobalMatching::CostOptimizer();
 
 		u8* costMatrix = allocate_mem(u8, imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imageLeft, imageRight, imageWidth, imageHeight, disparityRange, costMatrix);

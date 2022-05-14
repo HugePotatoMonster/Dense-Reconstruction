@@ -1,7 +1,7 @@
-#include "../../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCensusTransformCostCalculator.h"
 #include "../../../include/Common/cmAlgo.h"
 #include <iostream>
-namespace StereoMapping{
+namespace SemiGlobalMatching{
     u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight, u32 disparityRange,u8* costOutput){
         //Calculate the census values for two images
         u32* leftImageCensus = allocate_mem(u32,imageWidth*imageHeight);

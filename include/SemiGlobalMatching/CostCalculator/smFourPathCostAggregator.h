@@ -1,6 +1,6 @@
 #pragma once
-#include "../../../include/StereoMapping/CostCalculator/smCostAggregator.h"
-namespace StereoMapping {
+#include "../../../include/SemiGlobalMatching/CostCalculator/smCostAggregator.h"
+namespace SemiGlobalMatching {
     class FourPathCostAggregator:public CostAggregator{
     public:
         u32 p1 = 10; //Penalty coefficient for cost difference equals to 1

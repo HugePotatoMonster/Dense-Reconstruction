@@ -1,8 +1,8 @@
-#include "../../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
+#include "../../../include/SemiGlobalMatching/CostOptimizer/smCostOptimizer.h"
 #include <algorithm>
 #include <iostream>
 
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	void CostOptimizer::smInternalConsistencyCheckF(f64* leftDisparityMap, f64* rightDisparityMap, f64* outputDisparityMap, u32 imageWidth, u32 imageHeight, u32* occuList, u32* occuLen, u32* misList, u32* misLen, f64 consistencyThreshold, f64 invalidPlaceholder) {
 		for (i32 j = 0; j < imageHeight; j++) {
 			for (i32 i = 0; i < imageWidth; i++) {

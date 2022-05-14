@@ -2,14 +2,14 @@
 #include "../../include/Misc/msAuxiliaryUtils.h"
 #include "../../include/StereoRectification/srStereoRectification.h"
 #include "../../include/Common/cmAlgo.h"
-#include "../../include/StereoMapping/CostCalculator/smCostCalculator.h"
-#include "../../include/StereoMapping/CostCalculator/smCensusTransformCostCalculator.h"
-#include "../../include/StereoMapping/CostCalculator/smFourPathCostAggregator.h"
-#include "../../include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
-#include "../../include/StereoMapping/CostOptimizer/smCostOptimizer.h"
-#include "../../include/StereoMapping/Helper/smCostHelper.h"
-#include "../../include/StereoMapping/DepthEstimator/smDepthConverter.h"
-#include "../../include/StereoMapping/Helper/smDisparityHelper.h"
+#include "../../include/SemiGlobalMatching/CostCalculator/smCostCalculator.h"
+#include "../../include/SemiGlobalMatching/CostCalculator/smCensusTransformCostCalculator.h"
+#include "../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregator.h"
+#include "../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
+#include "../../include/SemiGlobalMatching/CostOptimizer/smCostOptimizer.h"
+#include "../../include/SemiGlobalMatching/Helper/smCostHelper.h"
+#include "../../include/SemiGlobalMatching/DepthEstimator/smDepthConverter.h"
+#include "../../include/SemiGlobalMatching/Helper/smDisparityHelper.h"
 #include "../../include/DenseReconstruction/Voxel/drPlainVoxelStore.h"
 #include "../../include/DenseReconstruction/TSDF/drTSDF.h"
 #include "../../include/Common/Utility/cmVisExt.h"
@@ -91,9 +91,9 @@ namespace Test{
 		cout << "Starting" << endl;
 		StereoRectification::StereoRectification* srect = new StereoRectification::StereoRectification();
 		//Create Objects
-		StereoMapping::DisparityHelper* disparityHelper = new StereoMapping::DisparityHelper();
-		StereoMapping::CostOptimizer* discretizator = new StereoMapping::CostOptimizer();
-		StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
+		SemiGlobalMatching::DisparityHelper* disparityHelper = new SemiGlobalMatching::DisparityHelper();
+		SemiGlobalMatching::CostOptimizer* discretizator = new SemiGlobalMatching::CostOptimizer();
+		SemiGlobalMatching::DepthConverter depthConverter = SemiGlobalMatching::DepthConverter();
 		DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 		Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
 
@@ -125,9 +125,9 @@ namespace Test{
 		cout << "Starting" << endl;
 		StereoRectification::StereoRectification* srect = new StereoRectification::StereoRectification();
 		//Create Objects
-		StereoMapping::DisparityHelper* disparityHelper = new StereoMapping::DisparityHelper();
-		StereoMapping::CostOptimizer* discretizator = new StereoMapping::CostOptimizer();
-		StereoMapping::DepthConverter depthConverter = StereoMapping::DepthConverter();
+		SemiGlobalMatching::DisparityHelper* disparityHelper = new SemiGlobalMatching::DisparityHelper();
+		SemiGlobalMatching::CostOptimizer* discretizator = new SemiGlobalMatching::CostOptimizer();
+		SemiGlobalMatching::DepthConverter depthConverter = SemiGlobalMatching::DepthConverter();
 		DenseReconstruction::TruncatedSDF tsdfCalc = DenseReconstruction::TruncatedSDF();
 		Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
 

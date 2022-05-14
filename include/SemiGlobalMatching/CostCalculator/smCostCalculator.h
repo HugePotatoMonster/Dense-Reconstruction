@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../include/Common/cmTypeDefs.h"
 #include <iostream>
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	class CostCalculator {
 	public:
 		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, u32 disparityRange, u8* costOutput) = 0;

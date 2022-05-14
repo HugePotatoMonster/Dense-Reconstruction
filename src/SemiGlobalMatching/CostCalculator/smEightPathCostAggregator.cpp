@@ -1,6 +1,6 @@
-#include "../../../include/StereoMapping/CostCalculator/smEightPathCostAggregator.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
 #include <iostream>
-namespace StereoMapping {
+namespace SemiGlobalMatching {
 	void EightPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32* refinedMatrix) {
 		this->div = 8;
 		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, refinedMatrix, 0); //from left to right

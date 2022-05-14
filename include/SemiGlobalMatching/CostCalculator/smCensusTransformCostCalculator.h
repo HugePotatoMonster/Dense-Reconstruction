@@ -1,7 +1,7 @@
 #pragma once
 #include "smCostCalculator.h"
 
-namespace StereoMapping{
+namespace SemiGlobalMatching{
     class CensusTransformCostCalculator:public CostCalculator{
     private:
         u32 censusWindowH = 2;

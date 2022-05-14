@@ -1,5 +1,5 @@
-#include "../../../include/StereoMapping/Helper/smDisparityHelper.h"
-namespace StereoMapping {
+#include "../../../include/SemiGlobalMatching/Helper/smDisparityHelper.h"
+namespace SemiGlobalMatching {
 	void DisparityHelper::smAlgorithmConfigure(Constant::CostAggregationOption aggrOption, Constant::CostCalculationOption costOption) {
 		this->aggrOption = aggrOption;
 		this->costOption = costOption;
