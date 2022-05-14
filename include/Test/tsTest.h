@@ -5,5 +5,8 @@ namespace Test{
     class Test{
     public:
         static void stereoRectify();
+        static void epipolarLineProjection();
+        static void binocularSGM();
+        static void sgmMarchingCubeSurface();
     };
 }
