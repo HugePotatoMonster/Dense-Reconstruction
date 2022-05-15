@@ -18,7 +18,7 @@ namespace DepthEstimation {
 		// @param rectifiedImLeft: (Output) Rectified left image
 		// @param rectifiedImRight: (Output) Rectified right image
 		// @param disparityMap: (Output) The pointer to a 1D array that pixel-wise disparity values will be stored into
-		// @param depthMap: (Output) The pointer to a 1D array that pixel-wise depth values will be stored into. The depth value assumes the rectified first camera CS as the world coordinate
+		// @param depthMap: (Output) The pointer to a 1D array that pixel-wise depth values will be stored into. The depth value assumes the rectified first camera CS as the world coordinate.
 		// @param remapRotatonL: (Output) The matrix that remaps coordinates in the unrectified C1 camera CS to rectified C1 camera CS.
 		// @param remapRotationR: (Output) The matrix that remaps coordinates in the unrectified C2 camera CS to rectified C2 camera CS.
 		// @param rectifiedProjectionL: (Output) The matrix that gives projection from rectified C1 camera CS to rectified C1 image/pixel CS. (Namely, the new intrinsic for C1)
