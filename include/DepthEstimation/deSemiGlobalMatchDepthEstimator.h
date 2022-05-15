@@ -1,12 +1,12 @@
 #pragma once
 #include "../Common/cmTypeDefs.h"
 #include "../Common/cmMath.h"
-#include "smAbstractDepthEstimator.h"
+#include "deGeneralDepthEstimator.h"
 #include "../SemiGlobalMatching/Helper/smDisparityHelper.h"
 #include "../StereoRectification/srStereoRectification.h"
 
 namespace DepthEstimation {
-	class SemiGlobalMatchingDepthEstimator:public AbstractDepthEstimator {
+	class SemiGlobalMatchingDepthEstimator:public GeneralDepthEstimator {
 	private:
 		SemiGlobalMatching::DisparityHelper* disparityHelper = new SemiGlobalMatching::DisparityHelper();
 		StereoRectification::AbstractStereoRectification* rectHelper = new StereoRectification::StereoRectification();

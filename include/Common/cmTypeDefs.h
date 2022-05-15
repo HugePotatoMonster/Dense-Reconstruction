@@ -39,6 +39,9 @@
 #define SGM_INVALID_DISPARITY_F_THRESH (-1e2)
 #define SGM_INVALID_DISPARITY_I (0)
 
+//DepthEstimation
+#define DEPEST_INVALID_PIXEL (-1e30)
+
 //Math Constants
 #define eps (1e-6)
 #define pi (3.1415926)

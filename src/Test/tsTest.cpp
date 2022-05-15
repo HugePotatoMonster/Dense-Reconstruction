@@ -14,7 +14,7 @@
 #include "../../include/DenseReconstruction/TSDF/drTSDF.h"
 #include "../../include/Common/Utility/cmVisExt.h"
 #include "../../include/StereoRectification/srStereoRectification.h"
-#include "../../include/DepthEstimation/smSemiGlobalMatchDepthEstimator.h"
+#include "../../include/DepthEstimation/deSemiGlobalMatchDepthEstimator.h"
 
 namespace Test{
     void Test::stereoRectify(){

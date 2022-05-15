@@ -9,5 +9,6 @@ namespace Test{
         static void binocularSGM();
         static void sgmMarchingCubeSurface();
         static void monocularMotionSGM();
+        static void monocularMotionSGMDepth();
     };
 }
