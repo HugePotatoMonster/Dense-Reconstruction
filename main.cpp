@@ -17,6 +17,7 @@ int main() {
 	Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtl);
 	
 	//Depth Estimate
+	//Use `deIdealCalibratedDepthEstimation` is enough!
 	dbg_toutput("Depth Estimate");
 	DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
 	cv::Mat reL, reR, RL, RR, PL, PR, Q;
