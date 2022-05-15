@@ -11,7 +11,7 @@ namespace SemiGlobalMatching {
 		SemiGlobalMatching::CostAggregator* costAggregator = new SemiGlobalMatching::FourPathCostAggregator();
 		SemiGlobalMatching::CostOptimizer* costOptimizer = new SemiGlobalMatching::CostOptimizer();
 
-		u8* costMatrix = allocate_mem(u8, imageWidth * imageHeight * disparityRange);
+		u32* costMatrix = allocate_mem(u32, imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imageLeft, imageRight, imageWidth, imageHeight,minDisparity, disparityRange, costMatrix);
 
 		u32* refinedCostMatrix = allocate_mem(u32, imageWidth * imageHeight * disparityRange);
@@ -33,7 +33,7 @@ namespace SemiGlobalMatching {
 		SemiGlobalMatching::CostAggregator* costAggregator = new SemiGlobalMatching::EightPathCostAggregator();
 		SemiGlobalMatching::CostOptimizer* costOptimizer = new SemiGlobalMatching::CostOptimizer();
 
-		u8* costMatrix = allocate_mem(u8, imageWidth * imageHeight * disparityRange);
+		u32* costMatrix = allocate_mem(u32, imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imageLeft, imageRight, imageWidth, imageHeight, minDisparity, disparityRange, costMatrix);
 
 		u32* refinedCostMatrix = allocate_mem(u32, imageWidth * imageHeight * disparityRange);

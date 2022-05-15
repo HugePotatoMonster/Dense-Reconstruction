@@ -205,14 +205,14 @@ namespace Test{
 	void Test::monocularMotionSGM() {
 		//Reading intrinsic & extrinsic
 		dbg_toutput("Read Parameters");
-		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
-		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
 		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
 		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr;
-		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntr);
-		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtr);
-		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntl);
-		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtl);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntr);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtr);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntl);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtl);
 		
 		//Create objects
 		DepthEstimation::AbstractDepthEstimator* estimator = new DepthEstimation::SemiGlobalMatchingDepthEstimator();
@@ -221,11 +221,11 @@ namespace Test{
 		u32* disparityMapDisc = allocate_mem(u32, (usize)camItl.cols * camItl.rows);
 		cv::Mat depthConversionMat, RL, RR, PL, PR, maskL, maskR;
 		i32 returnFlag;
-		estimator->deIdealCalibratedDisparityEstimation(&camItl, &camItr, -64, 128, &camIntl, &camIntr, &camExtl, &camExtr, disparityMap, &depthConversionMat,
+		estimator->deIdealCalibratedDisparityEstimation(&camItl, &camItr, 0, 256, &camIntl, &camIntr, &camExtl, &camExtr, disparityMap, &depthConversionMat,
 			&returnFlag, &RL, &RR, &PL, &PR, &maskL, &maskR);
 
 		//Save as Image
-		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, -64, 128);
-		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows, 0);
+		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, 0, 256);
+		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows,255);
 	}
 }

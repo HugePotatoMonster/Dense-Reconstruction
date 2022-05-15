@@ -2,7 +2,7 @@
 #include "../../../include/Common/cmAlgo.h"
 #include <iostream>
 namespace SemiGlobalMatching{
-    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight,i32 minDisparity, u32 disparityRange,u8* costOutput){
+    u32 CensusTransformCostCalculator::smCostCalculate(u8* leftImage, u8* rightImage,u32 imageWidth,u32 imageHeight,i32 minDisparity, u32 disparityRange,u32* costOutput){
         //Calculate the census values for two images
         u32* leftImageCensus = allocate_mem(u32,(usize)imageWidth*imageHeight);
         u32* rightImageCensus = allocate_mem(u32,(usize)imageWidth*imageHeight);
@@ -33,7 +33,7 @@ namespace SemiGlobalMatching{
             }
         }
     }
-    void CensusTransformCostCalculator::smCostCalculateImpl(u32* leftCensus, u32* rightCensus, u32 imageWidth,u32 imageHeight, i32 minDisparity, u32 disparityRange, u8* costOutput){
+    void CensusTransformCostCalculator::smCostCalculateImpl(u32* leftCensus, u32* rightCensus, u32 imageWidth,u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* costOutput){
         for(u32 i = 0;i<imageWidth;i++){
             for(u32 j=0;j<imageHeight;j++){
                 //Left pixel is (i,j)

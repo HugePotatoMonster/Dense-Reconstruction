@@ -2,13 +2,13 @@
 #include <iostream>
 using namespace std;
 namespace SemiGlobalMatching {
-	void FourPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix) {
+	void FourPathCostAggregator::smCostAggregate(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix) {
 		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from left to right
 		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from right to left
 		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from top to bottom
 		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from bottom to top
 	}
-	void FourPathCostAggregator::smCostAggregateLR(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void FourPathCostAggregator::smCostAggregateLR(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Optimization problem: f[i,j,k] = C[i,j,k] + min(f[ix,jx,k],f[ix,jx,k+1]+p1,f[ix,jx,k-1]+p1,f[ix,jx,t]+p2)-min(f[ix,jx,t])
 		//Array scrolling for "f" to reduce memory consumption
 		u32 lastMin = U32_MAX;
@@ -62,7 +62,7 @@ namespace SemiGlobalMatching {
 		free_mem(optCost);
 
 	}
-	void FourPathCostAggregator::smCostAggregateUD(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void FourPathCostAggregator::smCostAggregateUD(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Optimization problem: f[i,j,k] = C[i,j,k] + min(f[ix,jx,k],f[ix,jx,k+1]+p1,f[ix,jx,k-1]+p1,f[ix,jx,t]+p2)-min(f[ix,jx,t])
 		//Array scrolling for "f" to reduce memory consumption
 		u32 lastMin = U32_MAX;

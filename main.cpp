@@ -4,6 +4,6 @@ using namespace std;
 int main() {
 	//Test
 	Test::Test* tests = new Test::Test();
-	tests->monocularMotionSGM();
+	tests->stereoRectify();
 	return 0;
 }

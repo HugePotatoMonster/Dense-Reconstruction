@@ -28,8 +28,6 @@ namespace SemiGlobalMatching {
 			*object = nullptr;
 		}
 	}
-
-	
 	void DisparityHelper::smIdealBinocularDisparity(u8* imLeft, u8* imRight, u32 imageWidth, u32 imageHeight,i32 minDisparity, u32 baselineLength, OUT_ARG f64* outputDisparityMap){
 		// Disparity Estimation for Binocular Camera
 		// Camera distortion is ignored
@@ -42,12 +40,32 @@ namespace SemiGlobalMatching {
 			return;
 		}
 		u32 disparityRange = baselineLength;
-		u8* costMatrix = allocate_mem(u8, (usize)imageWidth * imageHeight * disparityRange);
+		u32* costMatrix = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imLeft, imRight, imageWidth, imageHeight, minDisparity, disparityRange, costMatrix);
+		
+#if 0
+		cv::Mat test(imageHeight, imageWidth, CV_8UC1);
+		for (i32 i = 0; i < imageWidth; i++) {
+			for (i32 j = 0; j < imageHeight; j++) {
+				i32 minIdx = 0, minV = 1e6;
+				for (i32 k = 0; k < disparityRange; k++) {
+					if (get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange) < minV) {
+						minIdx = k;
+						minV = get_pixel3(costMatrix, i, j, k, imageWidth, imageHeight, disparityRange);
+					}
+				}
+				get_cvmatu8(test, j, i) = minIdx;
+			}
+		}
+		cv::imshow("HI", test);
+		cv::waitKey(0);
+#endif
 		
 		u32* refinedCostMatrix = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		set_zero(refinedCostMatrix, sizeof(u32) * imageWidth * imageHeight * disparityRange);
 		costAggregator->smCostAggregate(imLeft, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedCostMatrix);
+
+		
 
 		u32* refinedCostMatrixRight = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		costEstimator->smGetAnotherCost(refinedCostMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedCostMatrixRight);

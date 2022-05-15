@@ -4,7 +4,7 @@
 namespace SemiGlobalMatching {
 	class CostCalculator {
 	public:
-		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u8* costOutput) = 0;
+		virtual u32 smCostCalculate(u8* leftImage, u8* rightImage, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* costOutput) = 0;
 		void smGetAnotherCost(u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* costOutput);
 		template<class T, class S> void smDisparityEstimate(T* costMatrix, S* outputMatrix, u32 imageWidth, u32 imageHeight, u32 disparityRange);
 		template<class T, class S> void smDisparityEstimateSubpixelRefine(T* costMatrix, S* outputMatrix, S* secondOutputMatrix, u32 imageWidth, u32 imageHeight,i32 lowerDisparity, u32 disparityRange);

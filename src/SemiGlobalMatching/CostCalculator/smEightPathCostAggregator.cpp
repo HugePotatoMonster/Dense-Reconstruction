@@ -1,18 +1,18 @@
 #include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
 #include <iostream>
 namespace SemiGlobalMatching {
-	void EightPathCostAggregator::smCostAggregate(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix) {
+	void EightPathCostAggregator::smCostAggregate(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix) {
 		this->div = 8;
-		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from left to right
-		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from right to left
-		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
-		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
-		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
-		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
-		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 0); //from top to bottom
-		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, disparityRange, minDisparity, refinedMatrix, 1); //from bottom to top
+		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from left to right
+		smCostAggregateLR(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from right to left
+		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from top to bottom
+		smCostAggregateUD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from bottom to top
+		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from top to bottom
+		smCostAggregatePD(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from bottom to top
+		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0); //from top to bottom
+		smCostAggregateND(imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 1); //from bottom to top
 	}
-	void EightPathCostAggregator::smCostAggregatePD(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void EightPathCostAggregator::smCostAggregatePD(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Left Top -> Right Bottom
 		i32 lastMin = I32_MAX;
 		u32* optCost = allocate_mem(u32, (usize)disparityRange * 2);
@@ -60,7 +60,7 @@ namespace SemiGlobalMatching {
 		}
 		free_mem(optCost);
 	}
-	void EightPathCostAggregator::smCostAggregateND(u8* imageData, u8* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
+	void EightPathCostAggregator::smCostAggregateND(u8* imageData, u32* costMatrix, u32 imageWidth, u32 imageHeight, i32 minDisparity, u32 disparityRange, u32* refinedMatrix, u8 direction) {
 		//Left Top -> Right Bottom
 		i32 lastMin = I32_MAX;
 		u32* optCost = allocate_mem(u32, (usize)disparityRange * 2);

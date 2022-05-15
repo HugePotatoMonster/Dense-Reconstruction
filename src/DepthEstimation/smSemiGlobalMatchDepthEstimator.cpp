@@ -13,9 +13,10 @@ namespace DepthEstimation {
 		//Distortion is ignored
 		cv::Mat rimLeft, rimRight;
 		cv::Mat homoLeft, homoRight;
+		
 		rectHelper->stereoRectify(imLeft, imRight, intLeft, intRight, extLeft, extRight, &rimLeft, &rimRight, maskL, maskR, &homoLeft, &homoRight,
 			extraRotationMatL, extraRotationMatR, extraProjMatL, extraProjMatR, depthConversionMatrix);
-		disparityHelper->smIdealBinocularDisparity(rimLeft.data, rimRight.data, rimLeft.cols, rimRight.cols, minDisparity, maxDisparity, disparityLeft);
+		disparityHelper->smIdealBinocularDisparity(rimLeft.data, rimRight.data, rimLeft.cols, rimRight.rows, minDisparity, maxDisparity, disparityLeft);
 	}
 	void SemiGlobalMatchingDepthEstimator::deRectifiedDisparityEstimation(cv::Mat* imLeft, cv::Mat* imRight,
 		i32 minDisparity, i32 maxDisparity, OUT_ARG f64* disparityLeft) {
