@@ -39,11 +39,11 @@ namespace SemiGlobalMatching {
 			}
 		}
 	}
-	void CostOptimizer::smDisparityMapDiscretization(f64* disparityMap, u32* outputMap, u32 imageWidth, u32 imageHeight, u32 disparityRange, u32 invalidPlaceholder) {
+	void CostOptimizer::smDisparityMapDiscretization(f64* disparityMap, u32* outputMap, u32 imageWidth, u32 imageHeight,i32 minDisparity, u32 disparityRange, u32 invalidPlaceholder) {
 		//TODO: minDisparity
 		for (i32 i = 0; i < (i32)imageWidth; i++) {
 			for (i32 j = 0; j < (i32)imageHeight; j++) {
-				get_pixel(outputMap, i, j, imageWidth, imageHeight) = (u32)get_pixel(disparityMap, i, j, imageWidth, imageHeight);
+				get_pixel(outputMap, i, j, imageWidth, imageHeight) = (u32)(get_pixel(disparityMap, i, j, imageWidth, imageHeight)+ (f64)minDisparity);
 				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > (f64)disparityRange || get_pixel(disparityMap, i, j, imageWidth, imageHeight) < SGM_INVALID_DISPARITY_F + eps) {
 					get_pixel(outputMap, i, j, imageWidth, imageHeight) = invalidPlaceholder;
 				}

@@ -8,5 +8,6 @@ namespace Test{
         static void epipolarLineProjection();
         static void binocularSGM();
         static void sgmMarchingCubeSurface();
+        static void monocularMotionSGM();
     };
 }

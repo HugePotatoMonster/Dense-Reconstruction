@@ -1,3 +1,4 @@
+#pragma once
 #include "../../Common/cmTypeDefs.h"
 #include "../../SemiGlobalMatching/smDefs.h"
 #include "../../../include/SemiGlobalMatching/Helper/smCostHelper.h"
