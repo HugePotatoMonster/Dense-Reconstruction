@@ -19,14 +19,14 @@
 namespace Test{
     void Test::stereoRectify(){
         StereoRectification::StereoRectification* stereoRectify = new StereoRectification::StereoRectification();
-        cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
-        cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
+        cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
+        cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
         Common::Camera::MonocularCameraIntrinsic camIntb,camIntc;
         Common::Camera::MonocularCameraExtrinsic camExtb,camExtc;
-        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntc);
-        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtc);
-        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camIntb);
-        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camExtb);
+        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camIntc);
+        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camExtc);
+        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntb);
+        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtb);
         
         dbg_trace(dbg_output<<"Here In";);
         //Starts
@@ -204,6 +204,7 @@ namespace Test{
 
 	void Test::monocularMotionSGM() {
 		//Reading intrinsic & extrinsic
+		dbg_toutput("Read Parameters");
 		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
 		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
 		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
@@ -215,10 +216,16 @@ namespace Test{
 		
 		//Create objects
 		DepthEstimation::AbstractDepthEstimator* estimator = new DepthEstimation::SemiGlobalMatchingDepthEstimator();
-		f64* disparityMap = allocate_mem(f64, camItl.cols * camItl.rows);
+		SemiGlobalMatching::CostOptimizer* optimizer = new SemiGlobalMatching::CostOptimizer();
+		f64* disparityMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
+		u32* disparityMapDisc = allocate_mem(u32, (usize)camItl.cols * camItl.rows);
 		cv::Mat depthConversionMat, RL, RR, PL, PR, maskL, maskR;
 		i32 returnFlag;
 		estimator->deIdealCalibratedDisparityEstimation(&camItl, &camItr, -64, 128, &camIntl, &camIntr, &camExtl, &camExtr, disparityMap, &depthConversionMat,
 			&returnFlag, &RL, &RR, &PL, &PR, &maskL, &maskR);
+
+		//Save as Image
+		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, -64, 128);
+		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows, 0);
 	}
 }

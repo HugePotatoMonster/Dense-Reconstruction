@@ -74,6 +74,7 @@
 #define DEBUG_MODE true
 #define dbg_trace(x) if(DEBUG_MODE){x}
 #define dbg_output std::cout
+#define dbg_toutput(x) dbg_trace(std::cout<<(x)<<std::endl;)
 
 //Aux Tags
 #define OUT_ARG //output arguments
