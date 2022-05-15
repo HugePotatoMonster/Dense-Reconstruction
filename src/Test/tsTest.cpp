@@ -19,14 +19,14 @@
 namespace Test{
     void Test::stereoRectify(){
         StereoRectification::StereoRectification* stereoRectify = new StereoRectification::StereoRectification();
-        cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
-        cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+        cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+        cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
         Common::Camera::MonocularCameraIntrinsic camIntb,camIntc;
         Common::Camera::MonocularCameraExtrinsic camExtb,camExtc;
-        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camIntc);
-        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camExtc);
-        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntb);
-        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtb);
+        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camIntc);
+        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt",&camExtc);
+        Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camIntb);
+        Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt",&camExtb);
         
         dbg_trace(dbg_output<<"Here In";);
         //Starts
@@ -237,16 +237,17 @@ namespace Test{
 	}
 
 	void Test::monocularMotionSGMDepth() {
+		using namespace std;
 		//Reading intrinsic & extrinsic
 		dbg_toutput("Read Parameters");
-		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
-		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
 		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
 		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr;
-		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntr);
-		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtr);
-		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntl);
-		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtl);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntr);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtr);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntl);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtl);
 
 		//Create objects
 		dbg_toutput("SGM Starts");
@@ -265,6 +266,23 @@ namespace Test{
 		f64* depthMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
 		estimator->deGeneralDisparityToDepth(disparityMap, camItl.cols, camItl.rows, &depthConversionMat, depthMap);
 
+		//Print Q Matrix
+		for (i32 i = 0; i < 4; i++) {
+			for (i32 j = 0; j < 4; j++) {
+				cout << get_cvmat(depthConversionMat, i, j) << " ";
+			}
+			cout << endl;
+		}
+
+		//Save Matrix
+		ofstream fs("C:\\WR\\Dense-Reconstruction\\samples\\st-3.txt");
+		for (i32 i = 0; i < camItl.cols; i++) {
+			for (i32 j = 0; j < camItl.rows; j++) {
+				fs << get_pixel(depthMap, i, j, camItl.cols, camItl.rows) <<" ";
+			}
+			fs << endl;
+		}
+		fs.close();
 		//Save as Image
 		u32 outMax = 0;
 		dconv->smDepthDiscretization(depthMap, disparityMapDisc, &outMax, camItl.cols, camItl.rows);

@@ -57,7 +57,7 @@ namespace Common {
 			cmGetExtrinsicMatT(camRight,&rightT);
 			cv::Mat relR,relT;
 			//This can be obtained from homogeneous extrinsic (4x4) matrix 
-			relR = rightR*leftR.t();
+			relR = rightR*leftR.inv();
 			relT = leftR * (rightT-leftT);
 			for(i32 i=0;i<3;i++){
 				for(i32 j=0;j<3;j++){

@@ -48,6 +48,7 @@ namespace Misc {
                 f64 len = len_vec3(up[0], up[1], up[2]);
                 for (i32 i = 0; i < 3; i++) {
                     norm_vec3(up[i], len);
+                    //up[i] = -up[i];
                 }
 
             }

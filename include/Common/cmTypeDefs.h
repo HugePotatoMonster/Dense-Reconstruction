@@ -98,6 +98,7 @@
 
 //Assertions
 #define pr_assert(x) assert(x)
+#define pr_assert_notnull(x) pr_assert((x)!=nullptr)
 #define pr_deprecate() std::cout<<"Function deprecated"<<std::endl;assert(true);
 
 
