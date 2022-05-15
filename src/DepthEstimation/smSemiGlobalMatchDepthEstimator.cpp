@@ -16,6 +16,9 @@ namespace DepthEstimation {
 		
 		rectHelper->stereoRectify(imLeft, imRight, intLeft, intRight, extLeft, extRight, &rimLeft, &rimRight, maskL, maskR, &homoLeft, &homoRight,
 			extraRotationMatL, extraRotationMatR, extraProjMatL, extraProjMatR, depthConversionMatrix);
+		//cv::imwrite("C:\\WR\\L.png", rimLeft);
+		//cv::imwrite("C:\\WR\\\R.png", rimRight);
+
 		disparityHelper->smIdealBinocularDisparity(rimLeft.data, rimRight.data, rimLeft.cols, rimRight.rows, minDisparity, maxDisparity, disparityLeft);
 	}
 	void SemiGlobalMatchingDepthEstimator::deRectifiedDisparityEstimation(cv::Mat* imLeft, cv::Mat* imRight,

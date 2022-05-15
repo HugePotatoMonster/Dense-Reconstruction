@@ -11,7 +11,7 @@
 namespace SemiGlobalMatching {
 	class DisparityHelper {
 	private:
-		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_FOUR_PATH;
+		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH;
 		Constant::CostCalculationOption costOption = Constant::CostCalculationOption::SMC_CENSUS_TRANSFORM;
 		i32 enableDisparityFill = false;
 
