@@ -230,5 +230,44 @@ namespace Test{
 		//Save as Image
 		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, 0, 128);
 		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows,255);
+
+		//Free Objects
+		free_mem(disparityMap);
+		free_mem(disparityMapDisc);
+	}
+
+	void Test::monocularMotionSGMDepth() {
+		//Reading intrinsic & extrinsic
+		dbg_toutput("Read Parameters");
+		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
+		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
+		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr;
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntr);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtr);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntl);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtl);
+
+		//Create objects
+		dbg_toutput("SGM Starts");
+		DepthEstimation::AbstractDepthEstimator* estimator = new DepthEstimation::SemiGlobalMatchingDepthEstimator();
+		SemiGlobalMatching::CostOptimizer* optimizer = new SemiGlobalMatching::CostOptimizer();
+		SemiGlobalMatching::DepthConverter* dconv = new SemiGlobalMatching::DepthConverter();
+		f64* disparityMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
+		u32* disparityMapDisc = allocate_mem(u32, (usize)camItl.cols * camItl.rows);
+		cv::Mat depthConversionMat, RL, RR, PL, PR, maskL, maskR;
+		i32 returnFlag;
+		estimator->deIdealCalibratedDisparityEstimation(&camItl, &camItr, 0, 128, &camIntl, &camIntr, &camExtl, &camExtr, disparityMap, &depthConversionMat,
+			&returnFlag, &RL, &RR, &PL, &PR, &maskL, &maskR);
+
+		//Depth Projection
+		dbg_toutput("Depth Projection");
+		f64* depthMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
+		estimator->deGeneralDisparityToDepth(disparityMap, camItl.cols, camItl.rows, &depthConversionMat, depthMap);
+
+		//Save as Image
+		u32 outMax = 0;
+		dconv->smDepthDiscretization(depthMap, disparityMapDisc, &outMax, camItl.cols, camItl.rows);
+		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows, outMax);
 	}
 }
