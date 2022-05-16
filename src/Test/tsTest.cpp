@@ -123,7 +123,7 @@ namespace Test{
 
 		cout << "Discretization" << endl;
 		u32* leftDisparityMapMfds = allocate_mem(u32, (usize)imageWidth * imageHeight);
-		discretizator->smDisparityMapDiscretization(leftDisparityMap, leftDisparityMapMfds, imageWidth, imageHeight, disparityRange, 0);
+		discretizator->smDisparityMapDiscretization(leftDisparityMap, leftDisparityMapMfds, imageWidth, imageHeight, 0, disparityRange, 0);
 
 		cout << "Saving PPM" << endl;
 		Common::Algorithm::cmSaveAsPPM32("C:/WR/Dense-Reconstruction/samples/vs1-cb-3da.ppm", leftDisparityMapMfds, imageWidth, imageHeight, disparityRange);

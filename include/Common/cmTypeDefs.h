@@ -75,6 +75,9 @@
 #define SGM_INVALID_DISPARITY_F_THRESH (-1e2)
 #define SGM_INVALID_DISPARITY_I (0)
 
+//SGM Parallel
+#define SGMP_PARALLEL_THREADS 32
+
 //DepthEstimation
 #define DEPEST_INVALID_PIXEL (-1e30)
 
