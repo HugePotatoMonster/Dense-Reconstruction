@@ -139,7 +139,7 @@ void generateTSDF(){
             depth.convertTo(depth,CV_64FC1);
             // Utility::Log::logMat(depth,"depth");
 
-            depth /= 1000;
+            depth /= 200;
 
             reader->readinImg(sampleNo,imgNo);
 
@@ -203,9 +203,9 @@ void generateTSDF(){
         cout << "Exporting Mesh" << endl;
         Common::Util::VisualizationExt visExt;
         DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
-        Common::Mesh::SimpleMesh mcMesh;
-        mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
-        visExt.cmuExportMeshToObj("C:\\WR\\a.obj", &mcMesh);
+        Common::Mesh::ColoredSimpleMesh mcMesh;
+        mcUtils->mcConvertToColoredMesh(&tsdf, &mcMesh);
+        visExt.cmuExportColoredMeshToPly("C:\\WR\\a.ply", &mcMesh);
     }
 
 }

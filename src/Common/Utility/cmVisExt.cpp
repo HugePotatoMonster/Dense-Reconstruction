@@ -165,5 +165,61 @@ namespace Common {
 			}
 			fs.close();
 		}
+		void VisualizationExt::cmuExportColoredMeshToObj(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh) {
+			std::ofstream fs;
+			fs.open(fileName);
+			i32 meshFaceLen = static_cast<i32>(mesh->f.size());
+			i32 meshVertexLen = static_cast<i32>(mesh->v.size());
+			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
+			for (i32 i = 0; i < meshVertexLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshVertexLen << std::endl;
+				}
+				fs << "v " << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << " " << mesh->c[i].x << " " << mesh->c[i].y << " " << mesh->c[i].z << std::endl;
+			}
+			std::cout << "Saving Faces" << meshFaceLen << std::endl;
+			for (i32 i = 0; i < meshFaceLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshFaceLen << std::endl;
+				}
+				fs << "f " << mesh->f[i].a << " " << mesh->f[i].b << " " << mesh->f[i].c << std::endl;
+			}
+			fs.close();
+		}
+		void VisualizationExt::cmuExportColoredMeshToPly(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh) {
+			std::ofstream fs;
+			using namespace std;
+			fs.open(fileName);
+			fs << "ply" << endl;
+			fs << "format ascii 1.0" << endl;
+			fs << "comment made by human" << endl;
+			fs << "element vertex " << mesh->v.size() << endl;
+			fs << "property float x" << endl;
+			fs << "property float y" << endl;
+			fs << "property float z" << endl;
+			fs << "property uchar red" << endl;
+			fs << "property uchar green" << endl;
+			fs << "property uchar blue" << endl;
+			fs << "element face " << mesh->f.size() << endl;
+			fs << "property list uchar int vertex_index" << endl;
+			fs << "end_header" << endl;
+			i32 meshFaceLen = static_cast<i32>(mesh->f.size());
+			i32 meshVertexLen = static_cast<i32>(mesh->v.size());
+			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
+			for (i32 i = 0; i < meshVertexLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshVertexLen << std::endl;
+				}
+				fs << "" << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << " " << (i32)(255*mesh->c[i].x) << " " << (i32)(255 * mesh->c[i].y) << " " << (i32)(255 * mesh->c[i].z) << std::endl;
+			}
+			std::cout << "Saving Faces" << meshFaceLen << std::endl;
+			for (i32 i = 0; i < meshFaceLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshFaceLen << std::endl;
+				}
+				fs << "3 " << mesh->f[i].a - 1 << " " << mesh->f[i].b - 1 << " " << mesh->f[i].c - 1 << std::endl;
+			}
+			fs.close();
+		}
 	}
 }

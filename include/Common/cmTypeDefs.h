@@ -163,6 +163,11 @@ namespace Common {
 			std::vector<Vertex> v;
 			std::vector<IndexedTriangularFace> f;
 		};
+		struct ColoredSimpleMesh {
+			std::vector<Vertex> v;
+			std::vector<Vertex> c;
+			std::vector<IndexedTriangularFace> f;
+		};
 	}
 
 	namespace Math {

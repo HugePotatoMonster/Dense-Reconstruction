@@ -13,9 +13,9 @@ namespace TSDF{
             int _volDim[3];
             cv::Mat _worldPts;
 
-            double*** _tsdf;
-            double*** _weight;
-            double*** _color;
+            float*** _tsdf;
+            float*** _weight;
+            float*** _color;
 
             // _coordNum*3
             int** _coords;
@@ -33,6 +33,7 @@ namespace TSDF{
             // Some methods to get private values >w<
             void getDims(int* dx, int* dy, int* dz);
             void getVoxel(int x, int y, int z, double* v);
+            void getColor(int x, int y, int z, double* v);
             // End of modification :)
     };
 };

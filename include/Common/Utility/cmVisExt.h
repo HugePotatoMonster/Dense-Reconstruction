@@ -11,6 +11,8 @@ namespace Common {
 			void cmuTsdfBinarization(DenseReconstruction::VoxelStore* inStore, DenseReconstruction::VoxelStore* outStore);
 			void cmuVoxelMarchingCubes(DenseReconstruction::VoxelStore* inStore, Common::Mesh::SimpleMesh* outMesh);
 			void cmuExportMeshToObj(std::string fileName, Common::Mesh::SimpleMesh* mesh);
+			void cmuExportColoredMeshToObj(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh);
+			void cmuExportColoredMeshToPly(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh);
 		};
 	}
 }

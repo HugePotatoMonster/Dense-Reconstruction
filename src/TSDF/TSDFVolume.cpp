@@ -31,18 +31,18 @@ namespace TSDF{
             _volOrigin[i] = _bound.at<double>(i,0);
         }
 
-        _tsdf = new double** [_volDim[0]];
-        _weight = new double** [_volDim[0]];
-        _color = new double** [_volDim[0]];
+        _tsdf = new float** [_volDim[0]];
+        _weight = new float** [_volDim[0]];
+        _color = new float** [_volDim[0]];
 
         for (int x=0; x<_volDim[0]; x++){
-            _tsdf[x] = new double* [_volDim[1]];
-            _weight[x] = new double* [_volDim[1]];
-            _color[x] = new double* [_volDim[1]];
+            _tsdf[x] = new float* [_volDim[1]];
+            _weight[x] = new float* [_volDim[1]];
+            _color[x] = new float* [_volDim[1]];
             for (int y=0; y<_volDim[1]; y++){
-                _tsdf[x][y] = new double [_volDim[2]];
-                _weight[x][y] = new double [_volDim[2]];
-                _color[x][y] = new double [_volDim[2]];
+                _tsdf[x][y] = new float[_volDim[2]];
+                _weight[x][y] = new float[_volDim[2]];
+                _color[x][y] = new float[_volDim[2]];
                 for (int z=0; z<_volDim[2]; z++){
                     _tsdf[x][y][z] = 1;
                     _weight[x][y][z] = 0;
@@ -148,7 +148,7 @@ namespace TSDF{
 
     // TSDF Integration
 
-        delete depthVal;
+        delete[] depthVal;
 
         double* dist = new double[_coordNum];
         int* validX = new int[validNum];
@@ -196,9 +196,8 @@ namespace TSDF{
         //     cout << "wNew: " << wNew[i] << endl;
         // }
 
-        delete depthDiff;
-        delete validDist;
-        delete tsdfVolNew;
+        
+
 
     // Color Integration
 
@@ -237,6 +236,20 @@ namespace TSDF{
 
             _color[validX[i]][validY[i]][validZ[i]] = BNew*256*256 + GNew*256 + RNew;
         }
+        delete[] validX;
+        delete[] validY;
+        delete[] validZ;
+        delete[] tsdfVals;
+        delete[] depthDiff;
+        delete[] validDist;
+        delete[] tsdfVolNew;
+        delete[] dist;
+        delete[] wNew;
+        delete[] pix_x;
+        delete[] pix_y;
+        delete[] wOld;
+        delete[] validPixY;
+        delete[] validPixX;
     };
 
     void TSDFVolume::store(string name){
@@ -272,6 +285,8 @@ namespace TSDF{
     void TSDFVolume::getObj(string name){
         
     }
+
+    // Some methods to get private values TvT
     void TSDFVolume::getDims(int* x, int* y, int* z) {
         *x = _volDim[0];
         *y = _volDim[1];
@@ -280,4 +295,8 @@ namespace TSDF{
     void TSDFVolume::getVoxel(int x, int y, int z, double* v) {
         *v = _tsdf[x][y][z];
     }
+    void TSDFVolume::getColor(int x, int y, int z, double* v) {
+        *v = _color[x][y][z];
+    }
+    // End of modification OvO
 }
