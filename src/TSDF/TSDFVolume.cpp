@@ -90,52 +90,52 @@ namespace TSDF{
     };
 
     void TSDFVolume::integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight){
-        cv::Mat imgC1 = cv::Mat::zeros(IMG_H,IMG_W,CV_64FC1);
-        for (int i=0; i<IMG_H; i++){
-            for (int j=0; j<IMG_W; j++){
-                imgC1.at<double>(i,j) = floor(double(img.at<cv::Vec3b>(i,j)[2])*256*256 + double(img.at<cv::Vec3b>(i,j)[1])*256 + double(img.at<cv::Vec3b>(i,j)[0]));       
+        cv::Mat imgC1 = cv::Mat::zeros(IMG_H, IMG_W, CV_32FC1);
+        for (int i = 0; i < IMG_H; i++) {
+            for (int j = 0; j < IMG_W; j++) {
+                imgC1.at<float>(i, j) = floor(float(img.at<cv::Vec3b>(i, j)[2]) * 256 * 256 + float(img.at<cv::Vec3b>(i, j)[1]) * 256 + float(img.at<cv::Vec3b>(i, j)[0]));
             }
         }
 
         // Utility::Log::logMat(imgC1, "imgC1");
 
-        cv::Mat camPts = Utility::Algo::rigidTransform(_worldPts,extr.inv());
+        cv::Mat camPts = Utility::Algo::rigidTransform(_worldPts, extr.inv());
         // Utility::Log::logMat(camPts(cv::Rect(0,0,3,8)), "camPts");
 
-        double* pix_z = new double [_coordNum];
-        for (int i=0; i<_coordNum; i++){
-            pix_z[i] = camPts.at<double>(i,2);
+        float* pix_z = new float[_coordNum];
+        for (int i = 0; i < _coordNum; i++) {
+            pix_z[i] = camPts.at<float>(i, 2);
         }
 
         int* pix_x = new int[_coordNum];
         int* pix_y = new int[_coordNum];
 
-        Utility::Algo::cam2pix(camPts,intr,_coordNum,pix_x,pix_y);
+        Utility::Algo::cam2pix(camPts, intr, _coordNum, pix_x, pix_y);
 
         // for (int i=0; i<_coordNum; i++){
         //     cout << "pix_x[" << i << "]: " << pix_x[i] << endl;
         //     cout << "pix_y[" << i << "]: " << pix_y[i] << endl;
         // }
 
-        double* depthVal = new double[_coordNum];
-        double* depthDiff = new double[_coordNum];
+        float* depthVal = new float[_coordNum];
+        float* depthDiff = new float[_coordNum];
         bool* validPts = new bool[_coordNum];
         int validNum = 0;
 
         // Utility::Log::logMat(depth,"depth",true,true,false);
 
-        for (int i=0; i<_coordNum; i++){
-            if (checkInFrustum(pix_x[i],pix_y[i],pix_z[i])){
-                depthVal[i] = depth.at<double>(pix_y[i],pix_x[i]);
+        for (int i = 0; i < _coordNum; i++) {
+            if (checkInFrustum(pix_x[i], pix_y[i], pix_z[i])) {
+                depthVal[i] = depth.at<float>(pix_y[i], pix_x[i]);
             }
-            else{
+            else {
                 depthVal[i] = 0;
             }
-           depthDiff[i] = depthVal[i] - pix_z[i];
+            depthDiff[i] = depthVal[i] - pix_z[i];
             // cout << "depthDiff[" << i << "]: " << depthDiff[i] << endl;
             // cout << "depthVal[" << i << "]: " << depthVal[i] << endl;
-            validPts[i] = (depthVal[i]>0) && (depthDiff[i]>=-_trunc);
-            if (validPts[i]){
+            validPts[i] = (depthVal[i] > 0) && (depthDiff[i] >= -_trunc);
+            if (validPts[i]) {
                 validNum++;
                 // cout << "True index: " << i << endl;
             }
@@ -150,23 +150,23 @@ namespace TSDF{
 
         delete[] depthVal;
 
-        double* dist = new double[_coordNum];
+        float* dist = new float[_coordNum];
         int* validX = new int[validNum];
         int* validY = new int[validNum];
         int* validZ = new int[validNum];
-        double* wOld = new double [validNum];
-        double* tsdfVals = new double [validNum];
-        double* tsdfVolNew = new double[validNum];
-        double* wNew = new double[validNum];
+        float* wOld = new float[validNum];
+        float* tsdfVals = new float[validNum];
+        float* tsdfVolNew = new float[validNum];
+        float* wNew = new float[validNum];
 
-        int cur=0;
-        double* validDist = new double [validNum];
-        double* validPixX = new double [validNum];
-        double* validPixY = new double [validNum];
-        for (int i=0; i<_coordNum; i++){
-            dist[i] = min(1.0, depthDiff[i]/_trunc);
+        int cur = 0;
+        float* validDist = new float[validNum];
+        float* validPixX = new float[validNum];
+        float* validPixY = new float[validNum];
+        for (int i = 0; i < _coordNum; i++) {
+            dist[i] = min(1.0, depthDiff[i] / _trunc);
             // cout << "dist[" << i << "]: " << dist[i] << endl;
-            if (validPts[i]){
+            if (validPts[i]) {
                 validX[cur] = _coords[i][0];
                 validY[cur] = _coords[i][1];
                 validZ[cur] = _coords[i][2];
@@ -176,7 +176,7 @@ namespace TSDF{
                 wOld[cur] = _weight[validX[cur]][validY[cur]][validZ[cur]];
                 tsdfVals[cur] = _tsdf[validX[cur]][validY[cur]][validZ[cur]];
                 wNew[cur] = wOld[cur] + obsWeight;
-                tsdfVolNew[cur] = (wOld[cur]*tsdfVals[cur]+obsWeight*validDist[cur])/wNew[cur];
+                tsdfVolNew[cur] = (wOld[cur] * tsdfVals[cur] + obsWeight * validDist[cur]) / wNew[cur];
                 _weight[validX[cur]][validY[cur]][validZ[cur]] = wNew[cur];
                 _tsdf[validX[cur]][validY[cur]][validZ[cur]] = tsdfVolNew[cur];
                 // cout << "validX[" << cur << "]: " << validX[cur] << endl;
@@ -186,55 +186,55 @@ namespace TSDF{
                 // cout << "wOld: " << wOld[i] << endl;
                 // cout << "tsdfVals: " << tsdfVals[i] << endl;
                 cur++;
-            }        
+            }
         }
 
-        
+
 
         // for (int i=0; i<validNum; i++){
         //     cout << "tsdfVolNew: " << tsdfVolNew[i] << endl;
         //     cout << "wNew: " << wNew[i] << endl;
         // }
 
-        
+
 
 
     // Color Integration
 
-        double colorOld,colorNew;
-        double BOld, GOld, ROld;
-        double BNew, GNew, RNew;
-        for (int i=0; i<validNum; i++){
+        float colorOld, colorNew;
+        float BOld, GOld, ROld;
+        float BNew, GNew, RNew;
+        for (int i = 0; i < validNum; i++) {
             colorOld = _color[validX[i]][validY[i]][validZ[i]];
-            BOld = floor(colorOld/(256*256)); 
-            GOld = floor((colorOld-BOld*256*256)/256);
-            ROld = floor(colorOld-BOld*256*256-GOld*256);
+            BOld = floor(colorOld / (256 * 256));
+            GOld = floor((colorOld - BOld * 256 * 256) / 256);
+            ROld = floor(colorOld - BOld * 256 * 256 - GOld * 256);
 
             // cout << "BOld[" << i << "]: " << BOld << endl;
             // cout << "GOld[" << i << "]: " << GOld << endl;
             // cout << "ROld[" << i << "]: " << ROld << endl;
 
-            colorNew = imgC1.at<double>(validPixY[i],validPixX[i]);
+            colorNew = imgC1.at<float>(validPixY[i], validPixX[i]);
 
             // cout << "colorNew[" << i << "]: " << colorNew << endl;
 
-            BNew = floor(colorNew/(256*256));
-            GNew = floor((colorNew-BNew*256*256)/256);
-            RNew = floor(colorNew-BNew*256*256-GNew*256);
+            BNew = floor(colorNew / (256 * 256));
+            GNew = floor((colorNew - BNew * 256 * 256) / 256);
+            RNew = floor(colorNew - BNew * 256 * 256 - GNew * 256);
 
             // cout << "BNew[" << i << "]: " << BNew << endl;
             // cout << "GNew[" << i << "]: " << GNew << endl;
             // cout << "RNew[" << i << "]: " << RNew << endl;
 
-            BNew = min(255.0,round((wOld[i]*BOld+obsWeight*BNew)/wNew[i]));
-            GNew = min(255.0,round((wOld[i]*GOld+obsWeight*GNew)/wNew[i]));
-            RNew = min(255.0,round((wOld[i]*ROld+obsWeight*RNew)/wNew[i]));
+            BNew = min(255.0, round((wOld[i] * BOld + obsWeight * BNew) / wNew[i]));
+            GNew = min(255.0, round((wOld[i] * GOld + obsWeight * GNew) / wNew[i]));
+            RNew = min(255.0, round((wOld[i] * ROld + obsWeight * RNew) / wNew[i]));
 
             // cout << "BNew[" << i << "]: " << BNew << endl;
             // cout << "GNew[" << i << "]: " << GNew << endl;
             // cout << "RNew[" << i << "]: " << RNew << endl;
 
-            _color[validX[i]][validY[i]][validZ[i]] = BNew*256*256 + GNew*256 + RNew;
+            _color[validX[i]][validY[i]][validZ[i]] = BNew * 256 * 256 + GNew * 256 + RNew;
         }
         delete[] validX;
         delete[] validY;
@@ -247,6 +247,7 @@ namespace TSDF{
         delete[] wNew;
         delete[] pix_x;
         delete[] pix_y;
+        delete[] pix_z;
         delete[] wOld;
         delete[] validPixY;
         delete[] validPixX;

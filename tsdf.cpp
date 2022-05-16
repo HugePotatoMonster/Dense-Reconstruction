@@ -75,7 +75,7 @@ void test(){
     // bound.at<double>(2,1) = 5.76272371304359;
     // Utility::logMat(bound,"bound");
 
-    TSDF::TSDFVolume tsdf(bound,0.02);
+    TSDF::TSDFVolume tsdf(bound,0.005);
 
     for (int imgNo=0; imgNo<inputNum; imgNo++){
         cout << "Process imgNo: " << imgNo << endl;
@@ -205,7 +205,7 @@ void generateTSDF(){
         DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
         Common::Mesh::ColoredSimpleMesh mcMesh;
         mcUtils->mcConvertToColoredMesh(&tsdf, &mcMesh);
-        visExt.cmuExportColoredMeshToPly("C:\\WR\\a.ply", &mcMesh);
+        visExt.cmuExportColoredMeshToPly("E:\\a.ply", &mcMesh);
     }
 
 }
