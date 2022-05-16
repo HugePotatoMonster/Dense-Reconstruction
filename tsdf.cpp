@@ -197,14 +197,15 @@ void generateTSDF(){
             }
         }
 
-        tsdf.store("D:/tsdf_p_fixed.txt");
+        tsdf.store("E:/tsdf_p_fixed.txt");
         // tsdf.getObj("D:/test_p.obj");
 
     }
 
 }
 
-int main() {
+int main_2() {
     test();
     // generateTSDF();
+    return 0;
 }

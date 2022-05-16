@@ -6,7 +6,7 @@ namespace SemiGlobalMatching {
 		pr_assert(cu_enabled);
 		if (cu_enabled) {
 			Parallel::CUDA::SemiGlobalMatching::CostAggregator::cusmParallelCostAggregationFourPathCaller(
-				imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0, 8, nullptr);
+				imageData, costMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrix, 0, 32, nullptr);
 		}
 	}
 }
