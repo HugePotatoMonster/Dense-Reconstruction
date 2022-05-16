@@ -9,8 +9,10 @@
 #include <cstdlib>
 #include <sstream>
 #include <cmath>
+#include <cstdio>
 #include <cassert>
 #include <opencv2/opencv.hpp>
+
 
 //Basic
 #define i8 char
@@ -33,6 +35,40 @@
 #define I32_MAX (0x7fffffff)
 
 #define F64_INF (1e40)
+
+//Memory
+#define allocate_mem(tp,size) (new tp[size])
+#define free_mem(obj) (delete[] obj)
+#define set_zero(x,l) (memset(x,0,l))
+
+//CUDA
+#define PR_CUDA_ENABLE 
+
+#ifdef PR_CUDA_ENABLE
+
+#include <cuda_runtime.h>
+#define cu_enabled (true)
+#define cu_global __global__
+#define cu_device __device__
+#define cu_host __host__
+#define cu_call(function,blocks,threads) function << <blocks, threads>> >
+#define cu_sync() cudaDeviceSynchronize()
+#define cu_allocate_mem(var, tp,size) ((var=nullptr;),cudaMalloc((void**)(&(var)),sizeof(tp)*(usize)(size)))
+#define cu_free_mem(var) (cudaFree(var))
+
+#else
+
+#define cu_enabled (false)
+#define cu_global
+#define cu_device
+#define cu_host
+#define cu_call(function,blocks,threads) function
+#define cu_sync() 
+#define cu_allocate_mem(var, tp,size) ((var) = allocate_mem(tp,size))
+#define cu_free_mem(var) (free_mem(var))
+
+#endif
+
 
 //SGM
 #define SGM_INVALID_DISPARITY_F (-1e4)
@@ -68,10 +104,7 @@
 #define queue_front(q,fr,ta,len) ((q)[((fr))%(len)])
 #define queue_pop(q,fr,ta,len) ((q)[((fr)++)%(len)]);(fr)%=(len);
 
-//Memory
-#define allocate_mem(tp,size) (new tp[size])
-#define free_mem(obj) (delete[] obj)
-#define set_zero(x,l) (memset(x,0,l))
+
 
 //Debug
 #define DEBUG_MODE true
@@ -82,6 +115,7 @@
 //Aux Tags
 #define OUT_ARG //output arguments
 #define IN_ARG  //input arguments
+#define CU_ARG
 
 //Linear Algebra
 #define det2(a11,a12,a21,a22) ((a11)*(a22)-(a21)*(a12))
@@ -97,7 +131,7 @@
 #define dbg_printcvmap(mat,i,j) dbg_trace(for(i32 _i=0;_i<i;_i++){for(i32 _j=0;_j<j;_j++)dbg_output<<get_cvmat(mat,_i,_j)<<",";dbg_output<<std::endl;}dbg_output<<std::endl;)
 
 //Assertions
-#define pr_assert(x) assert(x)
+#define pr_assert(x) assert(x);if(!(x))abort();
 #define pr_assert_notnull(x) pr_assert((x)!=nullptr)
 #define pr_deprecate() std::cout<<"Function deprecated"<<std::endl;assert(true);
 

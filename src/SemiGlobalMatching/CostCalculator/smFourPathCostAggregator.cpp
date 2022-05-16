@@ -1,3 +1,4 @@
+#pragma once
 #include "../../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregator.h"
 #include <iostream>
 using namespace std;

@@ -7,11 +7,12 @@
 #include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregator.h"
 #include "../../../include/SemiGlobalMatching/CostCalculator/smNullPathCostAggregator.h"
 #include "../../../include/SemiGlobalMatching/CostOptimizer/smCostOptimizer.h"
-
+#include "../../../include/SemiGlobalMatching/CostCalculator/smFourPathCostAggregatorCuda.h"
+#include "../../../include/SemiGlobalMatching/CostCalculator/smEightPathCostAggregatorCuda.h"
 namespace SemiGlobalMatching {
 	class DisparityHelper {
 	private:
-		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH;
+		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH_CUDA;
 		Constant::CostCalculationOption costOption = Constant::CostCalculationOption::SMC_CENSUS_TRANSFORM;
 		i32 enableDisparityFill = false;
 

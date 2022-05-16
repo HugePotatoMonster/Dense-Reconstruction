@@ -24,6 +24,12 @@ namespace SemiGlobalMatching {
 		else if (this->aggrOption == Constant::CostAggregationOption::SMC_EIGHT_PATH) {
 			*object = new EightPathCostAggregator();
 		}
+		else if (this->aggrOption == Constant::CostAggregationOption::SMC_FOUR_PATH_CUDA) {
+			*object = new FourPathCostAggregatorCuda();
+		}
+		else if (this->aggrOption == Constant::CostAggregationOption::SMC_EIGHT_PATH_CUDA) {
+			*object = new EightPathCostAggregatorCuda();
+		}
 		else {
 			*object = nullptr;
 		}

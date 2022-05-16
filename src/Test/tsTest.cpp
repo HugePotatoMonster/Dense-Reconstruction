@@ -15,8 +15,12 @@
 #include "../../include/Common/Utility/cmVisExt.h"
 #include "../../include/StereoRectification/srStereoRectification.h"
 #include "../../include/DepthEstimation/deSemiGlobalMatchDepthEstimator.h"
+#include "../../include/DepthEstimation/deDepthEstimationHelper.h"
 
 namespace Test{
+	void Test::cudaObjCreation() {
+		
+	}
     void Test::stereoRectify(){
         StereoRectification::StereoRectification* stereoRectify = new StereoRectification::StereoRectification();
         cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
@@ -229,13 +233,41 @@ namespace Test{
 
 		//Save as Image
 		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, 0, 128);
-		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows,255);
+		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3cu.ppm", disparityMapDisc, camItr.cols, camItr.rows,255);
 
 		//Free Objects
 		free_mem(disparityMap);
 		free_mem(disparityMapDisc);
 	}
+	void Test::monocularMotionSGMDepthFinal() {
+		//Reading intrinsic & extrinsic
+		dbg_toutput("Read Parameters");
+		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
+		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
+		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
+		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr;
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntr);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtr);
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntl);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camExtl);
 
+		//Depth Estimate
+		//Use `deIdealCalibratedDepthEstimation` is enough!
+		dbg_toutput("Depth Estimate");
+		DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
+		cv::Mat reL, reR, RL, RR, PL, PR, Q;
+		i32 flag = 0;
+		f64* disparityMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
+		f64* depthMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
+		helper->deIdealCalibratedDepthEstimation(&camItl, &camItr, &camIntl, &camIntr, &camExtl, &camExtr, -64, 128,
+			&reL, &reR, disparityMap, depthMap, &RL, &RR, &PL, &PR, &Q, &flag);
+
+		//End
+		dbg_toutput("Finished");
+		delete helper;
+		free_mem(disparityMap);
+		free_mem(depthMap);
+	}
 	void Test::monocularMotionSGMDepth() {
 		using namespace std;
 		//Reading intrinsic & extrinsic

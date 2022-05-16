@@ -7,7 +7,7 @@ namespace DepthEstimation {
 			for (i32 j = 0; j < imageHeight; j++) {
 				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > SGM_INVALID_DISPARITY_F_THRESH + eps) {
 					get_cvmat(pixel, 0, 0) = i;
-					get_cvmat(pixel, 1, 0) = i;
+					get_cvmat(pixel, 1, 0) = j;
 					get_cvmat(pixel, 2, 0) = get_pixel(disparityMap, i, j, imageWidth, imageHeight);
 					cv::Mat voxel = *conversionMatrix * pixel;
 					//Normalize the homogeneous coordinate
