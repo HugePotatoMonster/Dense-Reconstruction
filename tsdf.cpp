@@ -3,7 +3,8 @@
 #include "include/Utility/Algo.h"
 #include "include/Utility/Log.h"
 #include "include/TSDF/TSDFVolume.h"
-
+#include "include/DenseReconstruction/MarchingCubes/drMarchingCubes.h"
+#include "include/Common/Utility/cmVisExt.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -196,10 +197,15 @@ void generateTSDF(){
                 cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
             }
         }
-
-        tsdf.store("E:/tsdf_p_fixed.txt");
+        
+        //tsdf.store("E:/tsdf_p_fixed.txt");
         // tsdf.getObj("D:/test_p.obj");
-
+        cout << "Exporting Mesh" << endl;
+        Common::Util::VisualizationExt visExt;
+        DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
+        Common::Mesh::SimpleMesh mcMesh;
+        mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
+        visExt.cmuExportMeshToObj("C:\\WR\\a.obj", &mcMesh);
     }
 
 }

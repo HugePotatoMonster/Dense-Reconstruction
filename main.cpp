@@ -6,9 +6,9 @@
 using namespace std;
 
 int main() {
-	//generateTSDF();
-	Test::Test* test = new Test::Test();
-	test->monocularMotionSGMDepth();
+	generateTSDF();
+	//Test::Test* test = new Test::Test();
+	//test->monocularMotionSGMDepth();
 	
 	return 0;
 }

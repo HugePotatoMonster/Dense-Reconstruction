@@ -272,4 +272,12 @@ namespace TSDF{
     void TSDFVolume::getObj(string name){
         
     }
+    void TSDFVolume::getDims(int* x, int* y, int* z) {
+        *x = _volDim[0];
+        *y = _volDim[1];
+        *z = _volDim[2];
+    }
+    void TSDFVolume::getVoxel(int x, int y, int z, double* v) {
+        *v = _tsdf[x][y][z];
+    }
 }
