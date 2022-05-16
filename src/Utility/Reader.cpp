@@ -46,8 +46,8 @@ namespace Utility{
         char text_file_name[100];
         sprintf(text_file_name,"%s/%s/scene_%02d_%04d.txt",Common::dataPath,Common::gtSubfolder,sampleNo,imgNo);
         
-        cout << "** Readin pose " << endl;
-        cout << "text_file_name = " << text_file_name << endl;
+        // cout << "** Readin pose " << endl;
+        // cout << "text_file_name = " << text_file_name << endl;
 
         ifstream cam_pars_file(text_file_name);
 
@@ -192,7 +192,7 @@ namespace Utility{
         // R(3,3) = 1;
 
         // cout << "R = " << endl << R << endl;
-        cout << "&& Readin pose finished" << endl;
+        // cout << "&& Readin pose finished" << endl;
 
         return R;
     }
@@ -202,7 +202,7 @@ namespace Utility{
         char img_file_name[100];
         sprintf(img_file_name,"%s/%s/scene_%02d_%04d.png",Common::dataPath,Common::imgSubfolder,sampleNo,imgNo);
 
-        cout << "img_file_name = " << img_file_name << endl;
+        // cout << "img_file_name = " << img_file_name << endl;
 
         return cv::imread(img_file_name);
     };
@@ -213,7 +213,7 @@ namespace Utility{
         char img_file_name[100];
         sprintf(img_file_name,"%s/frame-%06d.depth.png",Common::dataPath_test,imgNo);
 
-        cout << "depth_file_name = " << img_file_name << endl;
+        // cout << "depth_file_name = " << img_file_name << endl;
 
         return cv::imread(img_file_name,-1);
     };
@@ -240,7 +240,7 @@ namespace Utility{
         char img_file_name[100];
         sprintf(img_file_name,"%s/frame-%06d.color.jpg",Common::dataPath_test,imgNo);
 
-        cout << "img_file_name = " << img_file_name << endl;
+        // cout << "img_file_name = " << img_file_name << endl;
 
         cv::Mat img = cv::imread(img_file_name);
 

@@ -1,7 +1,11 @@
 #include "../../include/TSDF/TSDFVolume.h"
 #include "../../include/Utility/Algo.h"
+#include "../../include/Voxel/drVoxelStore.h"
+#include "../../include/Voxel/drPlainVoxelStore.h"
+#include "../../include/Utility/cmVisExt.h"
 
 #include <iostream>
+#include <fstream>
 #include <math.h> 
 
 using namespace std;
@@ -12,15 +16,8 @@ namespace TSDF{
         return (pix_x>=0) && (pix_x<IMG_W) && (pix_y>=0) && (pix_y<IMG_H) && (pix_z>0);
     };
 
-    void TSDFVolume::integrateTSDF(double* tsdfVals, double* validDist, double* wOld, int length, double obsWeight, double* tsdfVolNew, double* wNew){
-        for (int i=0; i<length; i++){
-            wNew[i] = wOld[i] + obsWeight;
-            tsdfVolNew[i] = (wOld[i]*tsdfVals[i]+obsWeight*validDist[i])/wNew[i];
-        }
-    };
-
-
     TSDFVolume::TSDFVolume(cv::Mat bound, double voxSize){
+        cout << "TSDFVolume initing......" << endl;
         _bound = bound.clone();
         _voxSize = voxSize;
         _trunc = 5*voxSize;
@@ -30,6 +27,8 @@ namespace TSDF{
             _volDim[i] = ceil((bound.at<double>(i,1)-bound.at<double>(i,0))/_voxSize);
             _bound.at<double>(i,1) = bound.at<double>(i,0)+_volDim[i]*_voxSize;
         }
+
+        cout << "size: " << _volDim[0] << "*" << _volDim[1] << "*" <<  _volDim[2] << endl; 
 
         for (int i=0; i<3; i++){
             _volOrigin[i] = _bound.at<double>(i,0);
@@ -48,7 +47,7 @@ namespace TSDF{
                 _weight[x][y] = new double [_volDim[2]];
                 _color[x][y] = new double [_volDim[2]];
                 for (int z=0; z<_volDim[2]; z++){
-                    _tsdf[x][y][z] = 0;
+                    _tsdf[x][y][z] = 1;
                     _weight[x][y][z] = 0;
                     _color[x][y][z] = 0;
                 }
@@ -90,6 +89,7 @@ namespace TSDF{
         // _volOrigin ok
         // _bound ok
 
+        cout << "Init finished." << endl;
     };
 
     void TSDFVolume::integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight){
@@ -99,6 +99,8 @@ namespace TSDF{
                 imgC1.at<double>(i,j) = floor(double(img.at<cv::Vec3b>(i,j)[2])*256*256 + double(img.at<cv::Vec3b>(i,j)[1])*256 + double(img.at<cv::Vec3b>(i,j)[0]));       
             }
         }
+
+        // Utility::Log::logMat(imgC1, "imgC1");
 
         cv::Mat camPts = Utility::Algo::rigidTransform(_worldPts,extr.inv());
         // Utility::Log::logMat(camPts(cv::Rect(0,0,3,8)), "camPts");
@@ -119,33 +121,22 @@ namespace TSDF{
         // }
 
         double* depthVal = new double[_coordNum];
-
-        Utility::Log::logMat(depth,"depth",true,true,false);
-
-        for (int i=0; i<_coordNum; i++){
-           if (checkInFrustum(pix_x[i],pix_y[i],pix_z[i])){
-                depthVal[i] = depth.at<double>(pix_y[i],pix_x[i]);
-           }
-           else{
-               depthVal[i] = 0;
-           }
-        //    cout << "depthVal[" << i << "]: " << depthVal[i] << endl;
-        }
-
-        // cout << "depthVal[" << 13572 << "]: " << depthVal[13572] << endl;
-        // cout << "depthVal[" << 13573 << "]: " << depthVal[13573] << endl;
-        // cout << "depthVal[" << 13574 << "]: " << depthVal[13574] << endl;
-
-    // TSDF Integration
         double* depthDiff = new double[_coordNum];
-        for (int i=0; i<_coordNum; i++){
-            depthDiff[i] = depthVal[i] - pix_z[i];
-            // cout << "depthDiff[" << i << "]: " << depthDiff[i] << endl;
-        }
-
         bool* validPts = new bool[_coordNum];
         int validNum = 0;
+
+        // Utility::Log::logMat(depth,"depth",true,true,false);
+
         for (int i=0; i<_coordNum; i++){
+            if (checkInFrustum(pix_x[i],pix_y[i],pix_z[i])){
+                depthVal[i] = depth.at<double>(pix_y[i],pix_x[i]);
+            }
+            else{
+                depthVal[i] = 0;
+            }
+           depthDiff[i] = depthVal[i] - pix_z[i];
+            // cout << "depthDiff[" << i << "]: " << depthDiff[i] << endl;
+            // cout << "depthVal[" << i << "]: " << depthVal[i] << endl;
             validPts[i] = (depthVal[i]>0) && (depthDiff[i]>=-_trunc);
             if (validPts[i]){
                 validNum++;
@@ -154,68 +145,160 @@ namespace TSDF{
             // cout << "validPts[" << i << "]: " << validPts[i] << endl;
         }
 
+        // cout << "depthVal[" << 13572 << "]: " << depthVal[13572] << endl;
+        // cout << "depthVal[" << 13573 << "]: " << depthVal[13573] << endl;
+        // cout << "depthVal[" << 13574 << "]: " << depthVal[13574] << endl;
+
+    // TSDF Integration
+
         delete depthVal;
 
         double* dist = new double[_coordNum];
-        for (int i=0; i<_coordNum; i++){
-            dist[i] = min(1.0, depthDiff[i]/_trunc);
-            // cout << "dist[" << i << "]: " << dist[i] << endl;
-        }
-
-        delete depthDiff;
-
         int* validX = new int[validNum];
         int* validY = new int[validNum];
         int* validZ = new int[validNum];
+        double* wOld = new double [validNum];
+        double* tsdfVals = new double [validNum];
+        double* tsdfVolNew = new double[validNum];
+        double* wNew = new double[validNum];
 
         int cur=0;
         double* validDist = new double [validNum];
+        double* validPixX = new double [validNum];
+        double* validPixY = new double [validNum];
         for (int i=0; i<_coordNum; i++){
+            dist[i] = min(1.0, depthDiff[i]/_trunc);
+            // cout << "dist[" << i << "]: " << dist[i] << endl;
             if (validPts[i]){
                 validX[cur] = _coords[i][0];
                 validY[cur] = _coords[i][1];
                 validZ[cur] = _coords[i][2];
+                validPixX[cur] = pix_x[i];
+                validPixY[cur] = pix_y[i];
                 validDist[cur] = dist[i];
+                wOld[cur] = _weight[validX[cur]][validY[cur]][validZ[cur]];
+                tsdfVals[cur] = _tsdf[validX[cur]][validY[cur]][validZ[cur]];
+                wNew[cur] = wOld[cur] + obsWeight;
+                tsdfVolNew[cur] = (wOld[cur]*tsdfVals[cur]+obsWeight*validDist[cur])/wNew[cur];
+                _weight[validX[cur]][validY[cur]][validZ[cur]] = wNew[cur];
+                _tsdf[validX[cur]][validY[cur]][validZ[cur]] = tsdfVolNew[cur];
                 // cout << "validX[" << cur << "]: " << validX[cur] << endl;
                 // cout << "validY[" << cur << "]: " << validY[cur] << endl;
                 // cout << "validZ[" << cur << "]: " << validZ[cur] << endl;
                 // cout << "validDist[" << cur << "]: " << validDist[cur] << endl;
+                // cout << "wOld: " << wOld[i] << endl;
+                // cout << "tsdfVals: " << tsdfVals[i] << endl;
                 cur++;
             }        
         }
 
-        // cout << "cur: " << cur << " vs validNum: " << validNum << endl;
+        
 
-        double* wOld = new double [validNum];
-        double* tsdfVals = new double [validNum];
+        // for (int i=0; i<validNum; i++){
+        //     cout << "tsdfVolNew: " << tsdfVolNew[i] << endl;
+        //     cout << "wNew: " << wNew[i] << endl;
+        // }
 
-        for (int i=0; i<validNum; i++){
-            wOld[i] = _weight[validX[i]][validY[i]][validZ[i]];
-            tsdfVals[i] = _tsdf[validX[i]][validY[i]][validZ[i]];
-            // cout << "wOld: " << wOld[i] << endl;
-            // cout << "tsdfVals: " << tsdfVals[i] << endl;
-        }
-
-        double* tsdfVolNew = new double[validNum];
-        double* wNew = new double[validNum];
-        integrateTSDF(tsdfVals, validDist, wOld, validNum, obsWeight, tsdfVolNew, wNew);
-
+        delete depthDiff;
         delete validDist;
-
-        for (int i=0; i<validNum; i++){
-            cout << "tsdfVolNew: " << tsdfVolNew[i] << endl;
-            cout << "wNew: " << wNew[i] << endl;
-        }
-
-        for (int i=0; i<validNum; i++){
-            _weight[validX[i]][validY[i]][validZ[i]] = wNew[i];
-            _tsdf[validX[i]][validY[i]][validZ[i]] = tsdfVolNew[i];
-        }
-
         delete tsdfVolNew;
 
     // Color Integration
 
+        double colorOld,colorNew;
+        double BOld, GOld, ROld;
+        double BNew, GNew, RNew;
+        for (int i=0; i<validNum; i++){
+            colorOld = _color[validX[i]][validY[i]][validZ[i]];
+            BOld = floor(colorOld/(256*256)); 
+            GOld = floor((colorOld-BOld*256*256)/256);
+            ROld = floor(colorOld-BOld*256*256-GOld*256);
 
+            // cout << "BOld[" << i << "]: " << BOld << endl;
+            // cout << "GOld[" << i << "]: " << GOld << endl;
+            // cout << "ROld[" << i << "]: " << ROld << endl;
+
+            colorNew = imgC1.at<double>(validPixY[i],validPixX[i]);
+
+            // cout << "colorNew[" << i << "]: " << colorNew << endl;
+
+            BNew = floor(colorNew/(256*256));
+            GNew = floor((colorNew-BNew*256*256)/256);
+            RNew = floor(colorNew-BNew*256*256-GNew*256);
+
+            // cout << "BNew[" << i << "]: " << BNew << endl;
+            // cout << "GNew[" << i << "]: " << GNew << endl;
+            // cout << "RNew[" << i << "]: " << RNew << endl;
+
+            BNew = min(255.0,round((wOld[i]*BOld+obsWeight*BNew)/wNew[i]));
+            GNew = min(255.0,round((wOld[i]*GOld+obsWeight*GNew)/wNew[i]));
+            RNew = min(255.0,round((wOld[i]*ROld+obsWeight*RNew)/wNew[i]));
+
+            // cout << "BNew[" << i << "]: " << BNew << endl;
+            // cout << "GNew[" << i << "]: " << GNew << endl;
+            // cout << "RNew[" << i << "]: " << RNew << endl;
+
+            _color[validX[i]][validY[i]][validZ[i]] = BNew*256*256 + GNew*256 + RNew;
+        }
     };
+
+    void TSDFVolume::store(string name){
+        ofstream fileOut(name);
+        fileOut << "dim" << endl;
+        fileOut << _volDim[0] << " " << _volDim[1] << " " << _volDim[2] << endl;
+
+        fileOut << "vox size" << endl;
+        fileOut << _voxSize << endl;
+
+        fileOut << "vox origin" << endl;
+        fileOut << _volOrigin[0] << " " << _volOrigin[1] << " " << _volOrigin[2] << endl;
+
+        fileOut << "TSDF Color Weight" << endl;
+        int cur = 0;
+        for (int x=0; x<_volDim[0]; x++){
+            for (int y=0; y<_volDim[1]; y++){
+                for (int z=0; z<_volDim[2]; z++){
+                    if (cur % 50000 == 0) {
+                        cout << cur << "/" << _coordNum << endl;
+                    }
+                    double color = _color[x][y][z];
+                    int B = floor(color/(256*256)); 
+                    int G = floor((color-B*256*256)/256);
+                    int R = floor(color-B*256*256-G*256);
+                    fileOut << _tsdf[x][y][z] << " " << R << " " << G << " " << B << " " << _weight[x][y][z] << endl;
+                    cur++;
+                }
+            }
+        }
+    }
+
+    void TSDFVolume::getObj(string name){
+        DenseReconstruction::VoxelStore* voxelStore = new DenseReconstruction::PlainVoxelStore();
+		voxelStore->drInitialize(_volDim[0], _volDim[1], _volDim[2], _volDim[0], _volDim[1], _volDim[2], _voxSize);
+        for (int x=0; x<_volDim[0]; x++){
+            for (int y=0; y<_volDim[1]; y++){
+                for (int z=0; z<_volDim[2]; z++){
+                    double color = _color[x][y][z];
+                    DenseReconstruction::Voxel* voxel = new DenseReconstruction::Voxel;
+                    voxel->tsdf = _tsdf[x][y][z];
+                    voxel->color[2] = floor(color/(256*256)); 
+                    voxel->color[1] = floor((color-voxel->color[2]*256*256)/256);
+                    voxel->color[0] = floor(color-voxel->color[2]*256*256-voxel->color[1]*256);
+                    voxel->weights = _weight[x][y][z];
+                    voxelStore->drSetVoxel(_volDim[0], _volDim[1], _volDim[2], voxel);
+                    // if (voxel->tsdf>0){
+                    //     DenseReconstruction::Voxel* test = new DenseReconstruction::Voxel;
+                    //     voxelStore->drGetVoxel(_volDim[0], _volDim[1], _volDim[2], &test);
+                    //     cout << "voxel->tsdf[" << x << "][ " << y << "][" << z << "]: " << test->tsdf << endl;
+                    //     // cout << "voxel->tsdf[" << x << "][ " << y << "][" << z << "]: " << voxel->tsdf << endl;
+                    // }
+
+                }
+            }
+        }
+	    Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
+		Common::Mesh::SimpleMesh* mesh = new Common::Mesh::SimpleMesh();
+        visExt.cmuVoxelMarchingCubes(voxelStore, mesh);
+		visExt.cmuExportMeshToObj(name, mesh);
+    }
 }

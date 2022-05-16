@@ -36,6 +36,8 @@ namespace Utility{
         double x0 = intr.at<double>(0,2);
         double y0 = intr.at<double>(1,2);
 
+        Utility::Log::logMat(intr,"intr");
+
         cv::Mat frustPts = (cv::Mat_<double>(3,5) << 
             -x0,-x0,-x0,IMG_W-x0,IMG_W-x0,
             -y0,-y0,IMG_H-y0,-y0,IMG_H-y0,
@@ -72,8 +74,8 @@ namespace Utility{
 
     void Algo::cam2pix(cv::Mat camPts, cv::Mat intr, int coordNum, int* pix_x, int* pix_y){
         // cv::copyMakeBorder(camPts(cv::Rect(0,0,2,coordNum)),camPts,0,0,0,1,CV_HAL_BORDER_CONSTANT,1);
-        Utility::Log::logMat(intr,"intr");
-        Utility::Log::logMat(camPts,"camPts",true,true,false);
+        // Utility::Log::logMat(intr,"intr");
+        // Utility::Log::logMat(camPts,"camPts",true,true,false);
         camPts = intr*camPts.t();
         for (int i=0; i<coordNum; i++){
             pix_x[i] = round(camPts.at<double>(0,i)/camPts.at<double>(2,i));

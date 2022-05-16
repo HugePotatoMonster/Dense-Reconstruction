@@ -12,7 +12,7 @@
 
 using namespace std;
 
-int main() {
+void test(){
     Utility::Reader* reader = Utility::Reader::getInstance();
     Camera::ParamObtain po;
 
@@ -20,55 +20,59 @@ int main() {
 
     cv::Mat bound = cv::Mat::zeros(3,2,CV_64FC1);
 
-    // for (int imgNo=0; imgNo<1000; imgNo++){
+    int inputNum = 1;
 
-    //     cv::Mat depth = reader->readinDepth_test(imgNo);
-    //     depth.convertTo(depth,CV_64FC1);
+    for (int imgNo=0; imgNo<inputNum; imgNo++){
 
-    //     depth /= 1000;
-    //     // Utility::logMat(depth,"depth");
+        cv::Mat depth = reader->readinDepth_test(imgNo);
+        depth.convertTo(depth,CV_64FC1);
+        // Utility::Log::logMat(depth,"depth");
 
-    //     for (int i=0; i<IMG_H; i++){
-    //         double* ptr = depth.ptr<double>(i);
-    //         for (int j=0; j<IMG_W; j++){
-    //             if(ptr[j]==65.535){
-    //                 ptr[j]=0;
-    //             }
-    //         }
-    //     }
+        depth /= 1000;
+        // Utility::logMat(depth,"depth");
 
-    //     cv::Mat extr = reader->readinPose_test(imgNo);
-    //     // Utility::logMat(extr,"extr");
+        for (int i=0; i<IMG_H; i++){
+            double* ptr = depth.ptr<double>(i);
+            for (int j=0; j<IMG_W; j++){
+                if(ptr[j]==65.535){
+                    ptr[j]=0;
+                }
+            }
+        }
 
-    //     cv::Mat frustPts = Utility::getFrustum(depth,intr,extr);
-    //     // Utility::logMat(frustPts,"frustPts");
-    //     // cout << "w: " << frustPts.size[0] << endl;
+        cv::Mat extr = reader->readinPose_test(imgNo);
+        Utility::Log::logMat(extr,"extr");
 
-    //     double minVal,maxVal;
-    //     for (int i=0; i<3; i++){
-    //         cv::minMaxIdx(frustPts(cv::Rect(0,i,frustPts.size[1],1)),&minVal,&maxVal);
-    //         bound.at<double>(i,0) = min(bound.at<double>(i,0),minVal);
-    //         bound.at<double>(i,1) = max(bound.at<double>(i,1),maxVal);
-    //         // cout << "min: " << minVal << endl;
-    //         // cout << "max: " << maxVal << endl;
-    //     }
-    //     // Utility::logMat(bound,"bound");
-    // }
+        cv::Mat frustPts = Utility::Algo::getFrustum(depth,intr,extr);
+        // Utility::logMat(frustPts,"frustPts");
+        // cout << "w: " << frustPts.size[0] << endl;
 
-    // Utility::logMat(bound,"bound");
+        double minVal,maxVal;
+        for (int i=0; i<3; i++){
+            cv::minMaxIdx(frustPts(cv::Rect(0,i,frustPts.size[1],1)),&minVal,&maxVal);
+            bound.at<double>(i,0) = min(bound.at<double>(i,0),minVal);
+            bound.at<double>(i,1) = max(bound.at<double>(i,1),maxVal);
+            // cout << "min: " << minVal << endl;
+            // cout << "max: " << maxVal << endl;
+        }
+        // Utility::logMat(bound,"bound");
+    }
+
+    Utility::Log::logMat(bound,"bound");
 
 // TEST bound
-    bound.at<double>(0,0) = -4.221064379455555;
-    bound.at<double>(0,1) = 3.867982033448718;
-    bound.at<double>(1,0) = -2.666310403125;
-    bound.at<double>(1,1) = 2.601461414461538;
-    bound.at<double>(2,0) = 0;
-    bound.at<double>(2,1) = 5.76272371304359;
+    // bound.at<double>(0,0) = -4.221064379455555;
+    // bound.at<double>(0,1) = 3.867982033448718;
+    // bound.at<double>(1,0) = -2.666310403125;
+    // bound.at<double>(1,1) = 2.601461414461538;
+    // bound.at<double>(2,0) = 0;
+    // bound.at<double>(2,1) = 5.76272371304359;
     // Utility::logMat(bound,"bound");
 
     TSDF::TSDFVolume tsdf(bound,0.02);
 
-    for (int imgNo=0; imgNo<1000; imgNo++){
+    for (int imgNo=0; imgNo<inputNum; imgNo++){
+        cout << "Process imgNo: " << imgNo << endl;
 
         cv::Mat img = reader->readinImg_test(imgNo);
 
@@ -95,6 +99,103 @@ int main() {
 
         cv::Mat extr = reader->readinPose_test(imgNo);
 
+        auto startTime = chrono::system_clock::now();
         tsdf.integrate(img, depth, intr, extr);
+        auto endTime = chrono::system_clock::now();
+
+        cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
     }
+
+    tsdf.store("D:/tsdf.txt");
+    // tsdf.getObj("D:/test.obj");
+}
+
+void generateTSDF(){
+    Utility::Reader* reader = Utility::Reader::getInstance();
+    Camera::ParamObtain po;
+
+    cv::Mat intr = po.getIntrinsic();
+
+    cv::Mat bound = cv::Mat::zeros(3,2,CV_64FC1);
+
+    int sampleNum = 1;
+    int imgNum = 10;
+
+    for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
+        for (int imgNo=0; imgNo<imgNum; imgNo++){
+            cout << "Process sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
+
+            cv::Mat depth = reader->readinDepth(sampleNo,imgNo);
+            depth.convertTo(depth,CV_64FC1);
+            // Utility::Log::logMat(depth,"depth");
+
+            depth /= 1000;
+
+            reader->readinImg(sampleNo,imgNo);
+
+            for (int i=0; i<IMG_H; i++){
+                double* ptr = depth.ptr<double>(i);
+                for (int j=0; j<IMG_W; j++){
+                    if(ptr[j]==65.535){
+                        ptr[j]=0;
+                    }
+                }
+            }
+
+            cv::Mat extr = reader->readinPose(sampleNo,imgNo);
+            // Utility::Log::logMat(extr,"extr");
+
+            cv::Mat frustPts = Utility::Algo::getFrustum(depth,intr,extr);
+
+            double minVal,maxVal;
+            for (int i=0; i<3; i++){
+                cv::minMaxIdx(frustPts(cv::Rect(0,i,frustPts.size[1],1)),&minVal,&maxVal);
+                bound.at<double>(i,0) = min(bound.at<double>(i,0),minVal);
+                bound.at<double>(i,1) = max(bound.at<double>(i,1),maxVal);
+            }
+        }
+
+        Utility::Log::logMat(bound,"bound");
+
+        TSDF::TSDFVolume tsdf(bound,0.2);
+
+        for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
+            for (int imgNo=0; imgNo<imgNum; imgNo++){
+                cout << "Inregrate sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
+
+                cv::Mat img = reader->readinImg(sampleNo,imgNo);
+
+                cv::Mat depth = reader->readinDepth(sampleNo,imgNo);
+                depth.convertTo(depth,CV_64FC1);
+
+                depth /= 1000;
+                for (int i=0; i<IMG_H; i++){
+                    double* ptr = depth.ptr<double>(i);
+                    for (int j=0; j<IMG_W; j++){
+                        if(ptr[j]==65.535){
+                            ptr[j]=0;
+                        }
+                    }
+                }
+
+                cv::Mat extr = reader->readinPose(sampleNo,imgNo);
+
+                auto startTime = chrono::system_clock::now();
+                tsdf.integrate(img, depth, intr, extr);
+                auto endTime = chrono::system_clock::now();
+
+                cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
+            }
+        }
+
+        tsdf.store("D:/tsdf_p.txt");
+        // tsdf.getObj("D:/test_p.obj");
+
+    }
+
+}
+
+int main() {
+    test();
+    // generateTSDF();
 }
