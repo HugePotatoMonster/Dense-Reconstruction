@@ -235,29 +235,22 @@ namespace Parallel {
 					cudaMalloc((void**)&costMatrixCu, sizeof(u32) * (usize)imageWidth * imageHeight * disparityRange);
 					cudaMemcpy(costMatrixCu, costMatrix, sizeof(u32) * (usize)imageWidth * imageHeight * disparityRange, cudaMemcpyHostToDevice);
 					cudaMalloc((void**)&refinedMatrixCu, sizeof(u32) * (usize)imageWidth * imageHeight * disparityRange);
-					cudaMalloc((void**)&(optCostCu), sizeof(u32) * (usize)disparityRange * 2 * threads);
-					
+					cudaMalloc((void**)&(optCostCu), sizeof(u32) * (usize)disparityRange * 2 * threads );
+					usize offset = sizeof(u32) * (usize)disparityRange * 2 * threads;
 					//Set Zero
 					cudaMemcpy(refinedMatrixCu, refinedMatrix, sizeof(u32) * (usize)imageWidth * imageHeight * disparityRange, cudaMemcpyHostToDevice);
-					
+					printf("STARTS");
 					//Then Cost Aggregation Starts
 					cusmParallelCostAggregationLR << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu);
+					cusmParallelCostAggregationLR << <2, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu + offset * 1);
+					cusmParallelCostAggregationUD << <3, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu + offset * 2);
+					cusmParallelCostAggregationUD << <4, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu + offset * 3);
+					cusmParallelCostAggregationND << <5, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu + offset * 4);
+					cusmParallelCostAggregationND << <6, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu + offset * 5);
+					cusmParallelCostAggregationPD << <7, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu + offset * 6);
+					cusmParallelCostAggregationPD << <8, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu + offset * 7);
 					cu_sync();
-					cusmParallelCostAggregationLR << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationUD << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationUD << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationND << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationND << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationPD << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 0, threads, optCostCu);
-					cu_sync();
-					cusmParallelCostAggregationPD << <1, threads >> > (imageDataCu, costMatrixCu, imageWidth, imageHeight, minDisparity, disparityRange, refinedMatrixCu, 1, threads, optCostCu);
-					cu_sync();
-
+					printf("ENDS");
 					//Return Value
 					cudaMemcpy(refinedMatrix, refinedMatrixCu, sizeof(u32) * (usize)imageWidth * imageHeight * disparityRange, cudaMemcpyDeviceToHost);
 					printf("%d ", get_pixel3(refinedMatrix, 14, 14, 0, imageWidth, imageHeight, disparityRange));

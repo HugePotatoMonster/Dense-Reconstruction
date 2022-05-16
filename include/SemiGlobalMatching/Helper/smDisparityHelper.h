@@ -20,7 +20,8 @@ namespace SemiGlobalMatching {
 		void smDefineCostEstimator(CostCalculator** object);
 		void smDefineCostAggregator(CostAggregator** object);
 
-	public:
+	public:					
+
 		//Config
 		void smAlgorithmConfigure(Constant::CostAggregationOption aggrOption, Constant::CostCalculationOption costOption);
 		void smSetDisparityFill(i32 enable);

@@ -92,6 +92,7 @@ namespace Common {
 
 		void VisualizationExt::cmuVoxelMarchingCubes(DenseReconstruction::VoxelStore* inStore, Common::Mesh::SimpleMesh* outMesh) {
 			//Traverse the voxel store and generate a mesh with vertices and faces
+			pr_deprecate();
 			using namespace Common::Util::Constant;
 
 			for (i32 i = 0; i < inStore->width - 1; i++) {
