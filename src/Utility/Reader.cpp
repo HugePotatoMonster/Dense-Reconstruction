@@ -179,9 +179,9 @@ namespace Utility{
         // R(1,2) = z[1];
         // R(2,2) = z[2];
 
-        R.at<double>(0,3) = posvector[0];
-        R.at<double>(1,3) = posvector[1];
-        R.at<double>(2,3) = posvector[2];
+        R.at<double>(0,3) = posvector[0]/1000;
+        R.at<double>(1,3) = posvector[1]/1000;
+        R.at<double>(2,3) = posvector[2]/1000;
 
         // R(0,3) = posvector[0];
         // R(1,3) = posvector[1];
@@ -204,7 +204,11 @@ namespace Utility{
 
         // cout << "img_file_name = " << img_file_name << endl;
 
-        return cv::imread(img_file_name);
+        cv::Mat img = cv::imread(img_file_name);
+
+        cv::cvtColor(img,img,cv::COLOR_BGR2RGB);
+
+        return img;
     };
     
 // TEST

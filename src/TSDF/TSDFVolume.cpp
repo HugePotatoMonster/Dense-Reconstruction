@@ -1,8 +1,5 @@
 #include "../../include/TSDF/TSDFVolume.h"
 #include "../../include/Utility/Algo.h"
-#include "../../include/Voxel/drVoxelStore.h"
-#include "../../include/Voxel/drPlainVoxelStore.h"
-#include "../../include/Utility/cmVisExt.h"
 
 #include <iostream>
 #include <fstream>
@@ -273,32 +270,6 @@ namespace TSDF{
     }
 
     void TSDFVolume::getObj(string name){
-        DenseReconstruction::VoxelStore* voxelStore = new DenseReconstruction::PlainVoxelStore();
-		voxelStore->drInitialize(_volDim[0], _volDim[1], _volDim[2], _volDim[0], _volDim[1], _volDim[2], _voxSize);
-        for (int x=0; x<_volDim[0]; x++){
-            for (int y=0; y<_volDim[1]; y++){
-                for (int z=0; z<_volDim[2]; z++){
-                    double color = _color[x][y][z];
-                    DenseReconstruction::Voxel* voxel = new DenseReconstruction::Voxel;
-                    voxel->tsdf = _tsdf[x][y][z];
-                    voxel->color[2] = floor(color/(256*256)); 
-                    voxel->color[1] = floor((color-voxel->color[2]*256*256)/256);
-                    voxel->color[0] = floor(color-voxel->color[2]*256*256-voxel->color[1]*256);
-                    voxel->weights = _weight[x][y][z];
-                    voxelStore->drSetVoxel(_volDim[0], _volDim[1], _volDim[2], voxel);
-                    // if (voxel->tsdf>0){
-                    //     DenseReconstruction::Voxel* test = new DenseReconstruction::Voxel;
-                    //     voxelStore->drGetVoxel(_volDim[0], _volDim[1], _volDim[2], &test);
-                    //     cout << "voxel->tsdf[" << x << "][ " << y << "][" << z << "]: " << test->tsdf << endl;
-                    //     // cout << "voxel->tsdf[" << x << "][ " << y << "][" << z << "]: " << voxel->tsdf << endl;
-                    // }
-
-                }
-            }
-        }
-	    Common::Util::VisualizationExt visExt = Common::Util::VisualizationExt();
-		Common::Mesh::SimpleMesh* mesh = new Common::Mesh::SimpleMesh();
-        visExt.cmuVoxelMarchingCubes(voxelStore, mesh);
-		visExt.cmuExportMeshToObj(name, mesh);
+        
     }
 }

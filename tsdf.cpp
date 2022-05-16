@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <float.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -19,6 +20,10 @@ void test(){
     cv::Mat intr = po.getIntrinsic_test();
 
     cv::Mat bound = cv::Mat::zeros(3,2,CV_64FC1);
+    for (int i=0 ; i<3; i++){
+        bound.at<double>(i,0) = DBL_MAX;
+        bound.at<double>(i,1) = -DBL_MAX;
+    }
 
     int inputNum = 1;
 
@@ -117,9 +122,13 @@ void generateTSDF(){
     cv::Mat intr = po.getIntrinsic();
 
     cv::Mat bound = cv::Mat::zeros(3,2,CV_64FC1);
+    for (int i=0 ; i<3; i++){
+        bound.at<double>(i,0) = DBL_MAX;
+        bound.at<double>(i,1) = -DBL_MAX;
+    }
 
     int sampleNum = 1;
-    int imgNum = 10;
+    int imgNum = 5;
 
     for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
         for (int imgNo=0; imgNo<imgNum; imgNo++){
@@ -157,7 +166,7 @@ void generateTSDF(){
 
         Utility::Log::logMat(bound,"bound");
 
-        TSDF::TSDFVolume tsdf(bound,0.2);
+        TSDF::TSDFVolume tsdf(bound,0.01);
 
         for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
             for (int imgNo=0; imgNo<imgNum; imgNo++){
@@ -188,7 +197,7 @@ void generateTSDF(){
             }
         }
 
-        tsdf.store("D:/tsdf_p.txt");
+        tsdf.store("D:/tsdf_p_fixed.txt");
         // tsdf.getObj("D:/test_p.obj");
 
     }

@@ -11,6 +11,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 # find_package(Eigen3 REQUIRED)
 # include_directories(${EIGEN3_INCLUDE_DIRS})
 
-add_executable(DenseReconstruction main.cpp ${ALL_SRCS})
+add_executable(DenseReconstruction tsdf.cpp ${ALL_SRCS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES})
 # target_link_libraries(${PROJECT_NAME} ${EIGEN3_LIBRARIES})
