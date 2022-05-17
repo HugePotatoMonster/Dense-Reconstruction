@@ -167,7 +167,7 @@ void generateTSDF(){
 
         Utility::Log::logMat(bound,"bound");
 
-        TSDF::TSDFVolume tsdf(bound,0.01);
+        TSDF::TSDFVolume tsdf(bound,0.02);
 
         for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
             for (int imgNo=0; imgNo<imgNum; imgNo++){

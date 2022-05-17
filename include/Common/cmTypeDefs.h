@@ -4,6 +4,8 @@
 #include <cstring>
 #include <vector>
 #include <string>
+#include <map>
+#include <set>
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
@@ -167,6 +169,12 @@ namespace Common {
 			std::vector<Vertex> v;
 			std::vector<Vertex> c;
 			std::vector<IndexedTriangularFace> f;
+		};
+		struct Mesh {
+			std::vector<Vertex> v;
+			std::vector<Vertex> c;
+			std::vector<std::vector<i32>> f;
+			std::vector<std::vector<i32>> e;
 		};
 	}
 

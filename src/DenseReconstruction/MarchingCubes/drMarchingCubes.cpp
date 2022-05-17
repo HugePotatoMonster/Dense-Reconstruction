@@ -113,5 +113,174 @@ namespace DenseReconstruction {
 				}
 			}
 		}
+		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations = 1) {
+			// Generate Edge From the Simple Mesh
+			using namespace Common::Mesh;
+			Mesh* oldMesh = new Mesh();
+			std::vector<std::vector<int>> ovFaceIdx(inMesh->v.size());
+			std::vector<std::vector<int>> ovEdgeIdx(inMesh->v.size());
+			for (i32 i = 0; i < inMesh->v.size(); i++) {
+				oldMesh->v.push_back(inMesh->v[i]);
+			}
+			for (i32 i = 0; i < inMesh->f.size(); i++) {
+				oldMesh->f.push_back(std::vector<i32>());
+				oldMesh->f[i].push_back(inMesh->f[i].a - 1);
+				oldMesh->f[i].push_back(inMesh->f[i].b - 1);
+				oldMesh->f[i].push_back(inMesh->f[i].c - 1);
+				ovFaceIdx[inMesh->f[i].a - 1].push_back(i);
+				ovFaceIdx[inMesh->f[i].b - 1].push_back(i);
+				ovFaceIdx[inMesh->f[i].c - 1].push_back(i);
+				oldMesh->e.push_back({ inMesh->f[i].a - 1 ,inMesh->f[i].b - 1 });
+				oldMesh->e.push_back({ inMesh->f[i].b - 1 ,inMesh->f[i].c - 1 });
+				oldMesh->e.push_back({ inMesh->f[i].c - 1 ,inMesh->f[i].a - 1 });
+				ovEdgeIdx[inMesh->f[i].a - 1].push_back(i * 3);
+				ovEdgeIdx[inMesh->f[i].b - 1].push_back(i * 3);
+				ovEdgeIdx[inMesh->f[i].b - 1].push_back(i * 3 + 1);
+				ovEdgeIdx[inMesh->f[i].c - 1].push_back(i * 3 + 1);
+				ovEdgeIdx[inMesh->f[i].c - 1].push_back(i * 3 + 2);
+				ovEdgeIdx[inMesh->f[i].a - 1].push_back(i * 3 + 2);
+			}
+			//Starts iteration
+			i32 T = iterations;
+			u8 isFirstIteration = true;
+			Mesh* oMesh, *nMesh;
+			std::vector<std::vector<int>>* oMeshFaceIdx;
+			std::vector<std::vector<int>>* oMeshEdgeIdx;
+			//Start Conditions
+			oMesh = oldMesh;
+			oMeshFaceIdx = &ovFaceIdx;
+			oMeshEdgeIdx = &ovEdgeIdx;
+			while (T--) {
+				//TODO: Indexing
+
+				i32* faceCenterIndexF = new i32[oMesh->f.size()];
+				set_zero(faceCenterIndexF, sizeof(i32) * (oMesh->f.size()));
+				//Traverse tetrahedrons/high-order polygons defined by vertices
+				for (i32 i = 0; i < oMesh->v.size(); i++) {
+					f64 cuX = oMesh->v[i].x;
+					f64 cuY = oMesh->v[i].y;
+					f64 cuZ = oMesh->v[i].z;
+					std::vector<Vertex> faceCenter;
+					std::vector<i32> faceCenterR;
+					std::vector<Vertex> edgeCenter;
+					std::vector<std::vector<i32>> faceAdjEdge;
+					//Calculate face centers
+					for (i32 j = 0; j < (*oMeshFaceIdx)[i].size(); j++) {
+						faceAdjEdge.push_back(std::vector<i32>());
+						i32 faceIndex = (*oMeshFaceIdx)[i][j];
+						f64 avX = 0, avY = 0, avZ = 0;
+						for (i32 k = 0; k < oMesh->f[faceIndex].size(); k++) {
+							avX += oMesh->v[oMesh->f[faceIndex][k]].x;
+							avY += oMesh->v[oMesh->f[faceIndex][k]].y;
+							avZ += oMesh->v[oMesh->f[faceIndex][k]].z;
+						}
+						avX /= oMesh->f[faceIndex].size();
+						avY /= oMesh->f[faceIndex].size();
+						avZ /= oMesh->f[faceIndex].size();
+						faceCenter.push_back({ avX,avY,avZ });
+						faceCenterR.push_back(faceIndex);
+					}
+					//Calculate edge centers & added edge point
+					for (i32 j = 0; j < (*oMeshEdgeIdx)[i].size(); j++) {
+						i32 edgeIndex = (*oMeshEdgeIdx)[i][j];
+						f64 avX1 = 0, avY1 = 0, avZ1 = 0;
+						f64 anX, anY, anZ;
+						i32 anIdx;
+						for (i32 k = 0; k < 2; k++) {
+							Vertex* tmp = &oMesh->v[oMesh->e[edgeIndex][k]];
+							avX1 += oMesh->v[oMesh->e[edgeIndex][k]].x;
+							avY1 += oMesh->v[oMesh->e[edgeIndex][k]].y;
+							avZ1 += oMesh->v[oMesh->e[edgeIndex][k]].z;
+							if (Abs(tmp->x - cuX) > eps && Abs(tmp->y - cuY) > eps && Abs(tmp->z - cuZ) > eps) {
+								anX = tmp->x;
+								anY = tmp->y;
+								anZ = tmp->z;
+								anIdx = oMesh->e[edgeIndex][k];
+								
+							}
+						}
+						avX1 /= 2.0;
+						avZ1 /= 2.0;
+						avY1 /= 2.0;
+						i32 faceIndex[2], faceCur = 0;
+						//Find the neighbour faces
+						for (i32 k = 0; k < (*oMeshFaceIdx)[i].size(); k++) {
+							i32 fIdx = (*oMeshFaceIdx)[i][k];
+							for (i32 q = 0; q < oMesh->f[fIdx].size(); q++) {
+								if (oMesh->f[fIdx][q] == anIdx) {
+									pr_assert(faceCur < 2);
+									faceIndex[faceCur++] = k;
+									faceAdjEdge[k].push_back(j);
+								}
+							}
+						}
+						//Calculate the center of the face center pair
+						f64 avX2 = 0.5 * (faceCenter[faceIndex[0]].x + faceCenter[faceIndex[1]].x);
+						f64 avY2 = 0.5 * (faceCenter[faceIndex[0]].y + faceCenter[faceIndex[1]].y);
+						f64 avZ2 = 0.5 * (faceCenter[faceIndex[0]].z + faceCenter[faceIndex[1]].z);
+						//Obtain the refined edge center
+						edgeCenter.push_back({ (avX1 + avX2) * 0.5,(avY1 + avY2) * 0.5,(avZ1 + avZ2) * 0.5 });
+					}
+
+					//Readjust original vertex
+					Vertex refinedVertex = { 0,0,0 };
+					Vertex adjFaceCenter = { 0,0,0 };
+					Vertex adjEdgeCenter = { 0,0,0 };
+					for (i32 j = 0; j < faceCenter.size(); j++) {
+						adjFaceCenter.x += faceCenter[j].x;
+						adjFaceCenter.y += faceCenter[j].y;
+						adjFaceCenter.z += faceCenter[j].z;
+					}
+					for (i32 j = 0; j < edgeCenter.size(); j++) {
+						adjEdgeCenter.x += edgeCenter[j].x;
+						adjEdgeCenter.y += edgeCenter[j].y;
+						adjEdgeCenter.z += edgeCenter[j].z;
+					}
+					pr_assert(faceCenter.size() == edgeCenter.size());
+					pr_assert(faceCenter.size() >= 3);
+					i32 nP = faceCenter.size();
+					refinedVertex.x = ((nP - 3) * cuX + 2 * adjEdgeCenter.x + adjFaceCenter.x);
+					refinedVertex.y = ((nP - 3) * cuY + 2 * adjEdgeCenter.y + adjFaceCenter.y);
+					refinedVertex.z = ((nP - 3) * cuZ + 2 * adjEdgeCenter.z + adjFaceCenter.z);
+
+					//Reconstruct the mesh
+					i32 nS = nMesh->v.size();
+					i32 nF = faceCenter.size();
+					i32 nE = edgeCenter.size();
+					//Only faces will be generated to avoid edge duplication
+					//Insert vertex center
+					nMesh->v.push_back({ refinedVertex.x,refinedVertex.y,refinedVertex.z }); //ns
+					for (i32 j = 0; j < edgeCenter.size(); j++) {
+						nMesh->v.push_back({ edgeCenter[j].x,edgeCenter[j].y,edgeCenter[j].z }); //ns+j+1
+					}
+					for (i32 j = 0; j < faceCenter.size(); j++) {
+						if (faceCenterIndexF[faceCenterR[j]] == 0) {
+							nMesh->v.push_back({ faceCenter[j].x,faceCenter[j].y,faceCenter[j].z });
+							faceCenterIndexF[faceCenterR[j]] = nMesh->v.size() - 1;
+						}
+						//Face Generation
+						nMesh->f.push_back(std::vector<i32>());
+						i32 ts = nMesh->f.size() - 1;
+						nMesh->f[ts].push_back(faceCenterIndexF[faceCenterR[j]]);
+						nMesh->f[ts].push_back(nS + 1 + faceAdjEdge[j][0]);
+						nMesh->f[ts].push_back(nS);
+						nMesh->f[ts].push_back(nS + 1 + faceAdjEdge[j][1]);
+					}
+
+				}
+				if (isFirstIteration) {
+					isFirstIteration = false;
+					oMesh = nMesh;
+					nMesh = new Mesh();
+				}
+				else {
+					delete oMesh;
+					oMesh = nMesh;
+					nMesh = new Mesh();
+				}
+				delete[] faceCenterIndexF;
+			}
+			delete oldMesh;
+		}
 	}
 }

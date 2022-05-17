@@ -16,7 +16,7 @@ namespace DenseReconstruction {
 			// @author: 1950641
 			// @param volume: (Input) TSDF Volume
 			// @param outMesh: (Output) Pointer to the output mesh
-			static void mcConvertToMesh(MC_VOXEL_CLASS* volume, Common::Mesh::SimpleMesh* outMesh);
+			static void mcConvertToMesh(MC_VOXEL_CLASS* volume, OUT_ARG Common::Mesh::SimpleMesh* outMesh);
 
 			//Convert a volume consisting voxels to a colored mesh without vertex interpolation.
 			//Marching cubes is the adopted algorithm
@@ -26,7 +26,14 @@ namespace DenseReconstruction {
 			// @author: 1950641
 			// @param volume: (Input) TSDF Volume
 			// @param outMesh: (Output) Pointer to the vertex-colorable output mesh
-			static void mcConvertToColoredMesh(MC_VOXEL_CLASS* volume, Common::Mesh::ColoredSimpleMesh* outMesh);
+			static void mcConvertToColoredMesh(MC_VOXEL_CLASS* volume, OUT_ARG Common::Mesh::ColoredSimpleMesh* outMesh);
+
+			//Apply Catmull-Clark surface subdivison operation (namely,a kind of mesh smoothing) to a given mesh
+			// @author: 1950641
+			// @param: inMesh: (Input) a mesh with only vertices and triangular faces
+			// @param: outMesh: (Output) a refined mesh
+			// @param: iterations: (Input) iterations
+			static void mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations = 1);
 		};
 	}
 }
