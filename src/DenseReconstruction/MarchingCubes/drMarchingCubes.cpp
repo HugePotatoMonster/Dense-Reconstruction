@@ -214,7 +214,6 @@ namespace DenseReconstruction {
 					std::vector<std::vector<i32>> faceAdjEdge;
 					//If num of faces do not equal to num of edges
 					if ((*oMeshFaceIdx)[i].size() != (*oMeshEdgeIdx)[i].size()) {
-						cout << "Warning: Skipping Vertex i=" << i << ", for fs=" << (*oMeshFaceIdx)[i].size() << ",es=" << (*oMeshEdgeIdx)[i].size() << endl;
 						continue;
 					}
 					//Calculate face centers
@@ -245,7 +244,6 @@ namespace DenseReconstruction {
 							avX1 += oMesh->v[oMesh->e[edgeIndex][k]].x;
 							avY1 += oMesh->v[oMesh->e[edgeIndex][k]].y;
 							avZ1 += oMesh->v[oMesh->e[edgeIndex][k]].z;
-							//cout << "Edge:" << k << "=" << tmp->x << "," << tmp->y << "," << tmp->z << endl;
 							if (Abs(tmp->x - cuX) > eps || Abs(tmp->y - cuY) > eps || Abs(tmp->z - cuZ) > eps) {
 								anX = tmp->x;
 								anY = tmp->y;
@@ -290,7 +288,6 @@ namespace DenseReconstruction {
 						adjEdgeCenter.y += edgeCenter[j].y;
 						adjEdgeCenter.z += edgeCenter[j].z;
 					}
-					pr_assert(faceCenter.size() == edgeCenter.size());
 					pr_assert(faceCenter.size() >= 3);
 					i32 nP = faceCenter.size();
 					refinedVertex.x = ((nP - 3) * cuX + 2 * adjEdgeCenter.x / edgeCenter.size() + adjFaceCenter.x / faceCenter.size()) / nP;
@@ -304,16 +301,13 @@ namespace DenseReconstruction {
 					//Only faces will be generated to avoid edge duplication
 					//Insert vertex center
 					nMesh->v.push_back({ refinedVertex.x,refinedVertex.y,refinedVertex.z }); //ns
-					//cout << "MESH" << refinedVertex.z << endl;
 					for (i32 j = 0; j < edgeCenter.size(); j++) {
 						nMesh->v.push_back({ edgeCenter[j].x,edgeCenter[j].y,edgeCenter[j].z }); //ns+j+1
-						//cout << "EDGECENTER" << edgeCenter[j].z << endl;
 					}
 					for (i32 j = 0; j < faceCenter.size(); j++) {
 						if (faceCenterIndexF[faceCenterR[j]] == 0) {
 							nMesh->v.push_back({ faceCenter[j].x,faceCenter[j].y,faceCenter[j].z });
 							faceCenterIndexF[faceCenterR[j]] = nMesh->v.size() - 1;
-							//cout << "FACECENTER" << faceCenter[j].z << endl;
 						}
 						//Face Generation
 						nMesh->f.push_back(std::vector<i32>());
