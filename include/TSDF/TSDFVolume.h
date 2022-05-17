@@ -13,9 +13,9 @@ namespace TSDF{
             int _volDim[3];
             cv::Mat _worldPts;
 
-            float*** _tsdf;
-            float*** _weight;
-            float*** _color;
+            double*** _tsdf;
+            double*** _weight;
+            double*** _color;
 
             // _coordNum*3
             int** _coords;

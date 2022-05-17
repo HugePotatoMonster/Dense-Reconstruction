@@ -12,6 +12,7 @@ namespace Test{
         static void monocularMotionSGMDepth();
         static void monocularMotionSGMDepthFinal();
         static void cudaObjCreation();
+        static void stdMapTest();
 
     };
 }

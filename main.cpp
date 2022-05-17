@@ -8,7 +8,7 @@ using namespace std;
 int main() {
 	generateTSDF();
 	//Test::Test* test = new Test::Test();
-	//test->monocularMotionSGMDepth();
+	//test->stdMapTest();
 	
 	return 0;
 }

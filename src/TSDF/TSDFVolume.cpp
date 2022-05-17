@@ -7,43 +7,43 @@
 
 using namespace std;
 
-namespace TSDF{
+namespace TSDF {
 
-    bool TSDFVolume::checkInFrustum(int pix_x, int pix_y, double pix_z){
-        return (pix_x>=0) && (pix_x<IMG_W) && (pix_y>=0) && (pix_y<IMG_H) && (pix_z>0);
+    bool TSDFVolume::checkInFrustum(int pix_x, int pix_y, double pix_z) {
+        return (pix_x >= 0) && (pix_x < IMG_W) && (pix_y >= 0) && (pix_y < IMG_H) && (pix_z > 0);
     };
 
-    TSDFVolume::TSDFVolume(cv::Mat bound, double voxSize){
+    TSDFVolume::TSDFVolume(cv::Mat bound, double voxSize) {
         cout << "TSDFVolume initing......" << endl;
         _bound = bound.clone();
         _voxSize = voxSize;
-        _trunc = 5*voxSize;
+        _trunc = 5 * voxSize;
 
-        for (int i=0; i<3; i++){
+        for (int i = 0; i < 3; i++) {
             // cout << bound.at<double>(i,1) << "-" << bound.at<double>(i,0) << "/" << _voxSize << endl;
-            _volDim[i] = ceil((bound.at<double>(i,1)-bound.at<double>(i,0))/_voxSize);
-            _bound.at<double>(i,1) = bound.at<double>(i,0)+_volDim[i]*_voxSize;
+            _volDim[i] = ceil((bound.at<double>(i, 1) - bound.at<double>(i, 0)) / _voxSize);
+            _bound.at<double>(i, 1) = bound.at<double>(i, 0) + _volDim[i] * _voxSize;
         }
 
-        cout << "size: " << _volDim[0] << "*" << _volDim[1] << "*" <<  _volDim[2] << endl; 
+        cout << "size: " << _volDim[0] << "*" << _volDim[1] << "*" << _volDim[2] << endl;
 
-        for (int i=0; i<3; i++){
-            _volOrigin[i] = _bound.at<double>(i,0);
+        for (int i = 0; i < 3; i++) {
+            _volOrigin[i] = _bound.at<double>(i, 0);
         }
 
-        _tsdf = new float** [_volDim[0]];
-        _weight = new float** [_volDim[0]];
-        _color = new float** [_volDim[0]];
+        _tsdf = new double** [_volDim[0]];
+        _weight = new double** [_volDim[0]];
+        _color = new double** [_volDim[0]];
 
-        for (int x=0; x<_volDim[0]; x++){
-            _tsdf[x] = new float* [_volDim[1]];
-            _weight[x] = new float* [_volDim[1]];
-            _color[x] = new float* [_volDim[1]];
-            for (int y=0; y<_volDim[1]; y++){
-                _tsdf[x][y] = new float[_volDim[2]];
-                _weight[x][y] = new float[_volDim[2]];
-                _color[x][y] = new float[_volDim[2]];
-                for (int z=0; z<_volDim[2]; z++){
+        for (int x = 0; x < _volDim[0]; x++) {
+            _tsdf[x] = new double* [_volDim[1]];
+            _weight[x] = new double* [_volDim[1]];
+            _color[x] = new double* [_volDim[1]];
+            for (int y = 0; y < _volDim[1]; y++) {
+                _tsdf[x][y] = new double[_volDim[2]];
+                _weight[x][y] = new double[_volDim[2]];
+                _color[x][y] = new double[_volDim[2]];
+                for (int z = 0; z < _volDim[2]; z++) {
                     _tsdf[x][y][z] = 1;
                     _weight[x][y][z] = 0;
                     _color[x][y][z] = 0;
@@ -51,15 +51,15 @@ namespace TSDF{
             }
         }
 
-        _coordNum = _volDim[0]*_volDim[1]*_volDim[2];
+        _coordNum = _volDim[0] * _volDim[1] * _volDim[2];
         _coords = new int* [_coordNum];
-        for (int i=0; i<_coordNum; i++){
-            _coords[i] = new int [3];
+        for (int i = 0; i < _coordNum; i++) {
+            _coords[i] = new int[3];
         }
         int cur = 0;
-        for (int x=0; x<_volDim[0]; x++){
-            for (int y=0; y<_volDim[1]; y++){ 
-                for (int z=0; z<_volDim[2]; z++){
+        for (int x = 0; x < _volDim[0]; x++) {
+            for (int y = 0; y < _volDim[1]; y++) {
+                for (int z = 0; z < _volDim[2]; z++) {
                     _coords[cur][0] = x;
                     _coords[cur][1] = y;
                     _coords[cur][2] = z;
@@ -68,7 +68,7 @@ namespace TSDF{
             }
         }
 
-        _worldPts = Utility::Algo::vox2world(_volOrigin,_coords,_coordNum,_voxSize);
+        _worldPts = Utility::Algo::vox2world(_volOrigin, _coords, _coordNum, _voxSize);
 
         // cout << "x:" << _volDim[0] << endl;
         // cout << "y:" << _volDim[1] << endl;
@@ -89,11 +89,11 @@ namespace TSDF{
         cout << "Init finished." << endl;
     };
 
-    void TSDFVolume::integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight){
-        cv::Mat imgC1 = cv::Mat::zeros(IMG_H, IMG_W, CV_32FC1);
+    void TSDFVolume::integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight) {
+        cv::Mat imgC1 = cv::Mat::zeros(IMG_H, IMG_W, CV_64FC1);
         for (int i = 0; i < IMG_H; i++) {
             for (int j = 0; j < IMG_W; j++) {
-                imgC1.at<float>(i, j) = floor(float(img.at<cv::Vec3b>(i, j)[2]) * 256 * 256 + float(img.at<cv::Vec3b>(i, j)[1]) * 256 + float(img.at<cv::Vec3b>(i, j)[0]));
+                imgC1.at<double>(i, j) = floor(double(img.at<cv::Vec3b>(i, j)[2]) * 256 * 256 + double(img.at<cv::Vec3b>(i, j)[1]) * 256 + double(img.at<cv::Vec3b>(i, j)[0]));
             }
         }
 
@@ -102,9 +102,9 @@ namespace TSDF{
         cv::Mat camPts = Utility::Algo::rigidTransform(_worldPts, extr.inv());
         // Utility::Log::logMat(camPts(cv::Rect(0,0,3,8)), "camPts");
 
-        float* pix_z = new float[_coordNum];
+        double* pix_z = new double[_coordNum];
         for (int i = 0; i < _coordNum; i++) {
-            pix_z[i] = camPts.at<float>(i, 2);
+            pix_z[i] = camPts.at<double>(i, 2);
         }
 
         int* pix_x = new int[_coordNum];
@@ -117,8 +117,8 @@ namespace TSDF{
         //     cout << "pix_y[" << i << "]: " << pix_y[i] << endl;
         // }
 
-        float* depthVal = new float[_coordNum];
-        float* depthDiff = new float[_coordNum];
+        double* depthVal = new double[_coordNum];
+        double* depthDiff = new double[_coordNum];
         bool* validPts = new bool[_coordNum];
         int validNum = 0;
 
@@ -126,7 +126,7 @@ namespace TSDF{
 
         for (int i = 0; i < _coordNum; i++) {
             if (checkInFrustum(pix_x[i], pix_y[i], pix_z[i])) {
-                depthVal[i] = depth.at<float>(pix_y[i], pix_x[i]);
+                depthVal[i] = depth.at<double>(pix_y[i], pix_x[i]);
             }
             else {
                 depthVal[i] = 0;
@@ -148,21 +148,21 @@ namespace TSDF{
 
     // TSDF Integration
 
-        delete[] depthVal;
+        delete depthVal;
 
-        float* dist = new float[_coordNum];
+        double* dist = new double[_coordNum];
         int* validX = new int[validNum];
         int* validY = new int[validNum];
         int* validZ = new int[validNum];
-        float* wOld = new float[validNum];
-        float* tsdfVals = new float[validNum];
-        float* tsdfVolNew = new float[validNum];
-        float* wNew = new float[validNum];
+        double* wOld = new double[validNum];
+        double* tsdfVals = new double[validNum];
+        double* tsdfVolNew = new double[validNum];
+        double* wNew = new double[validNum];
 
         int cur = 0;
-        float* validDist = new float[validNum];
-        float* validPixX = new float[validNum];
-        float* validPixY = new float[validNum];
+        double* validDist = new double[validNum];
+        double* validPixX = new double[validNum];
+        double* validPixY = new double[validNum];
         for (int i = 0; i < _coordNum; i++) {
             dist[i] = min(1.0, depthDiff[i] / _trunc);
             // cout << "dist[" << i << "]: " << dist[i] << endl;
@@ -196,14 +196,15 @@ namespace TSDF{
         //     cout << "wNew: " << wNew[i] << endl;
         // }
 
+        delete depthDiff;
+        delete validDist;
+        delete tsdfVolNew;
 
+        // Color Integration
 
-
-    // Color Integration
-
-        float colorOld, colorNew;
-        float BOld, GOld, ROld;
-        float BNew, GNew, RNew;
+        double colorOld, colorNew;
+        double BOld, GOld, ROld;
+        double BNew, GNew, RNew;
         for (int i = 0; i < validNum; i++) {
             colorOld = _color[validX[i]][validY[i]][validZ[i]];
             BOld = floor(colorOld / (256 * 256));
@@ -214,7 +215,7 @@ namespace TSDF{
             // cout << "GOld[" << i << "]: " << GOld << endl;
             // cout << "ROld[" << i << "]: " << ROld << endl;
 
-            colorNew = imgC1.at<float>(validPixY[i], validPixX[i]);
+            colorNew = imgC1.at<double>(validPixY[i], validPixX[i]);
 
             // cout << "colorNew[" << i << "]: " << colorNew << endl;
 
@@ -236,24 +237,9 @@ namespace TSDF{
 
             _color[validX[i]][validY[i]][validZ[i]] = BNew * 256 * 256 + GNew * 256 + RNew;
         }
-        delete[] validX;
-        delete[] validY;
-        delete[] validZ;
-        delete[] tsdfVals;
-        delete[] depthDiff;
-        delete[] validDist;
-        delete[] tsdfVolNew;
-        delete[] dist;
-        delete[] wNew;
-        delete[] pix_x;
-        delete[] pix_y;
-        delete[] pix_z;
-        delete[] wOld;
-        delete[] validPixY;
-        delete[] validPixX;
     };
 
-    void TSDFVolume::store(string name){
+    void TSDFVolume::store(string name) {
         ofstream fileOut(name);
         fileOut << "dim" << endl;
         fileOut << _volDim[0] << " " << _volDim[1] << " " << _volDim[2] << endl;
@@ -266,16 +252,16 @@ namespace TSDF{
 
         fileOut << "TSDF Color Weight" << endl;
         int cur = 0;
-        for (int x=0; x<_volDim[0]; x++){
-            for (int y=0; y<_volDim[1]; y++){
-                for (int z=0; z<_volDim[2]; z++){
+        for (int x = 0; x < _volDim[0]; x++) {
+            for (int y = 0; y < _volDim[1]; y++) {
+                for (int z = 0; z < _volDim[2]; z++) {
                     if (cur % 50000 == 0) {
                         cout << cur << "/" << _coordNum << endl;
                     }
                     double color = _color[x][y][z];
-                    int B = floor(color/(256*256)); 
-                    int G = floor((color-B*256*256)/256);
-                    int R = floor(color-B*256*256-G*256);
+                    int B = floor(color / (256 * 256));
+                    int G = floor((color - B * 256 * 256) / 256);
+                    int R = floor(color - B * 256 * 256 - G * 256);
                     fileOut << _tsdf[x][y][z] << " " << R << " " << G << " " << B << " " << _weight[x][y][z] << endl;
                     cur++;
                 }
@@ -283,8 +269,8 @@ namespace TSDF{
         }
     }
 
-    void TSDFVolume::getObj(string name){
-        
+    void TSDFVolume::getObj(string name) {
+
     }
 
     // Some methods to get private values TvT

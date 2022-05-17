@@ -320,4 +320,15 @@ namespace Test{
 		dconv->smDepthDiscretization(depthMap, disparityMapDisc, &outMax, camItl.cols, camItl.rows);
 		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3.ppm", disparityMapDisc, camItr.cols, camItr.rows, outMax);
 	}
+	void Test::stdMapTest() {
+		using namespace std;
+		using namespace Common::Mesh;
+		map<Vertex, i32> mp;
+		mp[{1, 2, 3}] = 1;
+		mp[{2, 3, 4}] = 2;
+		cout << "---------" << endl;
+		cout << mp[{2, 3, 4}] << endl;
+		cout << "---------" << endl;
+		cout << mp[{1, 2, 3}] << endl;
+	}
 }

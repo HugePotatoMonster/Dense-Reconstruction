@@ -157,6 +157,40 @@ namespace Common {
 	namespace Mesh {
 		struct Vertex {
 			f64 x, y, z;
+			bool operator==(const Vertex& p) const {
+				if (Abs(x - p.x) < eps && Abs(y - p.y) < eps && Abs(z - p.z) < eps) {
+					return true;
+				}
+				return false;
+			}
+			bool operator<(const Vertex& p) const {
+				using namespace std;
+				if (x < p.x) {
+					return true;
+				}
+				else if(x>p.x){
+					return false;
+				}
+				else {
+					if (y < p.y) {
+						return true;
+					}
+					else if (y > p.y) {
+						return false;
+					}
+					else {
+						if (z < p.z) {
+							return true;
+						}
+						else if (z > p.z) {
+							return false;
+						}
+						else {
+							return false;
+						}
+					}
+				}
+			}
 		};
 		struct IndexedTriangularFace {
 			i32 a, b, c;
@@ -181,7 +215,7 @@ namespace Common {
 	namespace Math {
 		struct Mat3 {
 			f64 a[9];
-		};
+ 		};
 		struct Vec3 {
 			f64 a[3];
 			void normalize() {
@@ -193,6 +227,8 @@ namespace Common {
 			void dist(OUT_ARG f64* out) {
 				*out = len_vec3(a[0], a[1], a[2]);
 			}
+			
+			
 		};
 	}
 	

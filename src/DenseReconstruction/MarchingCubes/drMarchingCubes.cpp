@@ -7,6 +7,7 @@ namespace DenseReconstruction {
 			using namespace Constant;
 			i32 dsX, dsY, dsZ;
 			volume->getDims(&dsX, &dsY, &dsZ);
+			std::map<Common::Mesh::Vertex, i32> vlist;
 			for (i32 i = 0; i < dsX; i++) {
 				for (i32 j = 0; j < dsY; j++) {
 					for (i32 k = 0; k < dsZ; k++) {
@@ -24,7 +25,7 @@ namespace DenseReconstruction {
 						//Generate Mesh Vertices
 						i32 edges = cmuMarchingCubesEdgeFlags[vIdx];
 						i32 edgeIdxInMesh[12] = { 0 };
-						i32 edgeStart, edgeEnd;
+						i32 edgeStart, edgeEnd = 0;
 						for (i32 p = 0; p < 12; p++) {
 							if ((edges & (1 << p))) {
 								Common::Mesh::Vertex q;
@@ -33,8 +34,15 @@ namespace DenseReconstruction {
 								q.x = ((f64)i + cmuMarchingCubesVertices[edgeStart][0] + (cmuMarchingCubesVertices[edgeEnd][0] - cmuMarchingCubesVertices[edgeStart][0]) * 0.5);
 								q.y = ((f64)j + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
 								q.z = (f64)k + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
-								outMesh->v.push_back(q);
-								edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());
+								//if (vlist[q] == 0) {
+									outMesh->v.push_back(q);
+									edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());
+									vlist[q] = static_cast<i32>(outMesh->v.size());
+								//}
+								//else {
+								//	edgeIdxInMesh[p] = vlist[q];
+								//}
+								
 							}
 						}
 						//Generate Mesh Faces
@@ -113,7 +121,7 @@ namespace DenseReconstruction {
 				}
 			}
 		}
-		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations = 1) {
+		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations) {
 			// Generate Edge From the Simple Mesh
 			using namespace Common::Mesh;
 			Mesh* oldMesh = new Mesh();
@@ -146,6 +154,7 @@ namespace DenseReconstruction {
 			Mesh* oMesh, *nMesh;
 			std::vector<std::vector<int>>* oMeshFaceIdx;
 			std::vector<std::vector<int>>* oMeshEdgeIdx;
+
 			//Start Conditions
 			oMesh = oldMesh;
 			oMeshFaceIdx = &ovFaceIdx;
