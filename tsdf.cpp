@@ -167,7 +167,7 @@ void generateTSDF(){
 
         Utility::Log::logMat(bound,"bound");
 
-        TSDF::TSDFVolume tsdf(bound,0.01);
+        TSDF::TSDFVolume tsdf(bound,0.02);
 
         for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
             for (int imgNo=0; imgNo<imgNum; imgNo++){
@@ -206,6 +206,9 @@ void generateTSDF(){
         Common::Mesh::SimpleMesh mcMesh;
         mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
         visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
+        Common::Mesh::Mesh mcMeshSD;
+        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, &mcMeshSD);
+        visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
     }
 
 }

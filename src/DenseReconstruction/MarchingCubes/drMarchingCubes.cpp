@@ -12,7 +12,6 @@ namespace DenseReconstruction {
 				for (i32 j = 0; j < dsY; j++) {
 					for (i32 k = 0; k < dsZ; k++) {
 						i32 vIdx = 0;
-
 						for (i32 p = 0; p < 8; p++) {
 							if (i + cmuMarchingCubesVertices[p][0] < dsX && j + cmuMarchingCubesVertices[p][1] < dsY && k + cmuMarchingCubesVertices[p][2] < dsZ) {
 								f64 voxel = 0;
@@ -122,6 +121,17 @@ namespace DenseReconstruction {
 			}
 		}
 		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations) {
+			//A temporary pair to avoid duplication
+			struct EdgePair {
+				i32 x, y;
+				bool operator<(const EdgePair& p)const {
+					i32 ax = Min(x, y);
+					i32 ay = Max(x, y);
+					i32 bx = Min(p.x, p.y);
+					i32 by = Max(p.y, p.x);
+					return ax < bx || (ax == bx && ay < by);
+				}
+			};
 			// Generate Edge From the Simple Mesh
 			using namespace Common::Mesh;
 			Mesh* oldMesh = new Mesh();
@@ -157,11 +167,40 @@ namespace DenseReconstruction {
 
 			//Start Conditions
 			oMesh = oldMesh;
+			if (iterations != 1) {
+				nMesh = new Mesh();
+			}
+			else {
+				nMesh = outMesh;
+			}
+			
 			oMeshFaceIdx = &ovFaceIdx;
 			oMeshEdgeIdx = &ovEdgeIdx;
 			while (T--) {
 				//TODO: Indexing
-
+				oMesh->e.clear();
+				(*oMeshFaceIdx).clear();
+				(*oMeshEdgeIdx).clear();
+				for (i32 i = 0; i < oMesh->v.size(); i++) {
+					(*oMeshFaceIdx).push_back(std::vector<i32>());
+					(*oMeshEdgeIdx).push_back(std::vector<i32>());
+				}
+				map<EdgePair, i32> pairCheck;
+				for (i32 i = 0; i < oMesh->f.size(); i++) {
+					for (i32 j = 0; j < oMesh->f[i].size(); j++) {
+						//Index the face
+						(*oMeshFaceIdx)[oMesh->f[i][j]].push_back(i);
+						//Index the edge
+						pr_assert(oMesh->f[i][j] != (oMesh->f[i][((usize)j + 1) % oMesh->f[i].size()]));
+						if (!pairCheck[{ oMesh->f[i][j], oMesh->f[i][((usize)j + 1) % oMesh->f[i].size()] }]) {
+							pairCheck[{ oMesh->f[i][j], oMesh->f[i][((usize)j + 1) % oMesh->f[i].size()] }] = 1;
+							oMesh->e.push_back({ oMesh->f[i][j],oMesh->f[i][((usize)j + 1) % oMesh->f[i].size()] });
+							(*oMeshEdgeIdx)[oMesh->f[i][j]].push_back(oMesh->e.size() - 1);
+							(*oMeshEdgeIdx)[oMesh->f[i][((usize)j + 1) % oMesh->f[i].size()]].push_back(oMesh->e.size() - 1);
+						}
+					}
+				}
+				//End of Indexing
 				i32* faceCenterIndexF = new i32[oMesh->f.size()];
 				set_zero(faceCenterIndexF, sizeof(i32) * (oMesh->f.size()));
 				//Traverse tetrahedrons/high-order polygons defined by vertices
@@ -173,6 +212,11 @@ namespace DenseReconstruction {
 					std::vector<i32> faceCenterR;
 					std::vector<Vertex> edgeCenter;
 					std::vector<std::vector<i32>> faceAdjEdge;
+					//If num of faces do not equal to num of edges
+					if ((*oMeshFaceIdx)[i].size() != (*oMeshEdgeIdx)[i].size()) {
+						cout << "Warning: Skipping Vertex i=" << i << ", for fs=" << (*oMeshFaceIdx)[i].size() << ",es=" << (*oMeshEdgeIdx)[i].size() << endl;
+						continue;
+					}
 					//Calculate face centers
 					for (i32 j = 0; j < (*oMeshFaceIdx)[i].size(); j++) {
 						faceAdjEdge.push_back(std::vector<i32>());
@@ -189,6 +233,7 @@ namespace DenseReconstruction {
 						faceCenter.push_back({ avX,avY,avZ });
 						faceCenterR.push_back(faceIndex);
 					}
+					
 					//Calculate edge centers & added edge point
 					for (i32 j = 0; j < (*oMeshEdgeIdx)[i].size(); j++) {
 						i32 edgeIndex = (*oMeshEdgeIdx)[i][j];
@@ -200,12 +245,12 @@ namespace DenseReconstruction {
 							avX1 += oMesh->v[oMesh->e[edgeIndex][k]].x;
 							avY1 += oMesh->v[oMesh->e[edgeIndex][k]].y;
 							avZ1 += oMesh->v[oMesh->e[edgeIndex][k]].z;
-							if (Abs(tmp->x - cuX) > eps && Abs(tmp->y - cuY) > eps && Abs(tmp->z - cuZ) > eps) {
+							//cout << "Edge:" << k << "=" << tmp->x << "," << tmp->y << "," << tmp->z << endl;
+							if (Abs(tmp->x - cuX) > eps || Abs(tmp->y - cuY) > eps || Abs(tmp->z - cuZ) > eps) {
 								anX = tmp->x;
 								anY = tmp->y;
 								anZ = tmp->z;
 								anIdx = oMesh->e[edgeIndex][k];
-								
 							}
 						}
 						avX1 /= 2.0;
@@ -248,9 +293,9 @@ namespace DenseReconstruction {
 					pr_assert(faceCenter.size() == edgeCenter.size());
 					pr_assert(faceCenter.size() >= 3);
 					i32 nP = faceCenter.size();
-					refinedVertex.x = ((nP - 3) * cuX + 2 * adjEdgeCenter.x + adjFaceCenter.x);
-					refinedVertex.y = ((nP - 3) * cuY + 2 * adjEdgeCenter.y + adjFaceCenter.y);
-					refinedVertex.z = ((nP - 3) * cuZ + 2 * adjEdgeCenter.z + adjFaceCenter.z);
+					refinedVertex.x = ((nP - 3) * cuX + 2 * adjEdgeCenter.x / edgeCenter.size() + adjFaceCenter.x / faceCenter.size()) / nP;
+					refinedVertex.y = ((nP - 3) * cuY + 2 * adjEdgeCenter.y / edgeCenter.size() + adjFaceCenter.y / faceCenter.size()) / nP;
+					refinedVertex.z = ((nP - 3) * cuZ + 2 * adjEdgeCenter.z / edgeCenter.size() + adjFaceCenter.z / faceCenter.size()) / nP;
 
 					//Reconstruct the mesh
 					i32 nS = nMesh->v.size();
@@ -259,13 +304,16 @@ namespace DenseReconstruction {
 					//Only faces will be generated to avoid edge duplication
 					//Insert vertex center
 					nMesh->v.push_back({ refinedVertex.x,refinedVertex.y,refinedVertex.z }); //ns
+					//cout << "MESH" << refinedVertex.z << endl;
 					for (i32 j = 0; j < edgeCenter.size(); j++) {
 						nMesh->v.push_back({ edgeCenter[j].x,edgeCenter[j].y,edgeCenter[j].z }); //ns+j+1
+						//cout << "EDGECENTER" << edgeCenter[j].z << endl;
 					}
 					for (i32 j = 0; j < faceCenter.size(); j++) {
 						if (faceCenterIndexF[faceCenterR[j]] == 0) {
 							nMesh->v.push_back({ faceCenter[j].x,faceCenter[j].y,faceCenter[j].z });
 							faceCenterIndexF[faceCenterR[j]] = nMesh->v.size() - 1;
+							//cout << "FACECENTER" << faceCenter[j].z << endl;
 						}
 						//Face Generation
 						nMesh->f.push_back(std::vector<i32>());
@@ -285,7 +333,13 @@ namespace DenseReconstruction {
 				else {
 					delete oMesh;
 					oMesh = nMesh;
-					nMesh = new Mesh();
+					if (T != 1) {
+						nMesh = new Mesh();
+					}
+					else {
+						nMesh = outMesh;
+					}
+					
 				}
 				delete[] faceCenterIndexF;
 			}
@@ -293,3 +347,29 @@ namespace DenseReconstruction {
 		}
 	}
 }
+
+/*
+
+cout << "EDGE" << (*oMeshEdgeIdx)[i].size() << endl;
+for (i32 j = 0; j < (*oMeshEdgeIdx)[i].size(); j++) {
+	cout << (*oMeshEdgeIdx)[i][j] << ":";
+	for (i32 k = 0; k < oMesh->e[(*oMeshEdgeIdx)[i][j]].size(); k++) {
+		cout << oMesh->e[(*oMeshEdgeIdx)[i][j]][k] << ",";
+	}
+	cout << endl;
+}
+cout << endl;
+cout << "FACE" << (*oMeshFaceIdx)[i].size() << endl;
+for (i32 j = 0; j < (*oMeshFaceIdx)[i].size(); j++) {
+	cout << (*oMeshFaceIdx)[i][j] << ":";
+	for (i32 k = 0; k < oMesh->f[(*oMeshFaceIdx)[i][j]].size(); k++) {
+		cout << oMesh->f[(*oMeshFaceIdx)[i][j]][k] << ",";
+	}
+	cout << endl;
+}
+cout << endl;
+pr_assert((*oMeshEdgeIdx)[i].size() == (*oMeshFaceIdx)[i].size());
+
+
+
+*/

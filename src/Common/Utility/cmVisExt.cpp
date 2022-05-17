@@ -165,6 +165,31 @@ namespace Common {
 			}
 			fs.close();
 		}
+		void VisualizationExt::cmuExportMeshToObj2(std::string fileName, Common::Mesh::Mesh* mesh) {
+			std::ofstream fs;
+			fs.open(fileName);
+			i32 meshFaceLen = static_cast<i32>(mesh->f.size());
+			i32 meshVertexLen = static_cast<i32>(mesh->v.size());
+			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
+			for (i32 i = 0; i < meshVertexLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshVertexLen << std::endl;
+				}
+				fs << "v " << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << std::endl;
+			}
+			std::cout << "Saving Faces" << meshFaceLen << std::endl;
+			for (i32 i = 0; i < meshFaceLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshFaceLen << std::endl;
+				}
+				fs << "f ";
+				for(i32 j = 0; j < mesh->f[i].size(); j++) {
+					fs << mesh->f[i][j] + 1 << " ";
+				}
+				fs << std::endl;
+			}
+			fs.close();
+		}
 		void VisualizationExt::cmuExportColoredMeshToObj(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh) {
 			std::ofstream fs;
 			fs.open(fileName);
