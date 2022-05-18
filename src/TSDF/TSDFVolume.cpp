@@ -196,9 +196,9 @@ namespace TSDF{
         //     cout << "wNew: " << wNew[i] << endl;
         // }
 
-        delete depthDiff;
-        delete validDist;
-        delete tsdfVolNew;
+        delete[] depthDiff;
+        delete[] validDist;
+        delete[] tsdfVolNew;
 
     // Color Integration
 
@@ -237,6 +237,14 @@ namespace TSDF{
 
             _color[validX[i]][validY[i]][validZ[i]] = BNew*256*256 + GNew*256 + RNew;
         }
+
+        //TODO: Free Memory >w<
+        delete[] validDist;
+        delete[] validPixX;
+        delete[] validPixY;
+        delete[] wNew;
+        delete[] tsdfVolNew;
+        
     };
 
     void TSDFVolume::store(string name){
@@ -272,4 +280,18 @@ namespace TSDF{
     void TSDFVolume::getObj(string name){
         
     }
+
+    // Some methods to get private values TvT
+    void TSDFVolume::getDims(int* x, int* y, int* z) {
+        *x = _volDim[0];
+        *y = _volDim[1];
+        *z = _volDim[2];
+    }
+    void TSDFVolume::getVoxel(int x, int y, int z, double* v) {
+        *v = _tsdf[x][y][z];
+    }
+    void TSDFVolume::getColor(int x, int y, int z, double* v) {
+        *v = _color[x][y][z];
+    }
+    // End of modification OvO
 }

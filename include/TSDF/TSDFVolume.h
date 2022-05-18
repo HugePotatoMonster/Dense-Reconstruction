@@ -24,10 +24,18 @@ namespace TSDF{
             bool checkInFrustum(int pix_x, int pix_y, double pix_z);
             bool checkValid();
 
+
+
         public:
             TSDFVolume(cv::Mat bound, double voxSiz=0.02);
             void integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight=1.0);
             void store(string name);
             void getObj(string name);
+
+            // Some methods to get private values >w<
+            void getDims(int* dx, int* dy, int* dz);
+            void getVoxel(int x, int y, int z, double* v);
+            void getColor(int x, int y, int z, double* v);
+            // End of modification :)
     };
 };
