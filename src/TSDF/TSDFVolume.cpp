@@ -148,7 +148,7 @@ namespace TSDF {
 
     // TSDF Integration
 
-        delete depthVal;
+        delete[] depthVal;
 
         double* dist = new double[_coordNum];
         int* validX = new int[validNum];
@@ -196,9 +196,9 @@ namespace TSDF {
         //     cout << "wNew: " << wNew[i] << endl;
         // }
 
-        delete depthDiff;
-        delete validDist;
-        delete tsdfVolNew;
+        delete[] depthDiff;
+        delete[] validDist;
+        delete[] tsdfVolNew;
 
         // Color Integration
 
@@ -237,6 +237,16 @@ namespace TSDF {
 
             _color[validX[i]][validY[i]][validZ[i]] = BNew * 256 * 256 + GNew * 256 + RNew;
         }
+        delete[] dist;
+        delete[] validX;
+        delete[] validY;
+        delete[] validZ;
+        delete[] wOld;
+        delete[] tsdfVals;
+        delete[] validPts;
+        delete[] wNew;
+        delete[] validPixX;
+        delete[] validPixY;
     };
 
     void TSDFVolume::store(string name) {

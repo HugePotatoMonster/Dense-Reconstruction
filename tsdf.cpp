@@ -207,7 +207,7 @@ void generateTSDF(){
         mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
         visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
         Common::Mesh::Mesh mcMeshSD;
-        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, &mcMeshSD);
+        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, &mcMeshSD, 2);
         visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
     }
 
