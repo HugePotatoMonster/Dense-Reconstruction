@@ -14,6 +14,8 @@
 #include <cstdio>
 #include <cassert>
 #include <opencv2/opencv.hpp>
+#include <glad/glad.h> 
+#include <GLFW/glfw3.h>
 
 
 //Basic

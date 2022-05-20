@@ -13,6 +13,7 @@ namespace Test{
         static void monocularMotionSGMDepthFinal();
         static void cudaObjCreation();
         static void stdMapTest();
+        static void oglTest();
 
     };
 }

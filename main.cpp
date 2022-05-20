@@ -6,9 +6,9 @@
 using namespace std;
 
 int main() {
-	generateTSDF();
-	//Test::Test* test = new Test::Test();
-	//test->stdMapTest();
+	//generateTSDF();
+	Test::Test* test = new Test::Test();
+	test->oglTest();
 	
 	return 0;
 }

@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "C:/Users/huang/Desktop/Tools/OCV/opencv/build/include",
                 "C:/Users/huang/Desktop/Tools/OCV/opencv/build/include",
-                "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.6/include"
+                "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.6/include",
+                "${workspaceFolder}/lib/glad/include"
             ],
             "defines": [
                 "_DEBUG",

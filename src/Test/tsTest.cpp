@@ -16,7 +16,7 @@
 #include "../../include/StereoRectification/srStereoRectification.h"
 #include "../../include/DepthEstimation/deSemiGlobalMatchDepthEstimator.h"
 #include "../../include/DepthEstimation/deDepthEstimationHelper.h"
-
+#include "../../include/Render/rdMain.h"
 namespace Test{
 	void Test::cudaObjCreation() {
 		
@@ -330,5 +330,9 @@ namespace Test{
 		cout << mp[{2, 3, 4}] << endl;
 		cout << "---------" << endl;
 		cout << mp[{1, 2, 3}] << endl;
+	}
+	void Test::oglTest() {
+		auto p = Render::RendererMain::rdGetInstance();
+		p->rdTest();
 	}
 }

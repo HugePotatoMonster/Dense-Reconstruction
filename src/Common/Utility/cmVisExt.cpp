@@ -246,5 +246,44 @@ namespace Common {
 			}
 			fs.close();
 		}
+		void VisualizationExt::cmuExportMeshToPly2(std::string fileName, Common::Mesh::Mesh* mesh) {
+			std::ofstream fs;
+			using namespace std;
+			fs.open(fileName);
+			fs << "ply" << endl;
+			fs << "format ascii 1.0" << endl;
+			fs << "comment made by human" << endl;
+			fs << "element vertex " << mesh->v.size() << endl;
+			fs << "property float x" << endl;
+			fs << "property float y" << endl;
+			fs << "property float z" << endl;
+			fs << "property uchar red" << endl;
+			fs << "property uchar green" << endl;
+			fs << "property uchar blue" << endl;
+			fs << "element face " << mesh->f.size() << endl;
+			fs << "property list uchar int vertex_index" << endl;
+			fs << "end_header" << endl;
+			i32 meshFaceLen = static_cast<i32>(mesh->f.size());
+			i32 meshVertexLen = static_cast<i32>(mesh->v.size());
+			std::cout << "Saving Vertices" << meshVertexLen << std::endl;
+			for (i32 i = 0; i < meshVertexLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshVertexLen << std::endl;
+				}
+				fs << "" << mesh->v[i].x << " " << mesh->v[i].y << " " << mesh->v[i].z << " " << (i32)(255 * mesh->c[i].x) << " " << (i32)(255 * mesh->c[i].y) << " " << (i32)(255 * mesh->c[i].z) << std::endl;
+			}
+			std::cout << "Saving Faces" << meshFaceLen << std::endl;
+			for (i32 i = 0; i < meshFaceLen; i++) {
+				if (i % 50000 == 0) {
+					std::cout << i << "/" << meshFaceLen << std::endl;
+				}
+				fs << mesh->f[i].size() << " ";
+				for (i32 j = 0; j < mesh->f[j].size(); j++) {
+					fs << mesh->f[i][j] << " ";
+				}
+				fs << endl;
+			}
+			fs.close();
+		}
 	}
 }

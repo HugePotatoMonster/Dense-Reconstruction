@@ -33,6 +33,8 @@ namespace DenseReconstruction {
 								q.x = ((f64)i + cmuMarchingCubesVertices[edgeStart][0] + (cmuMarchingCubesVertices[edgeEnd][0] - cmuMarchingCubesVertices[edgeStart][0]) * 0.5);
 								q.y = ((f64)j + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
 								q.z = (f64)k + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
+								q.y = -q.y;
+								q.x = -q.x;
 								if (vlist[q] == 0) {
 									outMesh->v.push_back(q);
 									edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());

@@ -12,6 +12,7 @@ namespace Common {
 			void cmuVoxelMarchingCubes(DenseReconstruction::VoxelStore* inStore, Common::Mesh::SimpleMesh* outMesh);
 			void cmuExportMeshToObj(std::string fileName, Common::Mesh::SimpleMesh* mesh);
 			void cmuExportMeshToObj2(std::string fileName, Common::Mesh::Mesh* mesh);
+			void cmuExportMeshToPly2(std::string fileName, Common::Mesh::Mesh* mesh);
 			void cmuExportColoredMeshToObj(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh);
 			void cmuExportColoredMeshToPly(std::string fileName, Common::Mesh::ColoredSimpleMesh* mesh);
 		};
