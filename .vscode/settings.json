@@ -72,6 +72,12 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "bitset": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "filesystem": "cpp",
+        "stack": "cpp",
+        "__nullptr": "cpp"
     }
 }

@@ -10,5 +10,6 @@ namespace Render {
 		static RendererMain* rdGetInstance();
 		void rdTest();
 		void rdRender();
+		void rdDrawPrepare();
 	};
 }
