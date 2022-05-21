@@ -20,6 +20,8 @@ namespace Common{
         struct ShaderCompatibleMeshData{
             f32* vertexData = nullptr; 
             u32* faceData = nullptr;
+            usize vertexDataLen;
+            usize faceDataLen;
         };
     }
 }

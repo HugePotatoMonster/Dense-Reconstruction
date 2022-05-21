@@ -116,7 +116,7 @@ void test(){
     // tsdf.getObj("D:/test.obj");
 }
 
-void generateTSDF(){
+void generateTSDF(Common::Mesh::Mesh* outMesh){
     Utility::Reader* reader = Utility::Reader::getInstance();
     Camera::ParamObtain po;
 
@@ -129,7 +129,7 @@ void generateTSDF(){
     }
 
     int sampleNum = 1;
-    int imgNum = 5;
+    int imgNum = 3;
 
     for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
         for (int imgNo=0; imgNo<imgNum; imgNo++){
@@ -167,7 +167,7 @@ void generateTSDF(){
 
         Utility::Log::logMat(bound,"bound");
 
-        TSDF::TSDFVolume tsdf(bound,0.01);
+        TSDF::TSDFVolume tsdf(bound,0.05);
 
         for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
             for (int imgNo=0; imgNo<imgNum; imgNo++){
@@ -205,10 +205,10 @@ void generateTSDF(){
         DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
         Common::Mesh::SimpleMesh mcMesh;
         mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
-        visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
-        Common::Mesh::Mesh mcMeshSD;
-        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, &mcMeshSD, 2);
-        visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
+        //visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
+        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, outMesh, 1);
+        cout<<"V="<<outMesh->v.size()<<endl;
+        //visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
     }
 
 }
