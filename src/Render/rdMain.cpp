@@ -140,7 +140,7 @@ namespace Render {
 		using namespace Render::Constant;
 		Common::Camera::CoordinateSystems csMats;
 		csMats.modelMatrix =  glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		csMats.projectionMatrix = glm::perspective(45.0f, 1.0f*viewportWidth/viewportHeight , 1.0f, 1000.0f);
+		csMats.projectionMatrix = glm::perspective(glm::radians(aFov), 1.0f*viewportWidth/viewportHeight , 1.0f, 1000.0f);
 		glm::vec3 camDirection = glm::normalize(observer->camPos - observer->camLookAt);
 		glm::vec3 camRight = glm::normalize(glm::cross(observer->camUp, camDirection));
 		glm::vec3 camUp = glm::cross(camDirection, camRight);
@@ -148,12 +148,53 @@ namespace Render {
 		GraphicsInterfaceUtility::applyTransform(aShaderProgramID,&csMats);
 		
 	}
+	void RendererMain::rdMouseCallback(GLFWwindow* window, double xpos, double ypos){
+		auto _this = RendererMain::rdGetInstance();
+		if(!_this->mouseRecorder->initialized) {
+			_this->mouseRecorder->lastX = xpos;
+			_this->mouseRecorder->lastY = ypos;
+			_this->mouseRecorder->initialized = true;
+		}
+		
+		float xoffset = xpos - _this->mouseRecorder->lastX;
+		float yoffset = _this->mouseRecorder->lastY - ypos;
+		_this->mouseRecorder->lastX = xpos;
+		_this->mouseRecorder->lastY = ypos;
+
+		float sensitivity = 0.05f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		_this->mouseRecorder->yaw += xoffset;
+		_this->mouseRecorder->pitch += yoffset;
+
+		if(_this->mouseRecorder->pitch > 89.0f)
+			_this->mouseRecorder->pitch =  89.0f;
+		if(_this->mouseRecorder->pitch < -89.0f)
+			_this->mouseRecorder->pitch = -89.0f;
+		glm::vec3 front;
+		front.x = cos(glm::radians(_this->mouseRecorder->pitch)) * cos(glm::radians(_this->mouseRecorder->yaw));
+		front.y = sin(glm::radians(_this->mouseRecorder->pitch));
+		front.z = cos(glm::radians(_this->mouseRecorder->pitch)) * sin(glm::radians(_this->mouseRecorder->yaw));
+		_this->observer->camFront = front;
+	}
+	void RendererMain::rdScrollCallback(GLFWwindow* window, double xoffset, double yoffset){
+		using namespace Render::Constant;
+		auto _this = RendererMain::rdGetInstance();
+		if(_this->aFov >= 1.0f && _this->aFov <= 45.0f)
+			_this->aFov -= yoffset;
+		if(_this->aFov <= 1.0f)
+			_this->aFov = 1.0f;
+		if(_this->aFov >= 45.0f)
+			_this->aFov = 45.0f;
+	}
 	void RendererMain::rdTest() {
 		using namespace Render::Constant;
 		using namespace std;
 		observer = new Common::Camera::Camera();
 		observer->camPos=glm::vec3(0,0,1);
 		observer->camLookAt=glm::vec3(0,0,0);
+		mouseRecorder = new Render::Interaction::MouseRecorder();
 		std::cout << "Hello World" <<endl;
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -173,6 +214,9 @@ namespace Render {
 		}
 		glViewport(0, 0, viewportWidth, viewportHeight);
 		GraphicsInterfaceUtility::initialize(window);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(window, rdMouseCallback);
+		glfwSetScrollCallback(window,rdScrollCallback);
 		aWindow = window;
 		glEnable(GL_DEPTH_TEST);
 	}

@@ -9,4 +9,15 @@ namespace Render {
 		static const char* fragmentShaderFilePath = "../../shaders/fragment.glsl";
 		static const usize shaderCompilationLogLen = 1024;
 	}
+	namespace Interaction{
+		struct MouseRecorder{
+			i32 lastX;
+			i32 lastY;
+			i32 curX;
+			i32 curY;
+			u8 initialized = 0;	
+			f32 yaw = 0;
+			f32 pitch = 0;
+		};
+	}
 }

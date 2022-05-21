@@ -12,3 +12,9 @@ A 3D reconstruction project based on the monocular vision
   - GLAD
   - GLFW
   - GLM
+
+### Acknowledgement
+
+- https://github.com/LearnOpenGL-CN/LearnOpenGL-CN
+- https://github.com/ethan-li-coding/SemiGlobalMatching/tree/master/SemiGlobalMatching
+
