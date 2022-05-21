@@ -1,5 +1,6 @@
 /lib/glm/*
 /lib/glad/*
+/src/Render/Lib/glad.c
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
