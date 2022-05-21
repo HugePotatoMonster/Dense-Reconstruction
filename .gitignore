@@ -1,4 +1,5 @@
 /lib/glm/*
+/lib/glad/*
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
