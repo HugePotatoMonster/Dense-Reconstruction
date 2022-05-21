@@ -59,9 +59,9 @@ namespace Render {
 			outMesh->vertexData[i*7] = inMesh->v[i].x;
 			outMesh->vertexData[i*7+1] = inMesh->v[i].y;
 			outMesh->vertexData[i*7+2] = -inMesh->v[i].z;
-			outMesh->vertexData[i*7+3] = 1.0f;
-			outMesh->vertexData[i*7+4] = 1.0f;
-			outMesh->vertexData[i*7+5] = 1.0f;
+			outMesh->vertexData[i*7+3] = inMesh->c[i].x;
+			outMesh->vertexData[i*7+4] = inMesh->c[i].y;
+			outMesh->vertexData[i*7+5] = inMesh->c[i].z;
 			outMesh->vertexData[i*7+6] = 1.0f;
 			avgX += inMesh->v[i].x;
 			avgY += inMesh->v[i].y;

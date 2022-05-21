@@ -11,7 +11,7 @@ namespace Render {
 	}
 	void RendererMain::rdRender(){
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		if(enableDraw){
 			glDrawElements(GL_TRIANGLES, aDrawTriangles, GL_UNSIGNED_INT, 0);
 		}
@@ -116,14 +116,44 @@ namespace Render {
 	void RendererMain::rdRenderStart(){
 		//Start Drawing !
 		while(!glfwWindowShouldClose(aWindow)){
+			rdInputProcessing();
+			rdUpdateViewMatrix();
 			rdRender();
 			glfwSwapBuffers(aWindow);
 			glfwPollEvents();    
 		}
 	}
+	void RendererMain::rdInputProcessing(){
+		if(glfwGetKey(aWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        	glfwSetWindowShouldClose(aWindow, true);
+		float cameraSpeed = 0.05f; // adjust accordingly
+		if (glfwGetKey(aWindow, GLFW_KEY_W) == GLFW_PRESS)
+			observer->camPos += cameraSpeed * observer->camFront;
+		if (glfwGetKey(aWindow, GLFW_KEY_S) == GLFW_PRESS)
+			observer->camPos -= cameraSpeed * observer->camFront;
+		if (glfwGetKey(aWindow, GLFW_KEY_A) == GLFW_PRESS)
+			observer->camPos -= glm::normalize(glm::cross(observer->camFront, observer->camUp)) * cameraSpeed;
+		if (glfwGetKey(aWindow, GLFW_KEY_D) == GLFW_PRESS)
+			observer->camPos += glm::normalize(glm::cross(observer->camFront, observer->camUp)) * cameraSpeed;
+	}
+	void RendererMain::rdUpdateViewMatrix(){
+		using namespace Render::Constant;
+		Common::Camera::CoordinateSystems csMats;
+		csMats.modelMatrix =  glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		csMats.projectionMatrix = glm::perspective(45.0f, 1.0f*viewportWidth/viewportHeight , 1.0f, 1000.0f);
+		glm::vec3 camDirection = glm::normalize(observer->camPos - observer->camLookAt);
+		glm::vec3 camRight = glm::normalize(glm::cross(observer->camUp, camDirection));
+		glm::vec3 camUp = glm::cross(camDirection, camRight);
+		csMats.viewMatrix = glm::lookAt(observer->camPos,observer->camFront + observer->camPos,observer->camUp);
+		GraphicsInterfaceUtility::applyTransform(aShaderProgramID,&csMats);
+		
+	}
 	void RendererMain::rdTest() {
 		using namespace Render::Constant;
 		using namespace std;
+		observer = new Common::Camera::Camera();
+		observer->camPos=glm::vec3(0,0,1);
+		observer->camLookAt=glm::vec3(0,0,0);
 		std::cout << "Hello World" <<endl;
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -144,6 +174,6 @@ namespace Render {
 		glViewport(0, 0, viewportWidth, viewportHeight);
 		GraphicsInterfaceUtility::initialize(window);
 		aWindow = window;
-		
+		glEnable(GL_DEPTH_TEST);
 	}
 }

@@ -6,6 +6,7 @@ namespace Render {
 	class RendererMain {
 	private:
 		static RendererMain* inst;
+		Common::Camera::Camera* observer;
 		u32 aShaderProgramID = 0;
 		u32 aDrawTriangles = 0;
 		u32 enableDraw = false;
@@ -19,5 +20,7 @@ namespace Render {
 		void rdRenderStart();
 		void rdDrawPrepare();
 		void rdSetRenderMesh(Common::Mesh::ShaderCompatibleMeshData* meshData);
+		void rdUpdateViewMatrix();
+		void rdInputProcessing();
 	};
 }

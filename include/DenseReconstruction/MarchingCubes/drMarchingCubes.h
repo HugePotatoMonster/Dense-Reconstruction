@@ -33,7 +33,7 @@ namespace DenseReconstruction {
 			// @param: inMesh: (Input) a mesh with only vertices and triangular faces
 			// @param: outMesh: (Output) a refined mesh
 			// @param: iterations: (Input) iterations
-			static void mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations = 1);
+			static void mcCatmullClarkSurfaceSubdivision(Common::Mesh::ColoredSimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations = 1);
 		};
 	}
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include "include/Camera/ParamObtain.h"
 #include "include/Utility/Reader.h"
 #include "include/Utility/Algo.h"
@@ -203,8 +204,8 @@ void generateTSDF(Common::Mesh::Mesh* outMesh){
         cout << "Exporting Mesh" << endl;
         Common::Util::VisualizationExt visExt;
         DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
-        Common::Mesh::SimpleMesh mcMesh;
-        mcUtils->mcConvertToMesh(&tsdf, &mcMesh);
+        Common::Mesh::ColoredSimpleMesh mcMesh;
+        mcUtils->mcConvertToColoredMesh(&tsdf, &mcMesh);
         //visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
         mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, outMesh, 1);
         cout<<"V="<<outMesh->v.size()<<endl;

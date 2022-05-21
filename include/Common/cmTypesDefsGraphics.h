@@ -14,6 +14,13 @@ namespace Common{
             glm::mat4 viewMatrix; //This transforms world CS to camera CS
             glm::mat4 projectionMatrix; //This performs projection 
         };
+        //This camera helps renderer show the proper objects
+        struct Camera{
+            glm::vec3 camPos; //The world CS of camera
+            glm::vec3 camLookAt; //The point that camera focuses on
+            glm::vec3 camUp = glm::vec3(0,1,0); //The right direction
+            glm::vec3 camFront = glm::vec3(0,0,-1);
+        };
     }
 
     namespace Mesh{

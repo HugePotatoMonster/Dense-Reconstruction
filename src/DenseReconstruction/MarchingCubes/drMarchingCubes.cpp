@@ -66,6 +66,7 @@ namespace DenseReconstruction {
 			using namespace Constant;
 			i32 dsX, dsY, dsZ;
 			volume->getDims(&dsX, &dsY, &dsZ);
+			std::map<Common::Mesh::Vertex, i32> vlist;
 			for (i32 i = 0; i < dsX; i++) {
 				for (i32 j = 0; j < dsY; j++) {
 					for (i32 k = 0; k < dsZ; k++) {
@@ -101,9 +102,17 @@ namespace DenseReconstruction {
 								q.x = ((f64)i + cmuMarchingCubesVertices[edgeStart][0] + (cmuMarchingCubesVertices[edgeEnd][0] - cmuMarchingCubesVertices[edgeStart][0]) * 0.5);
 								q.y = ((f64)j + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
 								q.z = (f64)k + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
-								outMesh->v.push_back(q);
-								outMesh->c.push_back(cl);
-								edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());
+								q.y = -q.y;
+								q.x = -q.x;
+								if (vlist[q] == 0) {
+									outMesh->v.push_back(q);
+									outMesh->c.push_back(cl);
+									edgeIdxInMesh[p] = static_cast<i32>(outMesh->v.size());
+									vlist[q] = static_cast<i32>(outMesh->v.size());
+								}
+								else {
+									edgeIdxInMesh[p] = vlist[q];
+								}
 							}
 						}
 						//Generate Mesh Faces
@@ -122,7 +131,7 @@ namespace DenseReconstruction {
 				}
 			}
 		}
-		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::SimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations) {
+		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::ColoredSimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations) {
 			//TODO: Bug Fix for iteration > 1
 			//A temporary pair to avoid duplication
 			struct EdgePair {
@@ -142,6 +151,7 @@ namespace DenseReconstruction {
 			std::vector<std::vector<int>> ovEdgeIdx(inMesh->v.size());
 			for (i32 i = 0; i < inMesh->v.size(); i++) {
 				oldMesh->v.push_back(inMesh->v[i]);
+				oldMesh->c.push_back(inMesh->c[i]);
 			}
 			for (i32 i = 0; i < inMesh->f.size(); i++) {
 				oldMesh->f.push_back(std::vector<i32>());
@@ -209,11 +219,13 @@ namespace DenseReconstruction {
 				//End of Indexing
 				i32* faceCenterIndexF = new i32[oMesh->f.size()];
 				i32* edgeCenterIndexF = new i32[oMesh->e.size()];
+				std::vector<i32> nvWeights;
 				set_zero(faceCenterIndexF, sizeof(i32) * (oMesh->f.size()));
 				set_zero(edgeCenterIndexF, sizeof(i32)* (oMesh->e.size()));
+
 				//Traverse tetrahedrons/high-order polygons defined by vertices
 				for (i32 i = 0; i < oMesh->v.size(); i++) {
-
+					auto curColor = oMesh->c[i];
 					if (T != iterations - 1 && iterations > 1 && (*oMeshEdgeIdx)[i].size()!= (*oMeshFaceIdx)[i].size()) {
 						/*
 						cout << "EDGE" << (*oMeshEdgeIdx)[i].size() << endl;
@@ -337,17 +349,38 @@ namespace DenseReconstruction {
 					//Only faces will be generated to avoid edge duplication
 					//Insert vertex center
 					nMesh->v.push_back({ refinedVertex.x,refinedVertex.y,refinedVertex.z }); //ns
+					nMesh->c.push_back({curColor.x,curColor.y,curColor.z});
+					nvWeights.push_back(1);
+
 					for (i32 j = 0; j < edgeCenter.size(); j++) {
 						if (edgeCenterIndexF[edgeCenterR[j]] == 0) {
 							nMesh->v.push_back({ edgeCenter[j].x,edgeCenter[j].y,edgeCenter[j].z }); //ns+j+1
+							nvWeights.push_back(1);
+							nMesh->c.push_back({curColor.x,curColor.y,curColor.z});
 							edgeCenterIndexF[edgeCenterR[j]] = nMesh->v.size() - 1;
+						}else{
+							auto idx = edgeCenterIndexF[edgeCenterR[j]];
+							auto weight = nvWeights[idx];
+							nMesh->c[idx].x = (curColor.x + weight*nMesh->c[idx].x)/(weight+1);
+							nMesh->c[idx].y = (curColor.y + weight*nMesh->c[idx].y)/(weight+1);
+							nMesh->c[idx].z = (curColor.z + weight*nMesh->c[idx].z)/(weight+1);
+							nvWeights[idx]++;
 						}
 						
 					}
 					for (i32 j = 0; j < faceCenter.size(); j++) {
 						if (faceCenterIndexF[faceCenterR[j]] == 0) {
 							nMesh->v.push_back({ faceCenter[j].x,faceCenter[j].y,faceCenter[j].z });
+							nvWeights.push_back(1);
+							nMesh->c.push_back({curColor.x,curColor.y,curColor.z});
 							faceCenterIndexF[faceCenterR[j]] = nMesh->v.size() - 1;
+						}else{
+							auto idx = faceCenterIndexF[faceCenterR[j]];
+							auto weight = nvWeights[idx];
+							nMesh->c[idx].x = (curColor.x + weight*nMesh->c[idx].x)/(weight+1);
+							nMesh->c[idx].y = (curColor.y + weight*nMesh->c[idx].y)/(weight+1);
+							nMesh->c[idx].z = (curColor.z + weight*nMesh->c[idx].z)/(weight+1);
+							nvWeights[idx]++;
 						}
 						//Face Generation
 						nMesh->f.push_back(std::vector<i32>());
