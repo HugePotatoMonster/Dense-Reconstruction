@@ -24,5 +24,10 @@ include_directories(${GLFW_INCLUDE_DIRS})
 set(GLAD_INCLUDE_DIRS C:/WR/Dense-Reconstruction/lib/glad/include)
 include_directories(${GLAD_INCLUDE_DIRS})
 
+# GLM
+set(GLM_INCLUDE_DIRS C:/WR/Dense-Reconstruction/lib)
+include_directories(${GLM_INCLUDE_DIRS})
+
+# Done
 cuda_add_executable(demo main.cpp ${SOURCE_1} ${SOURCE_2} ${SOURCE_3})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${GLFW_LIBRARIES_1}  ${GLFW_LIBRARIES_2}  ${GLFW_LIBRARIES_3})

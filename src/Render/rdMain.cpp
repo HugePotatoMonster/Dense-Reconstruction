@@ -1,5 +1,6 @@
 #include "../../include/Render/rdMain.h"
 #include "../../include/Render/rdDefs.h"
+#include "../../include/Common/cmTypesDefsGraphics.h"
 namespace Render {
 	RendererMain* RendererMain::inst = nullptr;
 	RendererMain* RendererMain::rdGetInstance() {
@@ -69,10 +70,10 @@ namespace Render {
 
 		//Create Vertices
 		float vertices[] = {
-			0.5f, 0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
-			0.5f, -0.5f, 0.0f,1.0f, 0.0f, 0.0f, 1.0f, 
-			-0.5f, -0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
-			-0.5f, 0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
+			0.5f, 0.5f, -3.0f,1.0f, 0.0f, 0.0f,1.0f,
+			0.5f, -0.5f, -3.0f,1.0f, 0.0f, 0.0f, 1.0f, 
+			-0.5f, -0.5f, -1.0f,1.0f, 0.0f, 0.0f,1.0f,
+			-0.5f, 0.5f, -1.0f,1.0f, 0.0f, 0.0f,1.0f,
 		};
 
 		unsigned int indices[] = { 
@@ -97,8 +98,20 @@ namespace Render {
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)(3 * sizeof(f32)));
 		glEnableVertexAttribArray(1);
 
-		//Shader
+		//Transform
+		Common::Camera::CoordinateSystems csMats;
+		csMats.modelMatrix =  glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		csMats.projectionMatrix = glm::mat4(1.0f);
+		csMats.projectionMatrix = glm::perspective(45.0f, 1.0f*viewportWidth/viewportHeight , 1.0f, 1000.0f);
+		csMats.viewMatrix = glm::mat4(1.0f);
+
+		glm_printmat4(csMats.projectionMatrix);
+
+		//Use Shader
 		glUseProgram(shaderProgram);
+		GraphicsInterfaceUtility::applyTransform(shaderProgram,&csMats);
+		
+		//Shader
 		glBindVertexArray(VAO);
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragShader);

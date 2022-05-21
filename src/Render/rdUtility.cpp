@@ -33,4 +33,38 @@ namespace Render {
 		using namespace Render::Constant;
 		getShaders(vertexShaderFilePath,fragmentShaderFilePath,vertexShader,fragmentShader);
 	}
+	void GraphicsInterfaceUtility::applyTransform(u32 shaderProgram,Common::Camera::CoordinateSystems* matrices){
+		unsigned int transformLoc1 = glGetUniformLocation(shaderProgram, "modelMat");
+		glUniformMatrix4fv(transformLoc1, 1, GL_FALSE, glm::value_ptr(matrices->modelMatrix));
+		unsigned int transformLoc2 = glGetUniformLocation(shaderProgram, "viewMat");
+		glUniformMatrix4fv(transformLoc2, 1, GL_FALSE, glm::value_ptr(matrices->viewMatrix));
+		unsigned int transformLoc3 = glGetUniformLocation(shaderProgram, "projectionMat");
+		glUniformMatrix4fv(transformLoc3, 1, GL_FALSE, glm::value_ptr(matrices->projectionMatrix));
+	}
+	void GraphicsInterfaceUtility::convertMeshToArray(Common::Mesh::Mesh* inMesh,OUT_ARG Common::Mesh::ShaderCompatibleMeshData* outMesh){
+		//Allocate Memory
+		u32 vertexSize = (u32)(inMesh->v.size()) * 7;
+		u32 faceSize = 0;
+		for(i32 i=0;i<inMesh->f.size();i++){
+			faceSize += (inMesh->f[i].size() - 2)*3;
+		}
+		outMesh->faceData = new u32[faceSize];
+		outMesh->vertexData = new f32[vertexSize];
+
+		//Fill in Vertex Array
+		for(u32 i=0;i<inMesh->v.size();i++){
+			outMesh->vertexData[i*7] = inMesh->v[i].x;
+			outMesh->vertexData[i*7+1] = inMesh->v[i].y;
+			outMesh->vertexData[i*7+2] = inMesh->v[i].z;
+			outMesh->vertexData[i*7+3] = 1.0f;
+			outMesh->vertexData[i*7+4] = 1.0f;
+			outMesh->vertexData[i*7+5] = 1.0f;
+			outMesh->vertexData[i*7+6] = 1.0f;
+		}
+
+		//Fill in Face Array, Assume all polygons are convex
+		u32 cur = 0;
+		for(u32 i=0;i<inMesh->f.size();i++){
+		}
+	}
 }
