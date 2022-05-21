@@ -9,8 +9,9 @@ namespace Render {
 		return RendererMain::inst;
 	}
 	void RendererMain::rdRender(){
-		glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 	void RendererMain::rdDrawPrepare(){
 		using namespace std;
@@ -52,7 +53,56 @@ namespace Render {
 		}
 		//Create Program
 		auto shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShader);
+		glAttachShader(shaderProgram, fragShader);
+		glLinkProgram(shaderProgram);
+		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+		if(!success){
+			glGetProgramInfoLog(shaderProgram,shaderCompilationLogLen,NULL,compilationInfo);
+			dbg_toutput("Shader Program Linking Failed");
+			dbg_toutput(compilationInfo);
+			pr_assert(false);
+		}else{
+			dbg_toutput("Shader Program Linking Done");
+		}
+		
 
+		//Create Vertices
+		float vertices[] = {
+			0.5f, 0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
+			0.5f, -0.5f, 0.0f,1.0f, 0.0f, 0.0f, 1.0f, 
+			-0.5f, -0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
+			-0.5f, 0.5f, 0.0f,1.0f, 0.0f, 0.0f,1.0f,
+		};
+
+		unsigned int indices[] = { 
+			0, 1, 3,
+			1, 2, 3  
+		};
+		u32 VBO;
+		glGenBuffers(1, &VBO);
+
+		u32 EBO;
+		glGenBuffers(1, &EBO);
+
+		u32 VAO;
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(f32), (void*)(3 * sizeof(f32)));
+		glEnableVertexAttribArray(1);
+
+		//Shader
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragShader);
+		
 	}
 	void RendererMain::rdTest() {
 		using namespace Render::Constant;
