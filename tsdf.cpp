@@ -1,9 +1,11 @@
+#pragma once
 #include "include/Camera/ParamObtain.h"
 #include "include/Utility/Reader.h"
 #include "include/Utility/Algo.h"
 #include "include/Utility/Log.h"
 #include "include/TSDF/TSDFVolume.h"
-
+#include "include/DenseReconstruction/MarchingCubes/drMarchingCubes.h"
+#include "include/Common/Utility/cmVisExt.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -74,7 +76,7 @@ void test(){
     // bound.at<double>(2,1) = 5.76272371304359;
     // Utility::logMat(bound,"bound");
 
-    TSDF::TSDFVolume tsdf(bound,0.02);
+    TSDF::TSDFVolume tsdf(bound,0.01 );
 
     for (int imgNo=0; imgNo<inputNum; imgNo++){
         cout << "Process imgNo: " << imgNo << endl;
@@ -115,7 +117,7 @@ void test(){
     // tsdf.getObj("D:/test.obj");
 }
 
-void generateTSDF(){
+void generateTSDF(Common::Mesh::Mesh* outMesh){
     Utility::Reader* reader = Utility::Reader::getInstance();
     Camera::ParamObtain po;
 
@@ -196,15 +198,24 @@ void generateTSDF(){
                 cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
             }
         }
-
-        tsdf.store("D:/tsdf_p_fixed.txt");
+        
+        //tsdf.store("E:/tsdf_p_fixed.txt");
         // tsdf.getObj("D:/test_p.obj");
-
+        cout << "Exporting Mesh" << endl;
+        Common::Util::VisualizationExt visExt;
+        DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
+        Common::Mesh::ColoredSimpleMesh mcMesh;
+        mcUtils->mcConvertToColoredMesh(&tsdf, &mcMesh);
+        //visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
+        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, outMesh, 1);
+        cout<<"V="<<outMesh->v.size()<<endl;
+        //visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
     }
 
 }
 
-int main() {
+int main_2() {
     test();
     // generateTSDF();
+    return 0;
 }

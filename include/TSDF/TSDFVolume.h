@@ -39,7 +39,7 @@ namespace TSDF{
             void integrate(cv::Mat img, cv::Mat depth, cv::Mat intr, cv::Mat extr, double obsWeight=1.0);
             void store(string name);
             void getObj(string name);
-
+            
             // Some methods to get private values >w<
             void getDims(int* dx, int* dy, int* dz);
             void getVoxel(int x, int y, int z, double* v);
