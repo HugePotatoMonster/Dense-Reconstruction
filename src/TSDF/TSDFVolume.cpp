@@ -95,7 +95,6 @@ namespace TSDF{
         camPts = (extr.inv()*camPts.t()).t();
         camPts =  camPts(cv::Rect(0,0,3,camPts.size[0]));
 
-
         // 3. get depth of Voxels
         double* pix_z = new double [_coordNum];
         for (int i=0; i<_coordNum; i++){
@@ -106,97 +105,80 @@ namespace TSDF{
         int* pix_y = new int[_coordNum];
 
         // 4. get coordinates in pixel of all Voxels 
-        Utility::Algo::cam2pix(camPts,intr,_coordNum,pix_x,pix_y);
 
-        double* depthVal = new double[_coordNum];
-        double* depthDiff = new double[_coordNum];
-        bool* validPts = new bool[_coordNum];
-        int validNum = 0;
+        camPts = intr*camPts.t();
+        for (int i=0; i<_coordNum; i++){
+            pix_x[i] = round(camPts.at<double>(0,i)/camPts.at<double>(2,i));
+            pix_y[i] = round(camPts.at<double>(1,i)/camPts.at<double>(2,i));
+        }
 
         // 5. get index of the Voxels that in frustum
+
+        double depthVal, depthDiff;
+        int validNum = 0;
+
+        std::vector<int> validIndex;
+        std::vector<double> dist;
+
         for (int i=0; i<_coordNum; i++){
             if (checkInFrustum(pix_x[i],pix_y[i],pix_z[i])){
-                depthVal[i] = depth.at<double>(pix_y[i],pix_x[i]);
+                depthVal = depth.at<double>(pix_y[i],pix_x[i]);
             }
             else{
-                depthVal[i] = 0;
+                depthVal = 0;
             }
-           depthDiff[i] = depthVal[i] - pix_z[i];
-            validPts[i] = (depthVal[i]>0) && (depthDiff[i]>=-_trunc);
-            if (validPts[i]){
+            depthDiff = depthVal - pix_z[i];
+            if ((depthVal>0) && (depthDiff>=-_trunc)){
+                validIndex.push_back(i);
+                dist.push_back(min(1.0, depthDiff/_trunc));
                 validNum++;
             }
         }
 
     // TSDF Integration
 
-        delete depthVal;
-
-        double* dist = new double[_coordNum];
-        int* validX = new int[validNum];
-        int* validY = new int[validNum];
-        int* validZ = new int[validNum];
-        double* wOld = new double [validNum];
-        double* tsdfVals = new double [validNum];
-        double* tsdfVolNew = new double[validNum];
-        double* wNew = new double[validNum];
+        int validX, validY, validZ;
+        double wOld, tsdfVals, tsdfVolNew, wNew;
 
         int cur=0;
-        double* validDist = new double [validNum];
-        double* validPixX = new double [validNum];
-        double* validPixY = new double [validNum];
-        for (int i=0; i<_coordNum; i++){
-            dist[i] = min(1.0, depthDiff[i]/_trunc);
-            if (validPts[i]){
-                validX[cur] = _coords[i][0];
-                validY[cur] = _coords[i][1];
-                validZ[cur] = _coords[i][2];
-                validPixX[cur] = pix_x[i];
-                validPixY[cur] = pix_y[i];
-                validDist[cur] = dist[i];
-                wOld[cur] = _weight[validX[cur]][validY[cur]][validZ[cur]];
-                tsdfVals[cur] = _tsdf[validX[cur]][validY[cur]][validZ[cur]];
-                wNew[cur] = wOld[cur] + obsWeight;
-                tsdfVolNew[cur] = (wOld[cur]*tsdfVals[cur]+obsWeight*validDist[cur])/wNew[cur];
-                _weight[validX[cur]][validY[cur]][validZ[cur]] = wNew[cur];
-                _tsdf[validX[cur]][validY[cur]][validZ[cur]] = tsdfVolNew[cur];
-                cur++;
-            }        
-        }
 
-        delete[] depthDiff;
-        delete[] validDist;
-        delete[] tsdfVolNew;
-
-    // Color Integration
+        double validPixX, validPixY;
 
         double colorOld,colorNew;
         double BOld, GOld, ROld;
         double BNew, GNew, RNew;
+
         for (int i=0; i<validNum; i++){
-            colorOld = _color[validX[i]][validY[i]][validZ[i]];
+            int index = validIndex[i];
+            validX = _coords[index][0];
+            validY = _coords[index][1];
+            validZ = _coords[index][2];
+            validPixX = pix_x[index];
+            validPixY = pix_y[index];
+            wOld = _weight[validX][validY][validZ];
+            tsdfVals = _tsdf[validX][validY][validZ];
+            wNew = wOld + obsWeight;
+            tsdfVolNew = (wOld*tsdfVals+obsWeight*dist[i])/wNew;
+            _weight[validX][validY][validZ] = wNew;
+            _tsdf[validX][validY][validZ] = tsdfVolNew;   
+
+            colorOld = _color[validX][validY][validZ];
             BOld = floor(colorOld/(256*256)); 
             GOld = floor((colorOld-BOld*256*256)/256);
             ROld = floor(colorOld-BOld*256*256-GOld*256);
 
-            colorNew = imgC1.at<double>(validPixY[i],validPixX[i]);
+            colorNew = imgC1.at<double>(validPixY,validPixX);
 
             BNew = floor(colorNew/(256*256));
             GNew = floor((colorNew-BNew*256*256)/256);
             RNew = floor(colorNew-BNew*256*256-GNew*256);
 
-            BNew = min(255.0,round((wOld[i]*BOld+obsWeight*BNew)/wNew[i]));
-            GNew = min(255.0,round((wOld[i]*GOld+obsWeight*GNew)/wNew[i]));
-            RNew = min(255.0,round((wOld[i]*ROld+obsWeight*RNew)/wNew[i]));
+            BNew = min(255.0,round((wOld*BOld+obsWeight*BNew)/wNew));
+            GNew = min(255.0,round((wOld*GOld+obsWeight*GNew)/wNew));
+            RNew = min(255.0,round((wOld*ROld+obsWeight*RNew)/wNew));
 
-            _color[validX[i]][validY[i]][validZ[i]] = BNew*256*256 + GNew*256 + RNew;
+            _color[validX][validY][validZ] = BNew*256*256 + GNew*256 + RNew;   
         }
-
-        //TODO: Free Memory >w<
-        delete[] validPixX;
-        delete[] validPixY;
-        delete[] wNew;
-        
     };
 
     void TSDFVolume::store(string name){
