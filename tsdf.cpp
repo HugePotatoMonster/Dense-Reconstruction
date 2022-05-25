@@ -111,7 +111,7 @@ void test(){
         cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
     }
 
-    tsdf.store("D:/tsdf.txt");
+    tsdf.store("D:/tsdf_new_test.txt");
     // tsdf.getObj("D:/test.obj");
 }
 
