@@ -161,7 +161,7 @@ namespace Render {
 		_this->mouseRecorder->lastX = xpos;
 		_this->mouseRecorder->lastY = ypos;
 
-		float sensitivity = 0.05f;
+		float sensitivity = 0.1f;
 		xoffset *= sensitivity;
 		yoffset *= sensitivity;
 

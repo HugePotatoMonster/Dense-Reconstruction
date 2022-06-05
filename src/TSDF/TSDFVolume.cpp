@@ -90,37 +90,31 @@ namespace TSDF{
         }
 
         // 2. get coordinates in camera of all Voxels
+        // auto startTime = chrono::system_clock::now();
         cv::Mat camPts;
         cv::copyMakeBorder(_worldPts,camPts,0,0,0,1,CV_HAL_BORDER_CONSTANT,1);
         camPts = (extr.inv()*camPts.t()).t();
         camPts =  camPts(cv::Rect(0,0,3,camPts.size[0]));
+        // auto endTime = chrono::system_clock::now();
+        // cout << "time to calculate camPts:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
 
-        // 3. get depth of Voxels
-        double* pix_z = new double [_coordNum];
-        for (int i=0; i<_coordNum; i++){
-            pix_z[i] = camPts.at<double>(i,2);
-        }
-
+        // 3. get index of the Voxels that in frustum
         int* pix_x = new int[_coordNum];
         int* pix_y = new int[_coordNum];
-
-        // 4. get coordinates in pixel of all Voxels 
-
-        camPts = intr*camPts.t();
-        for (int i=0; i<_coordNum; i++){
-            pix_x[i] = round(camPts.at<double>(0,i)/camPts.at<double>(2,i));
-            pix_y[i] = round(camPts.at<double>(1,i)/camPts.at<double>(2,i));
-        }
-
-        // 5. get index of the Voxels that in frustum
+        double* pix_z = new double [_coordNum];
 
         double depthVal, depthDiff;
         int validNum = 0;
+        camPts = intr*camPts.t();
 
         std::vector<int> validIndex;
         std::vector<double> dist;
 
+        // startTime = chrono::system_clock::now();
         for (int i=0; i<_coordNum; i++){
+            pix_x[i] = round(camPts.at<double>(0,i)/camPts.at<double>(2,i));
+            pix_y[i] = round(camPts.at<double>(1,i)/camPts.at<double>(2,i));
+            pix_z[i] = camPts.at<double>(2,i);
             if (checkInFrustum(pix_x[i],pix_y[i],pix_z[i])){
                 depthVal = depth.at<double>(pix_y[i],pix_x[i]);
             }
@@ -134,6 +128,8 @@ namespace TSDF{
                 validNum++;
             }
         }
+        // endTime = chrono::system_clock::now();
+        // cout << "time to find frustum:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
 
     // TSDF Integration
 
@@ -142,12 +138,13 @@ namespace TSDF{
 
         int cur=0;
 
-        double validPixX, validPixY;
+        int validPixX, validPixY;
 
         double colorOld,colorNew;
         double BOld, GOld, ROld;
         double BNew, GNew, RNew;
 
+        // startTime = chrono::system_clock::now();
         for (int i=0; i<validNum; i++){
             int index = validIndex[i];
             validX = _coords[index][0];
@@ -179,6 +176,8 @@ namespace TSDF{
 
             _color[validX][validY][validZ] = BNew*256*256 + GNew*256 + RNew;   
         }
+        // endTime = chrono::system_clock::now();
+        // cout << "time integrate:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
     };
 
     void TSDFVolume::store(string name){

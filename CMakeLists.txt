@@ -29,6 +29,20 @@ include_directories(${GLAD_INCLUDE_DIRS})
 set(GLM_INCLUDE_DIRS D:/CLib/glm-0.9.9.8/glm)
 include_directories(${GLM_INCLUDE_DIRS})
 
+# easy-3d
+set(Easy3D_DIR C:/Users/PotatoMonster/Downloads/Easy3D-2.4.8/build/)
+find_package(Easy3D REQUIRED)
+include_directories(${Easy3D_INCLUDE_DIRS})
+
 # Done
 cuda_add_executable(demo main.cpp ${SOURCE_1} ${SOURCE_2} ${SOURCE_3} ${SOURCE_4})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${GLFW_LIBRARIES_1}  ${GLFW_LIBRARIES_2}  ${GLFW_LIBRARIES_3})
+
+target_link_libraries(${PROJECT_NAME} easy3d::algo)
+target_link_libraries(${PROJECT_NAME} easy3d::core)
+target_link_libraries(${PROJECT_NAME} easy3d::fileio)
+target_link_libraries(${PROJECT_NAME} easy3d::gui)
+target_link_libraries(${PROJECT_NAME} easy3d::kdtree)
+target_link_libraries(${PROJECT_NAME} easy3d::renderer)
+target_link_libraries(${PROJECT_NAME} easy3d::util)
+target_link_libraries(${PROJECT_NAME} easy3d::viewer)
