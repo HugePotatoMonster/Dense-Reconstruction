@@ -44,7 +44,7 @@ namespace SemiGlobalMatching {
 		for (i32 i = 0; i < (i32)imageWidth; i++) {
 			for (i32 j = 0; j < (i32)imageHeight; j++) {
 				get_pixel(outputMap, i, j, imageWidth, imageHeight) = (u32)(get_pixel(disparityMap, i, j, imageWidth, imageHeight)+ (f64)minDisparity);
-				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > (f64)disparityRange || get_pixel(disparityMap, i, j, imageWidth, imageHeight) < SGM_INVALID_DISPARITY_F + eps) {
+				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > (f64)disparityRange || get_pixel(disparityMap, i, j, imageWidth, imageHeight) < SGM_INVALID_DISPARITY_F + EPS) {
 					get_pixel(outputMap, i, j, imageWidth, imageHeight) = invalidPlaceholder;
 				}
 			}

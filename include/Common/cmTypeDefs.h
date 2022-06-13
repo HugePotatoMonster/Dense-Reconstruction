@@ -21,16 +21,27 @@
 #include <glm/gtc/type_ptr.hpp>
 
 //Basic
-#define i8 char
-#define i16 short
-#define i32 int
-#define i64 long long
-#define u8 unsigned char
-#define u16 unsigned short
-#define u32 unsigned int
-#define u64 unsigned long long
-#define f32 float
-#define f64 double
+// #define i8 char
+// #define i16 short
+// #define i32 int
+// #define i64 long long
+// #define u8 unsigned char
+// #define u16 unsigned short
+// #define u32 unsigned int
+// #define u64 unsigned long long
+// #define f32 float
+// #define f64 double
+
+typedef char i8;
+typedef short i16;
+typedef int i32;
+typedef long long i64;
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+typedef unsigned long long u64;
+typedef float f32;
+typedef double f64;
 
 #define usize size_t
 
@@ -88,14 +99,14 @@
 #define DEPEST_INVALID_PIXEL (-1e30)
 
 //Math Constants
-#define eps (1e-6)
-#define pi (3.1415926)
+#define EPS (1e-6)
+#define PI (3.1415926)
 
 //Fundamental
 #define Max(a,b) ((a)>(b)?(a):(b))
 #define Min(a,b) ((a)<(b)?(a):(b))
 #define Abs(x) ((x)<0?(-(x)):(x))
-#define Fabs(x) ((x)<eps?(-(x)):(x))
+#define Fabs(x) ((x)<EPS?(-(x)):(x))
 
 //Coordinates
 #define get_pixel(im,x,y,w,h) ((im)[(y)*(w)+(x)])
@@ -162,7 +173,7 @@ namespace Common {
 		struct Vertex {
 			f64 x, y, z;
 			bool operator==(const Vertex& p) const {
-				if (Abs(x - p.x) < eps && Abs(y - p.y) < eps && Abs(z - p.z) < eps) {
+				if (Abs(x - p.x) < EPS && Abs(y - p.y) < EPS && Abs(z - p.z) < EPS) {
 					return true;
 				}
 				return false;

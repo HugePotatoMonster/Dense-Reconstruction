@@ -131,6 +131,97 @@ namespace DenseReconstruction {
 				}
 			}
 		}
+		void MarchingCubesUtil::mcGetElements(MC_VOXEL_CLASS* volume, 
+											  OUT_ARG vector<easy3d::vec3>* points, 
+											  OUT_ARG vector<easy3d::vec3>* colors, 
+											  OUT_ARG int& vertexNum, 
+											  OUT_ARG vector<vector<int>>* faces, 
+											  OUT_ARG int& faceNum){
+			using namespace Constant;
+			
+			points->clear();
+			colors->clear();
+			vertexNum = 0;
+			faces->clear();
+			faceNum = 0;
+
+			Common::Mesh::ColoredSimpleMesh* tempMesh = new Common::Mesh::ColoredSimpleMesh;
+			i32 dsX, dsY, dsZ;
+			volume->getDims(&dsX, &dsY, &dsZ);
+			std::map<Common::Mesh::Vertex, i32> vlist;
+			for (i32 i = 0; i < dsX; i++) {
+				for (i32 j = 0; j < dsY; j++) {
+					for (i32 k = 0; k < dsZ; k++) {
+						i32 vIdx = 0;
+						f64 color;
+						volume->getColor(i, j, k, &color);
+						for (i32 p = 0; p < 8; p++) {
+							if (i + cmuMarchingCubesVertices[p][0] < dsX && j + cmuMarchingCubesVertices[p][1] < dsY && k + cmuMarchingCubesVertices[p][2] < dsZ) {
+								f64 voxel = 0;
+								volume->getVoxel(i + cmuMarchingCubesVertices[p][0], j + cmuMarchingCubesVertices[p][1], k + cmuMarchingCubesVertices[p][2], &voxel);
+								if (voxel <= 0) {
+									vIdx |= (1 << p);
+								}
+							}
+						}
+						//Generate Mesh Vertices & Colors
+						i32 edges = cmuMarchingCubesEdgeFlags[vIdx];
+						i32 edgeIdxInMesh[12] = { 0 };
+						i32 edgeStart, edgeEnd;
+						for (i32 p = 0; p < 12; p++) {
+							if ((edges & (1 << p))) {
+								Common::Mesh::Vertex q;
+								Common::Mesh::Vertex cl;
+
+								int B = floor(color / (256 * 256));
+								int G = floor((color - B * 256 * 256) / 256);
+								int R = floor(color - B * 256 * 256 - G * 256);
+								cl.x = 1.0 * R / 255.0;
+								cl.y = 1.0 * G / 255.0;
+								cl.z = 1.0 * B / 255.0;
+								edgeStart = cmuMarchingCubesConnection[p][0];
+								edgeEnd = cmuMarchingCubesConnection[p][1];
+								q.x = ((f64)i + cmuMarchingCubesVertices[edgeStart][0] + (cmuMarchingCubesVertices[edgeEnd][0] - cmuMarchingCubesVertices[edgeStart][0]) * 0.5);
+								q.y = ((f64)j + cmuMarchingCubesVertices[edgeStart][1] + (cmuMarchingCubesVertices[edgeEnd][1] - cmuMarchingCubesVertices[edgeStart][1]) * 0.5);
+								q.z = (f64)k + cmuMarchingCubesVertices[edgeStart][2] + (cmuMarchingCubesVertices[edgeEnd][2] - cmuMarchingCubesVertices[edgeStart][2]) * 0.5;
+								q.y = -q.y;
+								q.x = -q.x;
+								if (vlist[q] == 0) {
+									tempMesh->v.push_back(q);
+									tempMesh->c.push_back(cl);
+
+									points->push_back(easy3d::vec3(q.x,q.y,q.z));
+									colors->push_back(easy3d::vec3(cl.x,cl.y,cl.z));
+									vertexNum++;
+
+									edgeIdxInMesh[p] = static_cast<i32>(tempMesh->v.size());
+									vlist[q] = static_cast<i32>(tempMesh->v.size());
+								}
+								else {
+									edgeIdxInMesh[p] = vlist[q];
+								}
+							}
+						}
+						//Generate Mesh Faces
+						for (i32 p = 0; p < 15; p += 3) {
+							if (cmuMarchingCubesTriangleTable[vIdx][p] == -1) {
+								continue;
+							}
+							Common::Mesh::IndexedTriangularFace face;
+							face.a = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p]];
+							face.b = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p + 1]];
+							face.c = edgeIdxInMesh[cmuMarchingCubesTriangleTable[vIdx][p + 2]];
+							tempMesh->f.push_back(face);
+
+							faces->push_back(vector<int>({face.a-1,face.b-1,face.c-1}));
+							faceNum++;
+						}
+
+					}
+				}
+			}
+			delete tempMesh;
+		}
 		void MarchingCubesUtil::mcCatmullClarkSurfaceSubdivision(Common::Mesh::ColoredSimpleMesh* inMesh, OUT_ARG Common::Mesh::Mesh* outMesh, i32 iterations) {
 			//TODO: Bug Fix for iteration > 1
 			//A temporary pair to avoid duplication
@@ -291,7 +382,7 @@ namespace DenseReconstruction {
 							avX1 += oMesh->v[oMesh->e[edgeIndex][k]].x;
 							avY1 += oMesh->v[oMesh->e[edgeIndex][k]].y;
 							avZ1 += oMesh->v[oMesh->e[edgeIndex][k]].z;
-							if (Abs(tmp->x - cuX) > eps || Abs(tmp->y - cuY) > eps || Abs(tmp->z - cuZ) > eps) {
+							if (Abs(tmp->x - cuX) > EPS || Abs(tmp->y - cuY) > EPS || Abs(tmp->z - cuZ) > EPS) {
 								anX = tmp->x;
 								anY = tmp->y;
 								anZ = tmp->z;

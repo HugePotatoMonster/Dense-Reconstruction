@@ -13,11 +13,15 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "realtime.cpp"
+#include <thread>
+#include <mutex>
+
 using namespace std;
 
 void test(){
     Utility::Reader* reader = Utility::Reader::getInstance();
-    Camera::ParamObtain po;
+    Param::ParamObtain po;
 
     cv::Mat intr = po.getIntrinsic_test();
 
@@ -117,9 +121,28 @@ void test(){
     // tsdf.getObj("D:/test.obj");
 }
 
-void generateTSDF(Common::Mesh::Mesh* outMesh){
+bool meshFlag=true;
+
+void meshViewer(Viewer* viewer,SurfaceMesh* mesh){
+    // meshFlag.lock();
+
+    // cout << "MMMMMMM" << endl;
+
+
+    // viewer->add_model(mesh);
+
+
+    // cout << "MMMMMMM" << endl;
+
+    viewer->run();
+
+    // meshFlag.unlock();
+
+}
+
+void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
     Utility::Reader* reader = Utility::Reader::getInstance();
-    Camera::ParamObtain po;
+    Param::ParamObtain po;
 
     cv::Mat intr = po.getIntrinsic();
 
@@ -196,20 +219,39 @@ void generateTSDF(Common::Mesh::Mesh* outMesh){
                 auto endTime = chrono::system_clock::now();
 
                 cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
+
+                cout << "Exporting Mesh" << endl;
+                DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
+                Common::Mesh::ColoredSimpleMesh mcMesh;
+
+                vector<easy3d::vec3> points;
+                vector<easy3d::vec3> colors;
+                int vertexNum = 0;
+                vector<vector<int>> faces;
+                int faceNum = 0;
+
+                mcUtils->mcGetElements(&tsdf, &points, &colors, vertexNum, &faces, faceNum);
+
+                std::vector<io::Element> elements;
+                getElements(elements, points, colors, vertexNum, faces, faceNum);
+
+                cout << "start" << endl;
+
+                if(!meshFlag){
+                    viewer->delete_model(mesh);
+                }
+
+                mesh = elements2Mesh(elements, to_string(sampleNo)+to_string(sampleNum));
+
+                viewer->add_model(mesh);
+
+                viewer->update();
+
+                meshFlag = false;
+
+                cout << "end" << endl;
             }
         }
-        
-        //tsdf.store("E:/tsdf_p_fixed.txt");
-        // tsdf.getObj("D:/test_p.obj");
-        cout << "Exporting Mesh" << endl;
-        Common::Util::VisualizationExt visExt;
-        DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
-        Common::Mesh::ColoredSimpleMesh mcMesh;
-        mcUtils->mcConvertToColoredMesh(&tsdf, &mcMesh);
-        //visExt.cmuExportMeshToObj("E:\\a.obj", &mcMesh);
-        mcUtils->mcCatmullClarkSurfaceSubdivision(&mcMesh, outMesh, 1);
-        cout<<"V="<<outMesh->v.size()<<endl;
-        //visExt.cmuExportMeshToObj2("E:\\b.obj", &mcMeshSD);
     }
 
 }

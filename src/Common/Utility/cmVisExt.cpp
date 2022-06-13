@@ -79,7 +79,7 @@ namespace Common {
 						DenseReconstruction::Voxel* outVoxel;
 						inStore->drGetVoxel(x, y, z, &inVoxel);
 						outStore->drGetVoxel(x, y, z, &outVoxel);
-						if (inVoxel->tsdf > eps) {
+						if (inVoxel->tsdf > EPS) {
 							outVoxel->tsdf = 0;
 						}
 						else {

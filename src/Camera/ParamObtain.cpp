@@ -1,7 +1,7 @@
 #include "../../include/Camera/ParamObtain.h"
 #include "../../include/Utility/Reader.h"
 
-namespace Camera{
+namespace Param{
     cv::Mat ParamObtain::getIntrinsic(){
         // Matrix<double,3,3> intrinsic = Matrix<double,3,3>::Zero();
         cv::Mat intrinsic = cv::Mat::zeros(3,3,CV_64FC1);

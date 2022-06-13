@@ -5,7 +5,7 @@ namespace SemiGlobalMatching {
 		f64 ct = cameraBaseline * cameraFocalLength;
 		for (i32 i = 0; i < (i32)imageWidth; i++) {
 			for (i32 j = 0; j < (i32)imageHeight; j++) {
-				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > eps) {
+				if (get_pixel(disparityMap, i, j, imageWidth, imageHeight) > EPS) {
 					get_pixel(depthMap, i, j, imageWidth, imageHeight) = (cameraBaseline * cameraFocalLength) / get_pixel(disparityMap, i, j, imageWidth, imageHeight);
 				}
 				else {
@@ -19,7 +19,7 @@ namespace SemiGlobalMatching {
 		f64 dMin = 1e90;
 		for (i32 i = 0; i < (i32)imageWidth; i++) {
 			for (i32 j = 0; j < (i32)imageHeight; j++) {
-				if (get_pixel(depthMap, i, j, imageWidth, imageHeight) <= DEPEST_INVALID_PIXEL + eps) {
+				if (get_pixel(depthMap, i, j, imageWidth, imageHeight) <= DEPEST_INVALID_PIXEL + EPS) {
 					continue;
 				}
 				dMin = Min(dMin, get_pixel(depthMap, i, j, imageWidth, imageHeight));
@@ -29,7 +29,7 @@ namespace SemiGlobalMatching {
 		dbg_toutput(dMin);
 		for (i32 i = 0; i < (i32)imageWidth; i++) {
 			for (i32 j = 0; j < (i32)imageHeight; j++) {
-				if (get_pixel(depthMap, i, j, imageWidth, imageHeight) <= DEPEST_INVALID_PIXEL + eps) {
+				if (get_pixel(depthMap, i, j, imageWidth, imageHeight) <= DEPEST_INVALID_PIXEL + EPS) {
 					get_pixel(outDepthMap, i, j, imageWidth, imageHeight) = 0;
 					continue;
 				}

@@ -10,7 +10,7 @@
 using namespace std;
 // using namespace Eigen;
 
-namespace Camera{
+namespace Param{
     class ParamObtain{
         public:
             // 3*3

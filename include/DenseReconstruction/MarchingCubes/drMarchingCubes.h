@@ -1,9 +1,11 @@
 #pragma once
 #include "../../Common/cmTypeDefs.h"
 #include "../../TSDF/TSDFVolume.h"
+#include <easy3d/core/surface_mesh.h>
 
 #define MC_VOXEL_CLASS TSDF::TSDFVolume
 
+using namespace std;
 namespace DenseReconstruction {
 	namespace MarchingCubes {
 		class MarchingCubesUtil {
@@ -27,6 +29,13 @@ namespace DenseReconstruction {
 			// @param volume: (Input) TSDF Volume
 			// @param outMesh: (Output) Pointer to the vertex-colorable output mesh
 			static void mcConvertToColoredMesh(MC_VOXEL_CLASS* volume, OUT_ARG Common::Mesh::ColoredSimpleMesh* outMesh);
+
+			static void mcGetElements(MC_VOXEL_CLASS* volume, 
+									  OUT_ARG vector<easy3d::vec3>* points, 
+									  OUT_ARG vector<easy3d::vec3>* colors, 
+									  OUT_ARG int& vertexNum, 
+									  OUT_ARG vector<vector<int>>* faces, 
+									  OUT_ARG int& faceNum);
 
 			//Apply Catmull-Clark surface subdivison operation (namely,a kind of mesh smoothing) to a given mesh
 			// @author: 1950641
