@@ -29,6 +29,18 @@ namespace Common {
 											camExt->r[1][0],camExt->r[1][1],camExt->r[1][2],
 											camExt->r[2][0],camExt->r[2][1],camExt->r[2][2]); 
 		}
+		void MathUtil::cmGetExtrinsicMatA(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat) {
+			*outMat = (cv::Mat_<f64>(4, 4) << camExt->r[0][0], camExt->r[0][1], camExt->r[0][2], camExt->t[0],
+												camExt->r[1][0], camExt->r[1][1], camExt->r[1][2], camExt->t[1],
+												camExt->r[2][0], camExt->r[2][1], camExt->r[2][2], camExt->t[2],
+												0,0,0,1);
+		}
+		void MathUtil::cmRot3ToRot4(cv::Mat* rot3, OUT_ARG cv::Mat* rot4){
+			*rot4 = (cv::Mat_<f64>(4, 4) << rot3->at<f64>(0,0), rot3->at<f64>(0, 1), rot3->at<f64>(0, 2), 0,
+				rot3->at<f64>(1, 0), rot3->at<f64>(1, 1), rot3->at<f64>(1, 2), 0,
+				rot3->at<f64>(2, 0), rot3->at<f64>(2, 1), rot3->at<f64>(2, 2), 0,
+				0, 0, 0, 1);
+		}
 		void MathUtil::cmGetExtrinsicMatT(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat) {
 			*outMat = (cv::Mat_<f64>(3,1)<<camExt->t[0],camExt->t[1],camExt->t[2]);
 		}

@@ -126,7 +126,7 @@ namespace Render {
 	void RendererMain::rdInputProcessing(){
 		if(glfwGetKey(aWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         	glfwSetWindowShouldClose(aWindow, true);
-		float cameraSpeed = 0.05f; // adjust accordingly
+		float cameraSpeed = 0.5f; // adjust accordingly
 		if (glfwGetKey(aWindow, GLFW_KEY_W) == GLFW_PRESS)
 			observer->camPos += cameraSpeed * observer->camFront;
 		if (glfwGetKey(aWindow, GLFW_KEY_S) == GLFW_PRESS)

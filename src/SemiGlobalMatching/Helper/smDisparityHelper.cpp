@@ -48,7 +48,8 @@ namespace SemiGlobalMatching {
 		u32 disparityRange = baselineLength;
 		u32* costMatrix = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		costEstimator->smCostCalculate(imLeft, imRight, imageWidth, imageHeight, minDisparity, disparityRange, costMatrix);
-		
+
+
 
 		u32* refinedCostMatrix = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		set_zero(refinedCostMatrix, sizeof(u32) * imageWidth * imageHeight * disparityRange);
@@ -70,7 +71,6 @@ namespace SemiGlobalMatching {
 		}
 		cv::imshow("HI", test);
 		cv::waitKey(0);
-
 #endif
 		u32* refinedCostMatrixRight = allocate_mem(u32, (usize)imageWidth * imageHeight * disparityRange);
 		costEstimator->smGetAnotherCost(refinedCostMatrix, imageWidth, imageHeight, minDisparity, disparityRange, refinedCostMatrixRight);

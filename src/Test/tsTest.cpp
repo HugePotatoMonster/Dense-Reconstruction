@@ -17,6 +17,7 @@
 #include "../../include/DepthEstimation/deSemiGlobalMatchDepthEstimator.h"
 #include "../../include/DepthEstimation/deDepthEstimationHelper.h"
 #include "../../include/Render/rdMain.h"
+#include "../../include/DepthFilter/DepthFilter.h"
 namespace Test{
 	void Test::cudaObjCreation() {
 		
@@ -233,7 +234,7 @@ namespace Test{
 
 		//Save as Image
 		optimizer->smDisparityMapDiscretization(disparityMap, disparityMapDisc, camItr.cols, camItr.rows, 0, 128);
-		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3cu.ppm", disparityMapDisc, camItr.cols, camItr.rows,255);
+		Common::Algorithm::cmSaveAsPPM32("C:\\WR\\Dense-Reconstruction\\samples\\st-3cu.ppm", disparityMapDisc, camItr.cols, camItr.rows,128);
 
 		//Free Objects
 		free_mem(disparityMap);
@@ -242,10 +243,13 @@ namespace Test{
 	void Test::monocularMotionSGMDepthFinal() {
 		//Reading intrinsic & extrinsic
 		dbg_toutput("Read Parameters");
+		cv::Mat camItr2 = cv::imread("E:\\60fps_images_archieve\\scene_00_0003.png", 0);
 		cv::Mat camItr = cv::imread("E:\\60fps_images_archieve\\scene_00_0002.png", 0);
 		cv::Mat camItl = cv::imread("E:\\60fps_images_archieve\\scene_00_0001.png", 0);
-		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr;
-		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr;
+		Common::Camera::MonocularCameraIntrinsic camIntl, camIntr, camIntr2;
+		Common::Camera::MonocularCameraExtrinsic camExtl, camExtr, camExtr2;
+		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0003.txt", &camIntr2);
+		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0003.txt", &camExtr2);
 		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camIntr);
 		Misc::AuxiliaryUtils::msParseExtrinsic("E:\\60fps_GT_archieve\\scene_00_0002.txt", &camExtr);
 		Misc::AuxiliaryUtils::msParseIntrinsic("E:\\60fps_GT_archieve\\scene_00_0001.txt", &camIntl);
@@ -255,6 +259,8 @@ namespace Test{
 		//Use `deIdealCalibratedDepthEstimation` is enough!
 		dbg_toutput("Depth Estimate");
 		DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
+		
+		//D1
 		cv::Mat reL, reR, RL, RR, PL, PR, Q;
 		i32 flag = 0;
 		f64* disparityMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
@@ -262,11 +268,33 @@ namespace Test{
 		helper->deIdealCalibratedDepthEstimation(&camItl, &camItr, &camIntl, &camIntr, &camExtl, &camExtr, -64, 128,
 			&reL, &reR, disparityMap, depthMap, &RL, &RR, &PL, &PR, &Q, &flag);
 
+
+		//D2
+		cv::Mat reL2, reR2, RL2, RR2, PL2, PR2, Q2;
+		i32 flag2 = 0;
+		f64* disparityMap2 = allocate_mem(f64, (usize)camItr.cols * camItr.rows);
+		f64* depthMap2 = allocate_mem(f64, (usize)camItr.cols * camItr.rows);
+		helper->deIdealCalibratedDepthEstimation(&camItr, &camItr2, &camIntr, &camIntr2, &camExtr, &camExtr2, -64, 128,
+			&reL2, &reR2, disparityMap2, depthMap2, &RL2, &RR2, &PL2, &PR2, &Q2, &flag2);
+
+		//Depth Filter
+		cv::Mat camExtlc, camExtrc, camExtr2c;
+		Common::Math::MathUtil::cmGetExtrinsicMatA(&camExtl, &camExtlc);
+		Common::Math::MathUtil::cmGetExtrinsicMatA(&camExtr, &camExtrc);
+		Common::Math::MathUtil::cmGetExtrinsicMatA(&camExtr2, &camExtr2c);
+
+		cv::Mat camExtlcR = RL * camExtlc;
+		cv::Mat camExtrcR = RL2 * camExtrc;
+
+		Test::use_filter(depthMap, depthMap2, camItl.cols, camItl.rows, camExtlcR, camExtlcR);
+
 		//End
 		dbg_toutput("Finished");
 		delete helper;
 		free_mem(disparityMap);
 		free_mem(depthMap);
+		free_mem(disparityMap2);
+		free_mem(depthMap2);
 	}
 	void Test::monocularMotionSGMDepth() {
 		using namespace std;
@@ -334,5 +362,59 @@ namespace Test{
 	void Test::oglTest() {
 		auto p = Render::RendererMain::rdGetInstance();
 		p->rdTest();
+	}
+	void Test::testj() {
+		DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
+		cv::Mat* leftim = new cv::Mat(480, 640, CV_64FC1);
+		cv::Mat* leftex = new cv::Mat(4, 4, CV_64FC1);
+		helper->deIdealCalibratedDepthEstimationFilteredFromFile("E:\\60fps_images_archieve\\scene_00_0001.png",
+			"E:\\60fps_images_archieve\\scene_00_0002.png",
+			"E:\\60fps_images_archieve\\scene_00_0003.png",
+			"E:\\60fps_GT_archieve\\scene_00_0001.txt",
+			"E:\\60fps_GT_archieve\\scene_00_0002.txt",
+			"E:\\60fps_GT_archieve\\scene_00_0003.txt",
+			leftim, leftex);
+	}
+	void Test::transfer_depth(double* d_i, double* d, int iter, int flag, uint64_t imageWH)
+	{
+		if (flag == 1) // 从原来的depth中获取赋给depth_i
+		{
+			for (int i = 0; i < imageWH; i++)
+			{
+				d_i[i] = d[iter * imageWH + i];
+			}
+		}
+		else // 将depth_i还给depth
+		{
+			for (int i = 0; i < imageWH; i++)
+			{
+				d[iter * imageWH + i] = d_i[i];
+			}
+		}
+	}
+	double* Test::use_filter(double* depthMap_left, double* depthMap_right, uint64_t imageWidth, uint64_t imageHeight, const cv::Mat left, const cv::Mat right) {
+		using namespace cv;
+		// dch: 初始化深度滤波器参数
+		DepthFilter::FilterType filter_type = DepthFilter::Gaussion;
+		DepthFilter depth_filter;
+		double init_depth = 3.0;
+		double init_cov2 = 3.0;
+		depth_filter.Initialize(imageWidth, imageHeight, init_depth, init_cov2, filter_type);
+
+		printf("Updating Depth with Depth Dilter...\n");
+		// 开始对每一张图进行深度滤波
+		// 就一张图片了
+		double* depth_a = new double[imageWidth * imageHeight]; // 存放每一张图片滤波后的深度信息
+
+		// 选取后一张对前一张进行滤波 最后一张不动
+		depth_filter.SetDepth(depthMap_left);
+		depth_filter.UpdateDepth(depthMap_right, left, right); // 现在只更新一次
+		depth_a = depth_filter.GetDepth();
+		transfer_depth(depth_a, depthMap_left, 0, 2, imageWidth * imageHeight); // 滤波后更新到原来的depthMap中
+
+		// 完成滤波
+		printf("Depth Dilter Finished...\n");
+		delete[] depth_a;
+		return depthMap_left;
 	}
 }
