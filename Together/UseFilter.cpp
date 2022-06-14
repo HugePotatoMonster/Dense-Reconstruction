@@ -47,7 +47,9 @@ void transfer_depth(double *d_i, double *d, int iter, int flag, uint64_t imageWH
     }
 }
 
-double* use_filter(double* depthMap, uint64_t imageWidth, uint64_t imageHeight, const Mat left, const Mat right)
+// 不用
+/*
+double* use_filter_old(double* depthMap, uint64_t imageWidth, uint64_t imageHeight, const Mat left, const Mat right)
 {
     // dch: 初始化深度滤波器参数
     DepthFilter::FilterType filter_type = DepthFilter::Gaussion;
@@ -81,4 +83,31 @@ double* use_filter(double* depthMap, uint64_t imageWidth, uint64_t imageHeight, 
     delete[] depth_i_next;
     delete[] depth_a;
     return depthMap;
+}
+*/
+
+double* use_filter(double* depthMap_left, double* depthMap_right, uint64_t imageWidth, uint64_t imageHeight, const Mat left, const Mat right)
+{
+    // dch: 初始化深度滤波器参数
+    DepthFilter::FilterType filter_type = DepthFilter::Gaussion;
+    DepthFilter depth_filter;
+    double init_depth = 3.0;
+    double init_cov2 = 3.0;
+    depth_filter.Initialize(imageWidth, imageHeight, init_depth, init_cov2, filter_type);
+
+    printf("Updating Depth with Depth Dilter...\n");
+    // 开始对每一张图进行深度滤波
+    // 就一张图片了
+    double* depth_a = new double[imageWidth * imageHeight]; // 存放每一张图片滤波后的深度信息
+
+    // 选取后一张对前一张进行滤波 最后一张不动
+    depth_filter.SetDepth(depthMap_left);
+    depth_filter.UpdateDepth(depthMap_right, left, right); // 现在只更新一次
+    depth_a = depth_filter.GetDepth();
+    transfer_depth(depth_a, depthMap_left, 0, 2, imageWidth * imageHeight); // 滤波后更新到原来的depthMap中
+
+    // 完成滤波
+    printf("Depth Dilter Finished...\n");
+    delete[] depth_a;
+    return depthMap_left;
 }
