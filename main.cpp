@@ -8,8 +8,10 @@ using namespace std;
 
 int main() {
 	//
-	//Test::Test* test = new Test::Test();
-	//test->oglTest();
+	Test::Test* test = new Test::Test();
+	test->testj();
+
+	/*
 	using namespace std;
 	auto p = Render::RendererMain::rdGetInstance();
 	Common::Mesh::Mesh* mesh = new Common::Mesh::Mesh();
@@ -20,7 +22,7 @@ int main() {
 	p->rdTest();
 	p->rdDrawPrepare();
 	p->rdSetRenderMesh(&meshData);
-	p->rdRenderStart();
+	p->rdRenderStart();*/
 	
 	return 0;
 }

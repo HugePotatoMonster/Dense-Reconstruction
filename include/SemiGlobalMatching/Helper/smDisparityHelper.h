@@ -12,9 +12,9 @@
 namespace SemiGlobalMatching {
 	class DisparityHelper {
 	private:
-		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH_CUDA;
+		Constant::CostAggregationOption aggrOption = Constant::CostAggregationOption::SMC_EIGHT_PATH;
 		Constant::CostCalculationOption costOption = Constant::CostCalculationOption::SMC_CENSUS_TRANSFORM;
-		i32 enableDisparityFill = false;
+		i32 enableDisparityFill = true;
 
 	private:
 		void smDefineCostEstimator(CostCalculator** object);

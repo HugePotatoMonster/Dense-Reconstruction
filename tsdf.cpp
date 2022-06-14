@@ -168,7 +168,7 @@ void generateTSDF(Common::Mesh::Mesh* outMesh){
 
         Utility::Log::logMat(bound,"bound");
 
-        TSDF::TSDFVolume tsdf(bound,0.01);
+        TSDF::TSDFVolume tsdf(bound,0.0025);
 
         for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
             for (int imgNo=0; imgNo<imgNum; imgNo++){

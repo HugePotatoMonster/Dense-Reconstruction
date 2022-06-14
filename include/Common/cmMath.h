@@ -7,13 +7,14 @@ namespace Common {
 		public:
 			static void cmMat3Determinant(Mat3* inMat, OUT_ARG f64* outDet);
 			static void cmMat3Inverse(Mat3* inMat, OUT_ARG Mat3* outMat);
-
+			static void cmGetExtrinsicMatA(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat);
 			static void cmGetExtrinsicMatR(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat);
 			static void cmGetExtrinsicMatT(Common::Camera::MonocularCameraExtrinsic* camExt, OUT_ARG cv::Mat* outMat);
 			static void cmGetIntrinsicMat(Common::Camera::MonocularCameraIntrinsic* camInt, OUT_ARG cv::Mat* outMat);
 			static void cmGetIntrinsicMatYFlip(Common::Camera::MonocularCameraIntrinsic* camInt,f64 h, OUT_ARG cv::Mat* outMat);
 			static void cmGetVectorProductSkewSymMatrix(cv::Mat* inMat,OUT_ARG cv::Mat* outMat);
 			static void cmGetRelativeExtrinsic(Common::Camera::MonocularCameraExtrinsic* camLeft, Common::Camera::MonocularCameraExtrinsic* camRight, Common::Camera::MonocularCameraExtrinsic* camRel);
+			static void cmRot3ToRot4(cv::Mat* rot3, OUT_ARG cv::Mat* rot4);
 		};
 	}
 
