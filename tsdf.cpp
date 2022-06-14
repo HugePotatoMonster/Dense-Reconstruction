@@ -138,7 +138,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
     }
 
     int sampleNum = 1;
-    int imgNum = 1;
+    int imgNum = 2;
     cv::Mat** depthArray = new cv::Mat*[sampleNum*imgNum];
     cv::Mat** extrArray = new cv::Mat*[sampleNum*imgNum];
     int current = 0;
@@ -206,6 +206,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
 			depthArray[current], extrArray[current]);
 
             *depthArray[current] /= -1000;
+            cv::flip(*depthArray[current],*depthArray[current],1);
 
             cv::Mat frustPts = Utility::Algo::getFrustum(*(depthArray[current]),intr,*(extrArray[current]));
 
@@ -217,91 +218,90 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
             }
             current++;
         }
-
-        Utility::Log::logMat(bound,"bound");
-
-        TSDF::TSDFVolume tsdf(bound,0.002);
-
-        current = 0;
-
-        for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
-            for (int imgNo=0; imgNo<imgNum; imgNo++){
-                cout << "Inregrate sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
-
-                cv::Mat img = reader->readinImg(sampleNo,imgNo);
-
-            // depth
-
-                // cv::Mat depth = reader->readinDepth(sampleNo,imgNo);
-                // depth.convertTo(depth,CV_64FC1);
-
-                // depth /= 1000;
-                // for (int i=0; i<IMG_H; i++){
-                //     double* ptr = depth.ptr<double>(i);
-                //     for (int j=0; j<IMG_W; j++){
-                //         if(ptr[j]==65.535){
-                //             ptr[j]=0;
-                //         }
-                //     }
-                // }
-
-            // extr
-
-                // cv::Mat extr = reader->readinPose(sampleNo,imgNo);
-
-                // helper->deIdealCalibratedDepthEstimationFilteredFromFile(
-                // left_img_file_name,
-                // mid_img_file_name,
-                // right_img_file_name,
-                // left_pose_file_name,
-                // mid_pose_file_name,
-                // right_pose_file_name,
-                // &depth, &extr);
-
-                auto startTime = chrono::system_clock::now();
-                // Utility::Log::logMat(*(depthArray[0]),"depth");
-
-                tsdf.integrate(img, *(depthArray[current]), intr, *(extrArray[current]));
-
-                auto endTime = chrono::system_clock::now();
-
-                cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
-
-                cout << "Exporting Mesh" << endl;
-                DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
-                Common::Mesh::ColoredSimpleMesh mcMesh;
-
-                vector<easy3d::vec3> points;
-                vector<easy3d::vec3> colors;
-                int vertexNum = 0;
-                vector<vector<int>> faces;
-                int faceNum = 0;
-
-                mcUtils->mcGetElements(&tsdf, &points, &colors, vertexNum, &faces, faceNum);
-
-                std::vector<io::Element> elements;
-                getElements(elements, points, colors, vertexNum, faces, faceNum);
-
-                cout << "start" << endl;
-
-                if(!meshFlag){
-                    viewer->delete_model(mesh);
-                }
-
-                mesh = elements2Mesh(elements, to_string(sampleNo)+to_string(sampleNum));
-
-                viewer->add_model(mesh);
-
-                viewer->update();
-
-                meshFlag = false;
-
-                cout << "end" << endl;
-                current++;
-            }
-        }
     }
 
+    Utility::Log::logMat(bound,"bound");
+
+    TSDF::TSDFVolume tsdf(bound,0.002);
+
+    current = 0;
+
+    for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
+        for (int imgNo=0; imgNo<imgNum; imgNo++){
+            cout << "Integrate sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
+
+            cv::Mat img = reader->readinImg(sampleNo,imgNo);
+
+        // depth
+
+            // cv::Mat depth = reader->readinDepth(sampleNo,imgNo);
+            // depth.convertTo(depth,CV_64FC1);
+
+            // depth /= 1000;
+            // for (int i=0; i<IMG_H; i++){
+            //     double* ptr = depth.ptr<double>(i);
+            //     for (int j=0; j<IMG_W; j++){
+            //         if(ptr[j]==65.535){
+            //             ptr[j]=0;
+            //         }
+            //     }
+            // }
+
+        // extr
+
+            // cv::Mat extr = reader->readinPose(sampleNo,imgNo);
+
+            // helper->deIdealCalibratedDepthEstimationFilteredFromFile(
+            // left_img_file_name,
+            // mid_img_file_name,
+            // right_img_file_name,
+            // left_pose_file_name,
+            // mid_pose_file_name,
+            // right_pose_file_name,
+            // &depth, &extr);
+
+            auto startTime = chrono::system_clock::now();
+            // Utility::Log::logMat(*(depthArray[0]),"depth");
+
+            tsdf.integrate(img, *(depthArray[current]), intr, *(extrArray[current]));
+
+            auto endTime = chrono::system_clock::now();
+
+            cout << "time:" << chrono::duration_cast<chrono::seconds>(endTime - startTime).count() << endl;
+
+            cout << "Exporting Mesh" << endl;
+            DenseReconstruction::MarchingCubes::MarchingCubesUtil* mcUtils = new  DenseReconstruction::MarchingCubes::MarchingCubesUtil();
+            Common::Mesh::ColoredSimpleMesh mcMesh;
+
+            vector<easy3d::vec3> points;
+            vector<easy3d::vec3> colors;
+            int vertexNum = 0;
+            vector<vector<int>> faces;
+            int faceNum = 0;
+
+            mcUtils->mcGetElements(&tsdf, &points, &colors, vertexNum, &faces, faceNum);
+
+            std::vector<io::Element> elements;
+            getElements(elements, points, colors, vertexNum, faces, faceNum);
+
+            cout << "start" << endl;
+
+            if(!meshFlag){
+                viewer->delete_model(mesh);
+            }
+
+            mesh = elements2Mesh(elements, to_string(sampleNo)+to_string(sampleNum));
+
+            viewer->add_model(mesh);
+
+            viewer->update();
+
+            meshFlag = false;
+
+            cout << "end" << endl;
+            current++;
+        }
+    }
 }
 
 int main_2() {
