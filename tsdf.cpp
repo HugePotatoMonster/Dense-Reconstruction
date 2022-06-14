@@ -138,7 +138,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
     }
 
     int sampleNum = 1;
-    int imgNum = 2;
+    int imgNum = 1;
     cv::Mat** depthArray = new cv::Mat*[sampleNum*imgNum];
     cv::Mat** extrArray = new cv::Mat*[sampleNum*imgNum];
     int current = 0;

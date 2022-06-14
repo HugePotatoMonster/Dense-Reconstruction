@@ -96,7 +96,7 @@ typedef double f64;
 #define SGMP_PARALLEL_THREADS 128
 
 //DepthEstimation
-#define DEPEST_INVALID_PIXEL (-1e30)
+#define DEPEST_INVALID_PIXEL (1e30)
 
 //Math Constants
 #define EPS (1e-6)
