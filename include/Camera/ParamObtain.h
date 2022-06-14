@@ -10,7 +10,7 @@
 using namespace std;
 // using namespace Eigen;
 
-namespace Param{
+namespace ParamHelper{
     class ParamObtain{
         public:
             // 3*3

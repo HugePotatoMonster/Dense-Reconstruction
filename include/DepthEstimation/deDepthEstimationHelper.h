@@ -37,7 +37,7 @@ namespace DepthEstimation {
 		// @author 1950641
 		static void deIdealCalibratedDepthEstimationFilteredFromFile(std::string leftImage, std::string middleImage,
 			std::string rightImage,std::string leftParam, std::string middleParam, std::string rightParam,
-			OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic, bool useFilter = false);
+			OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic,bool useFilter = false);
 		
 
 
@@ -46,14 +46,14 @@ namespace DepthEstimation {
 	private:
 		static void transfer_depth(double* d_i, double* d, int iter, int flag, uint64_t imageWH)
 		{
-			if (flag == 1) // ´ÓÔ­À´µÄdepthÖÐ»ñÈ¡¸³¸ødepth_i
+			if (flag == 1) // ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½depthï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½ï¿½depth_i
 			{
 				for (int i = 0; i < imageWH; i++)
 				{
 					d_i[i] = d[iter * imageWH + i];
 				}
 			}
-			else // ½«depth_i»¹¸ødepth
+			else // ï¿½ï¿½depth_iï¿½ï¿½ï¿½ï¿½depth
 			{
 				for (int i = 0; i < imageWH; i++)
 				{
@@ -64,7 +64,7 @@ namespace DepthEstimation {
 
 		static double* use_filter(double* depthMap_left, double* depthMap_right, uint64_t imageWidth, uint64_t imageHeight, const cv::Mat left, const cv::Mat right) {
 			using namespace cv;
-			// dch: ³õÊ¼»¯Éî¶ÈÂË²¨Æ÷²ÎÊý
+			// dch: ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			DepthFilter::FilterType filter_type = DepthFilter::Gaussion;
 			static DepthFilter depth_filter;
 			static double init_depth = 3.0;
@@ -77,17 +77,17 @@ namespace DepthEstimation {
 			);
 
 			printf("Updating Depth with Depth Dilter...\n");
-			// ¿ªÊ¼¶ÔÃ¿Ò»ÕÅÍ¼½øÐÐÉî¶ÈÂË²¨
-			// ¾ÍÒ»ÕÅÍ¼Æ¬ÁË
-			double* depth_a = new double[imageWidth * imageHeight]; // ´æ·ÅÃ¿Ò»ÕÅÍ¼Æ¬ÂË²¨ºóµÄÉî¶ÈÐÅÏ¢
+			// ï¿½ï¿½Ê¼ï¿½ï¿½Ã¿Ò»ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½
+			// ï¿½ï¿½Ò»ï¿½ï¿½Í¼Æ¬ï¿½ï¿½
+			double* depth_a = new double[imageWidth * imageHeight]; // ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½Í¼Æ¬ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 
-			// Ñ¡È¡ºóÒ»ÕÅ¶ÔÇ°Ò»ÕÅ½øÐÐÂË²¨ ×îºóÒ»ÕÅ²»¶¯
+			// Ñ¡È¡ï¿½ï¿½Ò»ï¿½Å¶ï¿½Ç°Ò»ï¿½Å½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ ï¿½ï¿½ï¿½Ò»ï¿½Å²ï¿½ï¿½ï¿½
 			depth_filter.SetDepth(depthMap_left);
-			depth_filter.UpdateDepth(depthMap_right, left, right); // ÏÖÔÚÖ»¸üÐÂÒ»´Î
+			depth_filter.UpdateDepth(depthMap_right, left, right); // ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 			depth_a = depth_filter.GetDepth();
-			transfer_depth(depth_a, depthMap_left, 0, 2, imageWidth * imageHeight); // ÂË²¨ºó¸üÐÂµ½Ô­À´µÄdepthMapÖÐ
+			transfer_depth(depth_a, depthMap_left, 0, 2, imageWidth * imageHeight); // ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Ô­ï¿½ï¿½ï¿½ï¿½depthMapï¿½ï¿½
 
-			// Íê³ÉÂË²¨
+			// ï¿½ï¿½ï¿½ï¿½Ë²ï¿½
 			printf("Depth Dilter Finished...\n");
 			delete[] depth_a;
 			return depthMap_left;

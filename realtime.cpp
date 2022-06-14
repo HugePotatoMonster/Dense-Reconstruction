@@ -16,7 +16,7 @@
 using namespace easy3d;
 using namespace std;
 
-namespace details {
+namespace detailsTool {
 
     template <typename PropertyT>
     inline bool extract_named_property(std::vector<PropertyT>& properties, PropertyT& wanted, const std::string& name) {
@@ -164,7 +164,7 @@ SurfaceMesh* elements2Mesh(std::vector<io::Element> &elements, string file_name)
         io::Element& e = elements[i];
         if (e.name == "vertex") {
             element_vertex = &e;
-            if (details::extract_named_property(e.vec3_properties, coordinates, "point"))
+            if (detailsTool::extract_named_property(e.vec3_properties, coordinates, "point"))
                 continue;
             else {
                 LOG(ERROR) << "vertex coordinates (x, y, z properties) do not exist";
@@ -172,9 +172,9 @@ SurfaceMesh* elements2Mesh(std::vector<io::Element> &elements, string file_name)
             }
         }
         else if (e.name == "face") {
-            if (details::extract_named_property(e.int_list_properties, face_vertex_indices, "vertex_indices") ||
-                details::extract_named_property(e.int_list_properties, face_vertex_indices, "vertex_index")) {
-                details::extract_named_property(e.float_list_properties, face_halfedge_texcoords, "texcoord");
+            if (detailsTool::extract_named_property(e.int_list_properties, face_vertex_indices, "vertex_indices") ||
+                detailsTool::extract_named_property(e.int_list_properties, face_vertex_indices, "vertex_index")) {
+                detailsTool::extract_named_property(e.float_list_properties, face_halfedge_texcoords, "texcoord");
                 continue;
             }
             else {
@@ -183,8 +183,8 @@ SurfaceMesh* elements2Mesh(std::vector<io::Element> &elements, string file_name)
             }
         }
         else if (e.name == "edge") {
-            if (details::extract_named_property(e.int_list_properties, edge_vertex_indices, "vertex_indices") ||
-                details::extract_named_property(e.int_list_properties, edge_vertex_indices, "vertex_index"))
+            if (detailsTool::extract_named_property(e.int_list_properties, edge_vertex_indices, "vertex_indices") ||
+                detailsTool::extract_named_property(e.int_list_properties, edge_vertex_indices, "vertex_index"))
                 continue;
             else {
                 LOG(ERROR)
@@ -205,12 +205,12 @@ SurfaceMesh* elements2Mesh(std::vector<io::Element> &elements, string file_name)
 
     if (element_vertex) {// add vertex properties
         // NOTE: to properly handle non-manifold meshes, vertex properties must be added before adding the faces
-        details::add_vertex_properties<vec3>(mesh, element_vertex->vec3_properties);
-        details::add_vertex_properties<vec2>(mesh, element_vertex->vec2_properties);
-        details::add_vertex_properties<float>(mesh, element_vertex->float_properties);
-        details::add_vertex_properties<int>(mesh, element_vertex->int_properties);
-        details::add_vertex_properties<std::vector<int> >(mesh, element_vertex->int_list_properties);
-        details::add_vertex_properties<std::vector<float> >(mesh, element_vertex->float_list_properties);
+        detailsTool::add_vertex_properties<vec3>(mesh, element_vertex->vec3_properties);
+        detailsTool::add_vertex_properties<vec2>(mesh, element_vertex->vec2_properties);
+        detailsTool::add_vertex_properties<float>(mesh, element_vertex->float_properties);
+        detailsTool::add_vertex_properties<int>(mesh, element_vertex->int_properties);
+        detailsTool::add_vertex_properties<std::vector<int> >(mesh, element_vertex->int_list_properties);
+        detailsTool::add_vertex_properties<std::vector<float> >(mesh, element_vertex->float_list_properties);
     } else {
         LOG(ERROR) << "element 'vertex' not found";
     }
@@ -264,20 +264,20 @@ SurfaceMesh* elements2Mesh(std::vector<io::Element> &elements, string file_name)
             continue;   // the vertex property has already been added
         }
         else if (e.name == "face") {
-            details::add_face_properties<vec3>(mesh, e.vec3_properties);
-            details::add_face_properties<vec2>(mesh, e.vec2_properties);
-            details::add_face_properties<float>(mesh, e.float_properties);
-            details::add_face_properties<int>(mesh, e.int_properties);
-            details::add_face_properties< std::vector<int> >(mesh, e.int_list_properties);
-            details::add_face_properties< std::vector<float> >(mesh, e.float_list_properties);
+            detailsTool::add_face_properties<vec3>(mesh, e.vec3_properties);
+            detailsTool::add_face_properties<vec2>(mesh, e.vec2_properties);
+            detailsTool::add_face_properties<float>(mesh, e.float_properties);
+            detailsTool::add_face_properties<int>(mesh, e.int_properties);
+            detailsTool::add_face_properties< std::vector<int> >(mesh, e.int_list_properties);
+            detailsTool::add_face_properties< std::vector<float> >(mesh, e.float_list_properties);
         }
         else if (e.name == "edge") {
-            details::add_edge_properties<vec3>(mesh, e.vec3_properties);
-            details::add_edge_properties<vec2>(mesh, e.vec2_properties);
-            details::add_edge_properties<float>(mesh, e.float_properties);
-            details::add_edge_properties<int>(mesh, e.int_properties);
-            details::add_edge_properties< std::vector<int> >(mesh, e.int_list_properties);
-            details::add_edge_properties< std::vector<float> >(mesh, e.float_list_properties);
+            detailsTool::add_edge_properties<vec3>(mesh, e.vec3_properties);
+            detailsTool::add_edge_properties<vec2>(mesh, e.vec2_properties);
+            detailsTool::add_edge_properties<float>(mesh, e.float_properties);
+            detailsTool::add_edge_properties<int>(mesh, e.int_properties);
+            detailsTool::add_edge_properties< std::vector<int> >(mesh, e.int_list_properties);
+            detailsTool::add_edge_properties< std::vector<float> >(mesh, e.float_list_properties);
         }
         else {
             const std::string name = "element-" + e.name;

@@ -73,7 +73,7 @@ namespace DepthEstimation {
 		i32 flag = 0;
 		f64* disparityMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
 		f64* depthMap = allocate_mem(f64, (usize)camItl.cols * camItl.rows);
-		deIdealCalibratedDepthEstimation(&camItl, &camItr, &camIntl, &camIntr, &camExtl, &camExtr, -64, 128,
+		deIdealCalibratedDepthEstimation(&camItl, &camItr, &camIntl, &camIntr, &camExtl, &camExtr, 0, 128,
 			&reL, &reR, disparityMap, depthMap, &RL, &RR, &PL, &PR, &Q, &flag);
 
 		//D2
@@ -81,7 +81,7 @@ namespace DepthEstimation {
 		i32 flag2 = 0;
 		f64* disparityMap2 = allocate_mem(f64, (usize)camItr.cols * camItr.rows);
 		f64* depthMap2 = allocate_mem(f64, (usize)camItr.cols * camItr.rows);
-		deIdealCalibratedDepthEstimation(&camItr, &camItr2, &camIntr, &camIntr2, &camExtr, &camExtr2, -64, 128,
+		deIdealCalibratedDepthEstimation(&camItr, &camItr2, &camIntr, &camIntr2, &camExtr, &camExtr2, 0, 128,
 			&reL2, &reR2, disparityMap2, depthMap2, &RL2, &RR2, &PL2, &PR2, &Q2, &flag2);
 	
 		//Depth Filter
@@ -103,11 +103,15 @@ namespace DepthEstimation {
 		memcpy(leftDepth->ptr<u8>(0), (void*)depthMap, sizeof(f64) * (camItr.cols * camItr.rows));
 		for (i32 i = 0; i < 4; i++) {
 			for (i32 j = 0; j < 4; j++) {
-				leftExtrinsic->at<f64>(i, j) = camExtlc.at<f64>(i, j);
+				if (j==3 && i<3){
+					leftExtrinsic->at<f64>(i, j) = camExtlc.at<f64>(i, j)/1000;
+				}
+				else{
+					leftExtrinsic->at<f64>(i, j) = camExtlc.at<f64>(i, j);
+				}
 				std::cout << leftExtrinsic->at<f64>(i, j) << ",";
 			}
 			std::cout << std::endl;
 		}
-		
 	}
 }

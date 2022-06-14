@@ -18,13 +18,14 @@ int main() {
 	gen.detach();
 
 	while(true){
-		cout << "wait" << endl;
+		// cout << "wait" << endl;
+		cout<<flush;
 		if(!meshFlag){
 			viewer.run();
 			return 0;
 		}
 	};
-	//
+	
 	// Test::Test* test = new Test::Test();
 	// test->testj();
 
