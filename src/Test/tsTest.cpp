@@ -364,16 +364,16 @@ namespace Test{
 		p->rdTest();
 	}
 	void Test::testj() {
-		DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
-		cv::Mat* leftim = new cv::Mat(480, 640, CV_64FC1);
-		cv::Mat* leftex = new cv::Mat(4, 4, CV_64FC1);
-		helper->deIdealCalibratedDepthEstimationFilteredFromFile("E:\\60fps_images_archieve\\scene_00_0001.png",
-			"E:\\60fps_images_archieve\\scene_00_0002.png",
-			"E:\\60fps_images_archieve\\scene_00_0003.png",
-			"E:\\60fps_GT_archieve\\scene_00_0001.txt",
-			"E:\\60fps_GT_archieve\\scene_00_0002.txt",
-			"E:\\60fps_GT_archieve\\scene_00_0003.txt",
-			leftim, leftex);
+		// DepthEstimation::DepthEstimationHelper* helper = new DepthEstimation::DepthEstimationHelper();
+		// cv::Mat* leftim = new cv::Mat(480, 640, CV_64FC1);
+		// cv::Mat* leftex = new cv::Mat(4, 4, CV_64FC1);
+		// helper->deIdealCalibratedDepthEstimationFilteredFromFile("E:\\60fps_images_archieve\\scene_00_0001.png",
+		// 	"E:\\60fps_images_archieve\\scene_00_0002.png",
+		// 	"E:\\60fps_images_archieve\\scene_00_0003.png",
+		// 	"E:\\60fps_GT_archieve\\scene_00_0001.txt",
+		// 	"E:\\60fps_GT_archieve\\scene_00_0002.txt",
+		// 	"E:\\60fps_GT_archieve\\scene_00_0003.txt",
+		// 	leftim, leftex);
 	}
 	void Test::transfer_depth(double* d_i, double* d, int iter, int flag, uint64_t imageWH)
 	{

@@ -37,7 +37,7 @@ namespace DepthEstimation {
 		// @author 1950641
 		static void deIdealCalibratedDepthEstimationFilteredFromFile(std::string leftImage, std::string middleImage,
 			std::string rightImage,std::string leftParam, std::string middleParam, std::string rightParam,
-			OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic,bool useFilter = false);
+			OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic,OUT_ARG cv::Mat* outImg, bool useFilter = false);
 		
 
 

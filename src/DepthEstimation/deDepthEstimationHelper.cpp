@@ -48,7 +48,7 @@ namespace DepthEstimation {
 	}
 	void DepthEstimationHelper::deIdealCalibratedDepthEstimationFilteredFromFile(std::string leftImage, std::string middleImage, std::string rightImage,
 		std::string leftParam, std::string middleParam, std::string rightParam,
-		OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic, bool useFilter) {
+		OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic,  OUT_ARG cv::Mat* outImg,bool useFilter) {
 
 		//Reading intrinsic & extrinsic
 		dbg_toutput("Read Parameters");
@@ -109,9 +109,19 @@ namespace DepthEstimation {
 				else{
 					leftExtrinsic->at<f64>(i, j) = camExtlc.at<f64>(i, j);
 				}
+				// leftExtrinsic->at<f64>(i, j) = camExtlc.at<f64>(i, j);
 				std::cout << leftExtrinsic->at<f64>(i, j) << ",";
 			}
 			std::cout << std::endl;
 		}
+		cv::Mat imgL= cv::imread(leftImage);
+		cv::Mat intr;
+		cv::Mat lmap1, lmap2;
+		cv::Mat distortion = OCV_IDEAL_DISTORTION;
+		Common::Math::MathUtil::cmGetIntrinsicMat(&camIntl, &intr);
+		cv::initUndistortRectifyMap(intr, distortion, RL, PL, imgL.size(), CV_32FC2, lmap1, lmap2);
+		cv::remap(imgL, *outImg, lmap1, lmap2, cv::INTER_LINEAR, cv::BORDER_CONSTANT);
+		cv::cvtColor(*outImg,*outImg,cv::COLOR_BGR2RGB);
+		cv::flip(*outImg,*outImg,1);
 	}
 }

@@ -138,46 +138,15 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
     }
 
     int sampleNum = 1;
-    int imgNum = 1;
+    int imgNum = 2;
     cv::Mat** depthArray = new cv::Mat*[sampleNum*imgNum];
     cv::Mat** extrArray = new cv::Mat*[sampleNum*imgNum];
+    cv::Mat** imgArray = new cv::Mat*[sampleNum*imgNum];
     int current = 0;
 
     for (int sampleNo=0; sampleNo<sampleNum; sampleNo++){
         for (int imgNo=0; imgNo<imgNum; imgNo++){
             cout << "Process sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
-
-        // depth
-
-            // cv::Mat depth = reader->readinDepth(sampleNo,imgNo);
-            // depth.convertTo(depth,CV_64FC1);
-
-            // depth /= 1000;
-            // for (int i=0; i<IMG_H; i++){
-            //     double* ptr = depth.ptr<double>(i);
-            //     for (int j=0; j<IMG_W; j++){
-            //         if(ptr[j]==65.535){
-            //             ptr[j]=0;
-            //         }
-            //     }
-            // }
-
-        // extr
-
-            // depthArray[0] = new cv::Mat(480, 640, CV_64FC1);
-            // extrArray[0] = new cv::Mat(4, 4, CV_64FC1);
-            // helper->deIdealCalibratedDepthEstimationFilteredFromFile(
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_images_archieve\\scene_00_0001.png",
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_images_archieve\\scene_00_0002.png",
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_images_archieve\\scene_00_0003.png",
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_GT_archieve\\scene_00_0001.txt",
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_GT_archieve\\scene_00_0002.txt",
-            //     "D:\\PM\\Dataset\\DenseReconstruction\\60fps_GT_archieve\\scene_00_0003.txt",
-            //     depthArray[0], extrArray[0]);
-
-            // Utility::Log::logMat(*extrArray[0],"extr");
-
-            // *depthArray[current] /= -1000;
 
             char left_img_file_name[100];
             sprintf(left_img_file_name,"%s/%s/scene_%02d_%04d.png",Common::dataPath,Common::imgSubfolder,sampleNo,imgNo+1);  
@@ -195,6 +164,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
 
             depthArray[current] = new cv::Mat(480, 640, CV_64FC1);
 		    extrArray[current] = new cv::Mat(4, 4, CV_64FC1);
+            imgArray[current] = new cv::Mat(480, 640, CV_64FC3);
 
             helper->deIdealCalibratedDepthEstimationFilteredFromFile(
             left_img_file_name,
@@ -203,10 +173,12 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
 			left_pose_file_name,
 			mid_pose_file_name,
 			right_pose_file_name,
-			depthArray[current], extrArray[current]);
+			depthArray[current], extrArray[current],imgArray[current]);
 
             *depthArray[current] /= -1000;
             cv::flip(*depthArray[current],*depthArray[current],1);
+
+            Utility::Log::logMat(*(extrArray[current]),"extr");
 
             cv::Mat frustPts = Utility::Algo::getFrustum(*(depthArray[current]),intr,*(extrArray[current]));
 
@@ -215,7 +187,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
                 cv::minMaxIdx(frustPts(cv::Rect(0,i,frustPts.size[1],1)),&minVal,&maxVal);
                 bound.at<double>(i,0) = min(bound.at<double>(i,0),minVal);
                 bound.at<double>(i,1) = max(bound.at<double>(i,1),maxVal);
-            }
+            }            
             current++;
         }
     }
@@ -230,7 +202,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
         for (int imgNo=0; imgNo<imgNum; imgNo++){
             cout << "Integrate sampleNo: " << sampleNo << " imgNo: " << imgNo << endl;
 
-            cv::Mat img = reader->readinImg(sampleNo,imgNo);
+            // cv::Mat img = reader->readinImg(sampleNo,imgNo);
 
         // depth
 
@@ -263,7 +235,7 @@ void generateTSDF(Viewer* viewer,SurfaceMesh* mesh){
             auto startTime = chrono::system_clock::now();
             // Utility::Log::logMat(*(depthArray[0]),"depth");
 
-            tsdf.integrate(img, *(depthArray[current]), intr, *(extrArray[current]));
+            tsdf.integrate(*(imgArray[current]), *(depthArray[current]), intr, *(extrArray[current]));
 
             auto endTime = chrono::system_clock::now();
 

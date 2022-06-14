@@ -12,7 +12,7 @@ namespace DepthEstimation {
 					cv::Mat voxel = *conversionMatrix * pixel;
 					//Normalize the homogeneous coordinate
 					get_pixel(depthMap, i, j, imageWidth, imageHeight) = get_cvmat(voxel, 2, 0) / get_cvmat(voxel, 3, 0);
-					if(get_pixel(disparityMap, i, j, imageWidth, imageHeight)<10 || i<128){
+					if(get_pixel(disparityMap, i, j, imageWidth, imageHeight)<67 || i<128){
 						get_pixel(depthMap, i, j, imageWidth, imageHeight) = 1e30;
 					}
 				}
