@@ -35,8 +35,8 @@ namespace DepthEstimation {
 		
 		// Rectify, estimate depth and filter depth between image pairs that are recorded by ideal (no distortion) and calibrated (with known intrinsic and pose) camera
 		// @author 1950641
-		static void deIdealCalibratedDepthEstimationFilteredFromFile(std::string leftImage, std::string middleImage, std::string rightImage,
-			std::string leftParam, std::string middleParam, std::string rightParam,
+		static void deIdealCalibratedDepthEstimationFilteredFromFile(std::string leftImage, std::string middleImage,
+			std::string rightImage,std::string leftParam, std::string middleParam, std::string rightParam,
 			OUT_ARG cv::Mat* leftDepth, OUT_ARG cv::Mat* leftExtrinsic, bool useFilter = false);
 		
 
@@ -66,10 +66,15 @@ namespace DepthEstimation {
 			using namespace cv;
 			// dch: 初始化深度滤波器参数
 			DepthFilter::FilterType filter_type = DepthFilter::Gaussion;
-			DepthFilter depth_filter;
-			double init_depth = 3.0;
-			double init_cov2 = 3.0;
-			depth_filter.Initialize(imageWidth, imageHeight, init_depth, init_cov2, filter_type);
+			static DepthFilter depth_filter;
+			static double init_depth = 3.0;
+			static double init_cov2 = 3.0;
+			static std::once_flag m_flag;
+			std::call_once(m_flag,
+				[&imageWidth, &imageHeight,&filter_type]() {
+					depth_filter.Initialize(imageWidth, imageHeight, init_depth, init_cov2, filter_type);
+				}
+			);
 
 			printf("Updating Depth with Depth Dilter...\n");
 			// 开始对每一张图进行深度滤波
